@@ -1,0 +1,168 @@
+{
+  "slug": "sitemap_webstories",
+  "source": "D:/SEO RENEW/seo/templates/sitemap_webstories.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Web Stories"
+    },
+    {
+      "level": "h2",
+      "text": "All Web Stories"
+    }
+  ],
+  "text_blocks": [
+    "Back to Sitemap",
+    "All web stories on SEO Dada",
+    "Sitemap",
+    "Web Stories",
+    "stories published",
+    "Visit Stories",
+    "Story Title",
+    "URL",
+    "Images",
+    "Last Updated",
+    "All Web Stories (Main Page)",
+    "/webstories",
+    "/webstory/",
+    "No web stories published yet.",
+    "© SEO Dada. All rights reserved.",
+    "Privacy",
+    "Terms",
+    "Contact"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Back to Sitemap"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Web Stories"
+    },
+    {
+      "type": "text",
+      "text": "All web stories on SEO Dada"
+    },
+    {
+      "type": "text",
+      "text": "Sitemap"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "All Web Stories"
+    },
+    {
+      "type": "text",
+      "text": "stories published"
+    },
+    {
+      "type": "text",
+      "text": "Visit Stories"
+    },
+    {
+      "type": "text",
+      "text": "Story Title"
+    },
+    {
+      "type": "text",
+      "text": "URL"
+    },
+    {
+      "type": "text",
+      "text": "Images"
+    },
+    {
+      "type": "text",
+      "text": "Last Updated"
+    },
+    {
+      "type": "text",
+      "text": "All Web Stories (Main Page)"
+    },
+    {
+      "type": "text",
+      "text": "/webstories"
+    },
+    {
+      "type": "text",
+      "text": "/webstory/"
+    },
+    {
+      "type": "text",
+      "text": "No web stories published yet."
+    },
+    {
+      "type": "text",
+      "text": "© SEO Dada. All rights reserved."
+    },
+    {
+      "type": "text",
+      "text": "Privacy"
+    },
+    {
+      "type": "text",
+      "text": "Terms"
+    },
+    {
+      "type": "text",
+      "text": "Contact"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Back to Sitemap"
+    },
+    {
+      "href": " ",
+      "text": "Sitemap"
+    },
+    {
+      "href": " ",
+      "text": "Visit Stories"
+    },
+    {
+      "href": " ",
+      "text": "All Web Stories (Main Page)"
+    },
+    {
+      "href": " ",
+      "text": "Privacy"
+    },
+    {
+      "href": " ",
+      "text": "Terms"
+    },
+    {
+      "href": " ",
+      "text": "Contact"
+    }
+  ],
+  "images": [
+    {
+      "src": " ",
+      "alt": "SEO Dada Logo"
+    },
+    {
+      "src": " ",
+      "alt": "SEO Dada Logo"
+    }
+  ],
+  "counts": {
+    "headings": 2,
+    "text_blocks": 18,
+    "links": 7,
+    "images": 2
+  }
+}

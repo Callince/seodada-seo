@@ -1,0 +1,45 @@
+{
+  "slug": "base1",
+  "source": "D:/SEO RENEW/seo/templates/base1.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [],
+  "text_blocks": [
+    "Success!",
+    "Error",
+    "Warning",
+    "Info"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Success!"
+    },
+    {
+      "type": "text",
+      "text": "Error"
+    },
+    {
+      "type": "text",
+      "text": "Warning"
+    },
+    {
+      "type": "text",
+      "text": "Info"
+    }
+  ],
+  "links": [],
+  "images": [],
+  "counts": {
+    "headings": 0,
+    "text_blocks": 4,
+    "links": 0,
+    "images": 0
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "slug": "payment_success",
+  "source": "D:/SEO RENEW/seo/templates/payment_success.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Payment Successful!"
+    }
+  ],
+  "text_blocks": [
+    "Thank you for your payment. Your subscription is now active.",
+    "You can now access premium features of the web analyzer.",
+    "Go to Premium Features"
+  ],
+  "flow": [
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Payment Successful!"
+    },
+    {
+      "type": "text",
+      "text": "Thank you for your payment. Your subscription is now active."
+    },
+    {
+      "type": "text",
+      "text": "You can now access premium features of the web analyzer."
+    },
+    {
+      "type": "text",
+      "text": "Go to Premium Features"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Go to Premium Features"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 1,
+    "text_blocks": 3,
+    "links": 1,
+    "images": 0
+  }
+}

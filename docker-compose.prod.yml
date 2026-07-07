@@ -1,0 +1,133 @@
+# Production stack for a single DigitalOcean Droplet.
+#
+# Deploy with the production env file driving BOTH interpolation and the
+# containers' runtime environment:
+#
+#   docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
+#
+# Only Caddy publishes ports (80/443). Postgres, Redis, the API and the SPA are
+# reachable only on the internal compose network — never exposed to the internet.
+name: seo-intelligence
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-seo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required in .env.production}
+      POSTGRES_DB: ${POSTGRES_DB:-seo}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-seo} -d ${POSTGRES_DB:-seo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # One-shot: bring the schema up to date, then exit. api/scheduler wait for it
+  # to complete so they never serve against a stale schema.
+  migrate:
+    build: ./backend
+    image: seo-backend:latest
+    env_file: .env.production
+    depends_on:
+      db:
+        condition: service_healthy
+    command: alembic upgrade head
+    restart: "no"
+
+  api:
+    build: ./backend
+    image: seo-backend:latest
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      # The dedicated `scheduler` service owns the recurring-job loop.
+      SCHEDULER_ENABLED: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    # --proxy-headers + forwarded-allow-ips lets per-IP rate limiting see the
+    # real client IP that Caddy forwards.
+    command: >
+      uvicorn app.main:app --host 0.0.0.0 --port 8000
+      --proxy-headers --forwarded-allow-ips=*
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').getcode()==200 else 1)"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # Dedicated recurring-job runner (one replica). Separate from the API so the
+  # API can scale without duplicating scheduler ticks.
+  scheduler:
+    build: ./backend
+    image: seo-backend:latest
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      SCHEDULER_ENABLED: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    command: python -m app.scheduler_main
+
+  web:
+    build:
+      context: ./frontend
+      # Serves the locally-built dist/ — avoids running the heavy Vite/TS build
+      # on a small (1 GB) Droplet, which OOMs. Run `npm run build` before deploy.
+      dockerfile: Dockerfile.prebuilt
+    image: seo-frontend:latest
+    restart: unless-stopped
+    depends_on:
+      - api
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?DOMAIN is required in .env.production}
+      TLS_EMAIL: ${TLS_EMAIL:?TLS_EMAIL is required in .env.production}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - api
+
+volumes:
+  pgdata:
+  redisdata:
+  caddy_data:
+  caddy_config:

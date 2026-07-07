@@ -1,0 +1,120 @@
+{
+  "slug": "webstories",
+  "source": "D:/SEO RENEW/seo/templates/webstories.html",
+  "seo": {
+    "title": "Web Stories - SEODADA",
+    "description": "Explore our engaging web stories about SEO, digital marketing, and technology insights.",
+    "canonical": " ",
+    "robots": "",
+    "og_image": "",
+    "og_type": "website"
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Web Stories"
+    },
+    {
+      "level": "h5",
+      "text": "Story Stories Available"
+    },
+    {
+      "level": "h3",
+      "text": "No Web Stories Yet"
+    }
+  ],
+  "text_blocks": [
+    "Web Stories - SEODADA",
+    "Home",
+    "Web Stories",
+    "Explore our engaging visual stories about SEO, digital marketing, and technology insights",
+    "Tap to view full story",
+    "View",
+    "Previous",
+    "...",
+    "Next",
+    "Check back soon for exciting visual stories!"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Web Stories - SEODADA"
+    },
+    {
+      "type": "text",
+      "text": "Home"
+    },
+    {
+      "type": "text",
+      "text": "Web Stories"
+    },
+    {
+      "type": "text",
+      "text": "Explore our engaging visual stories about SEO, digital marketing, and technology insights"
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Story Stories Available"
+    },
+    {
+      "type": "text",
+      "text": "Tap to view full story"
+    },
+    {
+      "type": "text",
+      "text": "View"
+    },
+    {
+      "type": "text",
+      "text": "Previous"
+    },
+    {
+      "type": "text",
+      "text": "..."
+    },
+    {
+      "type": "text",
+      "text": "Next"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "No Web Stories Yet"
+    },
+    {
+      "type": "text",
+      "text": "Check back soon for exciting visual stories!"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Home"
+    },
+    {
+      "href": " ",
+      "text": "View"
+    },
+    {
+      "href": " ",
+      "text": "Previous"
+    },
+    {
+      "href": " ",
+      "text": "Next"
+    }
+  ],
+  "images": [
+    {
+      "src": " ",
+      "alt": " "
+    }
+  ],
+  "counts": {
+    "headings": 3,
+    "text_blocks": 10,
+    "links": 4,
+    "images": 1
+  }
+}

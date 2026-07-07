@@ -1,0 +1,507 @@
+{
+  "slug": "terms",
+  "source": "D:/SEO RENEW/seo/templates/terms.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Terms of Service"
+    },
+    {
+      "level": "h2",
+      "text": "Agreement to Terms"
+    },
+    {
+      "level": "h2",
+      "text": "Description of Service"
+    },
+    {
+      "level": "h2",
+      "text": "Key Definitions"
+    },
+    {
+      "level": "h2",
+      "text": "Eligibility"
+    },
+    {
+      "level": "h2",
+      "text": "Account Registration and Security"
+    },
+    {
+      "level": "h2",
+      "text": "Acceptable Use"
+    },
+    {
+      "level": "h3",
+      "text": "By using Fourth Dimension SEO Dada, you agree NOT to:"
+    },
+    {
+      "level": "h2",
+      "text": "Subscriptions and Payment"
+    },
+    {
+      "level": "h2",
+      "text": "Data Privacy"
+    },
+    {
+      "level": "h3",
+      "text": "Your Data Rights"
+    },
+    {
+      "level": "h2",
+      "text": "Intellectual Property"
+    },
+    {
+      "level": "h2",
+      "text": "Termination"
+    },
+    {
+      "level": "h2",
+      "text": "Disclaimers"
+    },
+    {
+      "level": "h2",
+      "text": "Limitation of Liability"
+    },
+    {
+      "level": "h2",
+      "text": "Governing Law"
+    },
+    {
+      "level": "h2",
+      "text": "Changes to Terms"
+    },
+    {
+      "level": "h3",
+      "text": "Important Note"
+    },
+    {
+      "level": "h3",
+      "text": "Contact Information"
+    }
+  ],
+  "text_blocks": [
+    "Terms of Service | SEO Dada",
+    "This Terms and Conditions of Use (\"Agreement\") is entered into between you (either as an individual user or as an authorized representative of an organization) and Fourth Dimension SEO Dada (\"Company\", \"we\", \"us\", or \"our\"), and governs your access to and use of our services.",
+    "By accessing or using Fourth Dimension SEO Dada, you acknowledge that you have read, understood, and agree to be bound by the terms of this Agreement. If you do not agree, you should not use the Service.",
+    "Fourth Dimension SEO Dada is a real-time SEO clarity tool that allows users to analyze publicly accessible webpages. It provides insights into keyword usage, heading hierarchy, metadata presence, image alt attributes, link structure, and sitemap connections. The Service is designed to support users in planning, auditing, and optimizing content strategy and technical structure.",
+    "Account: Your registered access to Fourth Dimension SEO Dada Services",
+    "User: Any individual or entity accessing or using the Service",
+    "Audit: Any scan or analysis initiated using Fourth Dimension SEO Dada",
+    "Content: Data input, scanned, or otherwise processed using Fourth Dimension SEO Dada",
+    "To use the Service, you must be:",
+    "At least 18 years of age or the legal age of majority in your jurisdiction",
+    "Legally capable of entering into a binding agreement",
+    "Providing accurate, truthful account information",
+    "If you are using the Service on behalf of an organization, you represent and warrant that you have the authority to bind that entity to this Agreement.",
+    "You must register for an account to use Fourth Dimension SEO Dada. You agree to:",
+    "Provide accurate and complete information during sign-up",
+    "Maintain the security of your login credentials",
+    "Accept full responsibility for all activities under your account",
+    "You must not share your login credentials or allow others to access your account unless authorized through a team or agency plan.",
+    "Scan or attempt to scan websites you do not have the right to access",
+    "Use the Service to bypass robots.txt or similar restrictions",
+    "Reproduce, resell, or commercially redistribute audit outputs unless permitted",
+    "Reverse-engineer, duplicate, or clone the Fourth Dimension SEO Dada platform",
+    "Introduce malware, interfere with systems, or disrupt the Service",
+    "Misrepresent your identity or relationship to scanned websites",
+    "Fourth Dimension SEO Dada offers multiple subscription plans. By subscribing to a paid plan, you agree to:",
+    "Pay all fees associated with your selected plan",
+    "Allow automatic billing at the start of each billing cycle unless canceled in advance",
+    "Pay applicable taxes",
+    "You are responsible for updating your billing information.",
+    "Your use of the Service is also governed by our Privacy Policy. Key points:",
+    "We do not store full-page content beyond the scope of each audit",
+    "We do not sell or share your data with third-party advertisers",
+    "You retain ownership of your scanned URLs and audit reports",
+    "You may request deletion of your account and associated data at any time by contacting our support team.",
+    "All rights, title, and interest in Fourth Dimension SEO Dada, including software, interface, visual elements, logic, and brand assets, are the exclusive property of Fourth Dimension SEO Dada. You may not:",
+    "Copy, reproduce, or adapt any part of the platform",
+    "Claim ownership over generated reports",
+    "Use Fourth Dimension SEO Dada's name, logo, or branding without written permission",
+    "You may terminate your account at any time through the dashboard or by contacting support. We may terminate or suspend your account if:",
+    "You breach any provision of this Agreement",
+    "Your use creates risk to other users or the system",
+    "As required by law",
+    "Upon termination, your access will be revoked and stored data may be deleted.",
+    "Fourth Dimension SEO Dada is provided on an \"as is\" and \"as available\" basis. We make no guarantees regarding:",
+    "SEO rankings, traffic, or visibility outcomes",
+    "Platform compatibility with all CMS or web systems",
+    "Uptime or error-free operation",
+    "You acknowledge that insights provided are based on live data and public structures, and may change as websites are updated.",
+    "To the maximum extent permitted by law, we shall not be liable for any indirect, incidental, special, or consequential damages, including:",
+    "Loss of revenue or business opportunities",
+    "Damaged reputation or client relations",
+    "Data loss or inaccurate insights",
+    "In all cases, our total liability shall not exceed the amount you have paid to Fourth Dimension SEO Dada in the previous twelve (12) months.",
+    "This Agreement shall be governed by applicable laws. Any disputes shall be subject to the appropriate jurisdiction of competent courts.",
+    "We may update this Agreement to reflect changes in law, platform features, or internal policies. You will be notified of material changes by email or via the platform. Continued use of the Service after such changes constitutes acceptance.",
+    "By using our services, you acknowledge that you have read and understood these Terms of Service and agree to be bound by them. We reserve the right to suspend or terminate accounts that engage in prohibited activity.",
+    "For questions regarding these Terms, please contact our support team.",
+    "Fourth Dimension SEO Dada",
+    "📍 Address: Shyamala Towers, 3rd floor, No. 136, Arcot Rd, Saligramam, Chennai, Tamil Nadu 600092",
+    "support@seodada.com",
+    "Last Updated: June 12, 2025"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Terms of Service | SEO Dada"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Terms of Service"
+    },
+    {
+      "type": "text",
+      "text": "This Terms and Conditions of Use (\"Agreement\") is entered into between you (either as an individual user or as an authorized representative of an organization) and Fourth Dimension SEO Dada (\"Company\", \"we\", \"us\", or \"our\"), and governs your access to and use of our services."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Agreement to Terms"
+    },
+    {
+      "type": "text",
+      "text": "By accessing or using Fourth Dimension SEO Dada, you acknowledge that you have read, understood, and agree to be bound by the terms of this Agreement. If you do not agree, you should not use the Service."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Description of Service"
+    },
+    {
+      "type": "text",
+      "text": "Fourth Dimension SEO Dada is a real-time SEO clarity tool that allows users to analyze publicly accessible webpages. It provides insights into keyword usage, heading hierarchy, metadata presence, image alt attributes, link structure, and sitemap connections. The Service is designed to support users in planning, auditing, and optimizing content strategy and technical structure."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Key Definitions"
+    },
+    {
+      "type": "text",
+      "text": "Account: Your registered access to Fourth Dimension SEO Dada Services"
+    },
+    {
+      "type": "text",
+      "text": "User: Any individual or entity accessing or using the Service"
+    },
+    {
+      "type": "text",
+      "text": "Audit: Any scan or analysis initiated using Fourth Dimension SEO Dada"
+    },
+    {
+      "type": "text",
+      "text": "Content: Data input, scanned, or otherwise processed using Fourth Dimension SEO Dada"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Eligibility"
+    },
+    {
+      "type": "text",
+      "text": "To use the Service, you must be:"
+    },
+    {
+      "type": "text",
+      "text": "At least 18 years of age or the legal age of majority in your jurisdiction"
+    },
+    {
+      "type": "text",
+      "text": "Legally capable of entering into a binding agreement"
+    },
+    {
+      "type": "text",
+      "text": "Providing accurate, truthful account information"
+    },
+    {
+      "type": "text",
+      "text": "If you are using the Service on behalf of an organization, you represent and warrant that you have the authority to bind that entity to this Agreement."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Account Registration and Security"
+    },
+    {
+      "type": "text",
+      "text": "You must register for an account to use Fourth Dimension SEO Dada. You agree to:"
+    },
+    {
+      "type": "text",
+      "text": "Provide accurate and complete information during sign-up"
+    },
+    {
+      "type": "text",
+      "text": "Maintain the security of your login credentials"
+    },
+    {
+      "type": "text",
+      "text": "Accept full responsibility for all activities under your account"
+    },
+    {
+      "type": "text",
+      "text": "You must not share your login credentials or allow others to access your account unless authorized through a team or agency plan."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Acceptable Use"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "By using Fourth Dimension SEO Dada, you agree NOT to:"
+    },
+    {
+      "type": "text",
+      "text": "Scan or attempt to scan websites you do not have the right to access"
+    },
+    {
+      "type": "text",
+      "text": "Use the Service to bypass robots.txt or similar restrictions"
+    },
+    {
+      "type": "text",
+      "text": "Reproduce, resell, or commercially redistribute audit outputs unless permitted"
+    },
+    {
+      "type": "text",
+      "text": "Reverse-engineer, duplicate, or clone the Fourth Dimension SEO Dada platform"
+    },
+    {
+      "type": "text",
+      "text": "Introduce malware, interfere with systems, or disrupt the Service"
+    },
+    {
+      "type": "text",
+      "text": "Misrepresent your identity or relationship to scanned websites"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Subscriptions and Payment"
+    },
+    {
+      "type": "text",
+      "text": "Fourth Dimension SEO Dada offers multiple subscription plans. By subscribing to a paid plan, you agree to:"
+    },
+    {
+      "type": "text",
+      "text": "Pay all fees associated with your selected plan"
+    },
+    {
+      "type": "text",
+      "text": "Allow automatic billing at the start of each billing cycle unless canceled in advance"
+    },
+    {
+      "type": "text",
+      "text": "Pay applicable taxes"
+    },
+    {
+      "type": "text",
+      "text": "You are responsible for updating your billing information."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Data Privacy"
+    },
+    {
+      "type": "text",
+      "text": "Your use of the Service is also governed by our Privacy Policy. Key points:"
+    },
+    {
+      "type": "text",
+      "text": "We do not store full-page content beyond the scope of each audit"
+    },
+    {
+      "type": "text",
+      "text": "We do not sell or share your data with third-party advertisers"
+    },
+    {
+      "type": "text",
+      "text": "You retain ownership of your scanned URLs and audit reports"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Your Data Rights"
+    },
+    {
+      "type": "text",
+      "text": "You may request deletion of your account and associated data at any time by contacting our support team."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Intellectual Property"
+    },
+    {
+      "type": "text",
+      "text": "All rights, title, and interest in Fourth Dimension SEO Dada, including software, interface, visual elements, logic, and brand assets, are the exclusive property of Fourth Dimension SEO Dada. You may not:"
+    },
+    {
+      "type": "text",
+      "text": "Copy, reproduce, or adapt any part of the platform"
+    },
+    {
+      "type": "text",
+      "text": "Claim ownership over generated reports"
+    },
+    {
+      "type": "text",
+      "text": "Use Fourth Dimension SEO Dada's name, logo, or branding without written permission"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Termination"
+    },
+    {
+      "type": "text",
+      "text": "You may terminate your account at any time through the dashboard or by contacting support. We may terminate or suspend your account if:"
+    },
+    {
+      "type": "text",
+      "text": "You breach any provision of this Agreement"
+    },
+    {
+      "type": "text",
+      "text": "Your use creates risk to other users or the system"
+    },
+    {
+      "type": "text",
+      "text": "As required by law"
+    },
+    {
+      "type": "text",
+      "text": "Upon termination, your access will be revoked and stored data may be deleted."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Disclaimers"
+    },
+    {
+      "type": "text",
+      "text": "Fourth Dimension SEO Dada is provided on an \"as is\" and \"as available\" basis. We make no guarantees regarding:"
+    },
+    {
+      "type": "text",
+      "text": "SEO rankings, traffic, or visibility outcomes"
+    },
+    {
+      "type": "text",
+      "text": "Platform compatibility with all CMS or web systems"
+    },
+    {
+      "type": "text",
+      "text": "Uptime or error-free operation"
+    },
+    {
+      "type": "text",
+      "text": "You acknowledge that insights provided are based on live data and public structures, and may change as websites are updated."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Limitation of Liability"
+    },
+    {
+      "type": "text",
+      "text": "To the maximum extent permitted by law, we shall not be liable for any indirect, incidental, special, or consequential damages, including:"
+    },
+    {
+      "type": "text",
+      "text": "Loss of revenue or business opportunities"
+    },
+    {
+      "type": "text",
+      "text": "Damaged reputation or client relations"
+    },
+    {
+      "type": "text",
+      "text": "Data loss or inaccurate insights"
+    },
+    {
+      "type": "text",
+      "text": "In all cases, our total liability shall not exceed the amount you have paid to Fourth Dimension SEO Dada in the previous twelve (12) months."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Governing Law"
+    },
+    {
+      "type": "text",
+      "text": "This Agreement shall be governed by applicable laws. Any disputes shall be subject to the appropriate jurisdiction of competent courts."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Changes to Terms"
+    },
+    {
+      "type": "text",
+      "text": "We may update this Agreement to reflect changes in law, platform features, or internal policies. You will be notified of material changes by email or via the platform. Continued use of the Service after such changes constitutes acceptance."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Important Note"
+    },
+    {
+      "type": "text",
+      "text": "By using our services, you acknowledge that you have read and understood these Terms of Service and agree to be bound by them. We reserve the right to suspend or terminate accounts that engage in prohibited activity."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Contact Information"
+    },
+    {
+      "type": "text",
+      "text": "For questions regarding these Terms, please contact our support team."
+    },
+    {
+      "type": "text",
+      "text": "Fourth Dimension SEO Dada"
+    },
+    {
+      "type": "text",
+      "text": "📍 Address: Shyamala Towers, 3rd floor, No. 136, Arcot Rd, Saligramam, Chennai, Tamil Nadu 600092"
+    },
+    {
+      "type": "text",
+      "text": "support@seodada.com"
+    },
+    {
+      "type": "text",
+      "text": "Last Updated: June 12, 2025"
+    }
+  ],
+  "links": [
+    {
+      "href": "mailto:support@seodada.com",
+      "text": "support@seodada.com"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 19,
+    "text_blocks": 61,
+    "links": 1,
+    "images": 0
+  }
+}

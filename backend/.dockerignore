@@ -1,0 +1,28 @@
+# Keep the build context (and final image) small and secret-free.
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Local virtualenvs
+.venv/
+venv/
+env/
+
+# Local dev database — must never leak into a production image
+dev.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+uvicorn.*.log
+
+# Secrets — injected at runtime via compose env_file, never baked in
+.env
+.env.*
+
+# Tests aren't needed in the runtime image
+tests/

@@ -1,0 +1,535 @@
+{
+  "slug": "sitemap_analysis",
+  "source": "D:/SEO RENEW/seo/templates/sitemap_analysis.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Enhanced Sitemap Analysis"
+    },
+    {
+      "level": "h6",
+      "text": "By Status"
+    },
+    {
+      "level": "h5",
+      "text": "Analyzed Site:"
+    },
+    {
+      "level": "h6",
+      "text": "Total Sitemaps"
+    },
+    {
+      "level": "h6",
+      "text": "Total URLs"
+    },
+    {
+      "level": "h6",
+      "text": "Blog Posts"
+    },
+    {
+      "level": "h6",
+      "text": "Search URLs"
+    },
+    {
+      "level": "h5",
+      "text": "Status Code Distribution"
+    },
+    {
+      "level": "h5",
+      "text": "Discovered Sitemaps"
+    },
+    {
+      "level": "h5",
+      "text": "URLs from Sitemaps"
+    },
+    {
+      "level": "h6",
+      "text": "URL Types"
+    },
+    {
+      "level": "h6",
+      "text": "Status Codes"
+    },
+    {
+      "level": "h6",
+      "text": "Path Depth"
+    },
+    {
+      "level": "h4",
+      "text": "No Sitemaps Discovered"
+    },
+    {
+      "level": "h5",
+      "text": "Enhanced Sitemap Analysis Guide"
+    },
+    {
+      "level": "h6",
+      "text": "What is a Sitemap?"
+    },
+    {
+      "level": "h6",
+      "text": "Key Metrics"
+    },
+    {
+      "level": "h6",
+      "text": "URL Categories"
+    },
+    {
+      "level": "h6",
+      "text": "Recommended Actions"
+    }
+  ],
+  "text_blocks": [
+    "Enhanced Sitemap Analysis",
+    "URL Search",
+    "Sitemap Analysis",
+    "Export All URLs",
+    "Export Filtered",
+    "Blog Posts",
+    "Search Pages",
+    "200 Status (OK)",
+    "300 Status (Redirect)",
+    "400 Status (Client Error)",
+    "500 Status (Server Error)",
+    "Help",
+    "Check URL Status",
+    "Analyzed:",
+    "Sitemap URL",
+    "URLs Count",
+    "Status",
+    "Parsed Successfully",
+    "Parse Failed",
+    "Filters",
+    "All URLs",
+    "200 OK",
+    "300 Redirect",
+    "400 Client Error",
+    "500 Server Error",
+    "Root (0 level)",
+    "1st level",
+    "2nd level",
+    "3rd level",
+    "4+ levels",
+    "URL",
+    "Last Modified",
+    "Priority",
+    "Change Freq",
+    "Actions",
+    "/ (root)",
+    "Not Checked",
+    "No URLs found in sitemaps.",
+    "Recommendations:",
+    "Create a sitemap to improve search engine crawling",
+    "Add sitemap at /sitemap.xml",
+    "Reference sitemap in robots.txt",
+    "A sitemap is an XML file that lists the important pages on a website, helping search engines understand the site's structure and crawl it more efficiently.",
+    "Status Code: HTTP response status from the URL:",
+    "2xx - Success (200 OK, 201 Created)",
+    "3xx - Redirect (301 Permanent, 302 Temporary)",
+    "4xx - Client Error (404 Not Found, 403 Forbidden)",
+    "5xx - Server Error (500 Internal Server Error)",
+    "Last Modified: Date when the page was last updated",
+    "Priority: Relative importance of the page (0.0 to 1.0)",
+    "Change Frequency: How often the page is likely to change",
+    "Blog Posts: URLs identified as blog content based on URL patterns",
+    "Search Pages: URLs with search parameters in the query string",
+    "Path Level: Depth of the URL in the site hierarchy",
+    "For Error Status Codes:",
+    "Fix 404 errors by redirecting or removing from sitemap",
+    "Investigate 5xx server errors",
+    "Review 301/302 redirects and update sitemap",
+    "To Improve SEO:",
+    "Keep sitemap updated with correct URLs",
+    "Set appropriate priorities for important pages",
+    "Ensure consistent URL structure",
+    "Close"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Enhanced Sitemap Analysis"
+    },
+    {
+      "type": "text",
+      "text": "URL Search"
+    },
+    {
+      "type": "text",
+      "text": "Sitemap Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Export All URLs"
+    },
+    {
+      "type": "text",
+      "text": "Export Filtered"
+    },
+    {
+      "type": "text",
+      "text": "Blog Posts"
+    },
+    {
+      "type": "text",
+      "text": "Search Pages"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "By Status"
+    },
+    {
+      "type": "text",
+      "text": "200 Status (OK)"
+    },
+    {
+      "type": "text",
+      "text": "300 Status (Redirect)"
+    },
+    {
+      "type": "text",
+      "text": "400 Status (Client Error)"
+    },
+    {
+      "type": "text",
+      "text": "500 Status (Server Error)"
+    },
+    {
+      "type": "text",
+      "text": "Help"
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Analyzed Site:"
+    },
+    {
+      "type": "text",
+      "text": "Check URL Status"
+    },
+    {
+      "type": "text",
+      "text": "Analyzed:"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Total Sitemaps"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Total URLs"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Search URLs"
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Status Code Distribution"
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Discovered Sitemaps"
+    },
+    {
+      "type": "text",
+      "text": "Sitemap URL"
+    },
+    {
+      "type": "text",
+      "text": "URLs Count"
+    },
+    {
+      "type": "text",
+      "text": "Status"
+    },
+    {
+      "type": "text",
+      "text": "Parsed Successfully"
+    },
+    {
+      "type": "text",
+      "text": "Parse Failed"
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "URLs from Sitemaps"
+    },
+    {
+      "type": "text",
+      "text": "Filters"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "URL Types"
+    },
+    {
+      "type": "text",
+      "text": "All URLs"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Status Codes"
+    },
+    {
+      "type": "text",
+      "text": "200 OK"
+    },
+    {
+      "type": "text",
+      "text": "300 Redirect"
+    },
+    {
+      "type": "text",
+      "text": "400 Client Error"
+    },
+    {
+      "type": "text",
+      "text": "500 Server Error"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Path Depth"
+    },
+    {
+      "type": "text",
+      "text": "Root (0 level)"
+    },
+    {
+      "type": "text",
+      "text": "1st level"
+    },
+    {
+      "type": "text",
+      "text": "2nd level"
+    },
+    {
+      "type": "text",
+      "text": "3rd level"
+    },
+    {
+      "type": "text",
+      "text": "4+ levels"
+    },
+    {
+      "type": "text",
+      "text": "URL"
+    },
+    {
+      "type": "text",
+      "text": "Last Modified"
+    },
+    {
+      "type": "text",
+      "text": "Priority"
+    },
+    {
+      "type": "text",
+      "text": "Change Freq"
+    },
+    {
+      "type": "text",
+      "text": "Actions"
+    },
+    {
+      "type": "text",
+      "text": "/ (root)"
+    },
+    {
+      "type": "text",
+      "text": "Not Checked"
+    },
+    {
+      "type": "text",
+      "text": "No URLs found in sitemaps."
+    },
+    {
+      "type": "heading",
+      "level": "h4",
+      "text": "No Sitemaps Discovered"
+    },
+    {
+      "type": "text",
+      "text": "Recommendations:"
+    },
+    {
+      "type": "text",
+      "text": "Create a sitemap to improve search engine crawling"
+    },
+    {
+      "type": "text",
+      "text": "Add sitemap at /sitemap.xml"
+    },
+    {
+      "type": "text",
+      "text": "Reference sitemap in robots.txt"
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Enhanced Sitemap Analysis Guide"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "What is a Sitemap?"
+    },
+    {
+      "type": "text",
+      "text": "A sitemap is an XML file that lists the important pages on a website, helping search engines understand the site's structure and crawl it more efficiently."
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Key Metrics"
+    },
+    {
+      "type": "text",
+      "text": "Status Code: HTTP response status from the URL:"
+    },
+    {
+      "type": "text",
+      "text": "2xx - Success (200 OK, 201 Created)"
+    },
+    {
+      "type": "text",
+      "text": "3xx - Redirect (301 Permanent, 302 Temporary)"
+    },
+    {
+      "type": "text",
+      "text": "4xx - Client Error (404 Not Found, 403 Forbidden)"
+    },
+    {
+      "type": "text",
+      "text": "5xx - Server Error (500 Internal Server Error)"
+    },
+    {
+      "type": "text",
+      "text": "Last Modified: Date when the page was last updated"
+    },
+    {
+      "type": "text",
+      "text": "Priority: Relative importance of the page (0.0 to 1.0)"
+    },
+    {
+      "type": "text",
+      "text": "Change Frequency: How often the page is likely to change"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "URL Categories"
+    },
+    {
+      "type": "text",
+      "text": "Blog Posts: URLs identified as blog content based on URL patterns"
+    },
+    {
+      "type": "text",
+      "text": "Search Pages: URLs with search parameters in the query string"
+    },
+    {
+      "type": "text",
+      "text": "Path Level: Depth of the URL in the site hierarchy"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Recommended Actions"
+    },
+    {
+      "type": "text",
+      "text": "For Error Status Codes:"
+    },
+    {
+      "type": "text",
+      "text": "Fix 404 errors by redirecting or removing from sitemap"
+    },
+    {
+      "type": "text",
+      "text": "Investigate 5xx server errors"
+    },
+    {
+      "type": "text",
+      "text": "Review 301/302 redirects and update sitemap"
+    },
+    {
+      "type": "text",
+      "text": "To Improve SEO:"
+    },
+    {
+      "type": "text",
+      "text": "Keep sitemap updated with correct URLs"
+    },
+    {
+      "type": "text",
+      "text": "Set appropriate priorities for important pages"
+    },
+    {
+      "type": "text",
+      "text": "Ensure consistent URL structure"
+    },
+    {
+      "type": "text",
+      "text": "Close"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "URL Search"
+    },
+    {
+      "href": " ",
+      "text": "Export All URLs"
+    },
+    {
+      "href": " ",
+      "text": "Blog Posts"
+    },
+    {
+      "href": " ",
+      "text": "Search Pages"
+    },
+    {
+      "href": " ",
+      "text": "200 Status (OK)"
+    },
+    {
+      "href": " ",
+      "text": "300 Status (Redirect)"
+    },
+    {
+      "href": " ",
+      "text": "400 Status (Client Error)"
+    },
+    {
+      "href": " ",
+      "text": "500 Status (Server Error)"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 19,
+    "text_blocks": 63,
+    "links": 8,
+    "images": 0
+  }
+}

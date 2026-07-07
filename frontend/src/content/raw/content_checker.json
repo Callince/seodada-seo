@@ -1,0 +1,956 @@
+{
+  "slug": "content_checker",
+  "source": "D:/SEO RENEW/seo/templates/content_checker.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "SEO Content Analyzer"
+    },
+    {
+      "level": "h2",
+      "text": "Google Snippet Settings"
+    },
+    {
+      "level": "h3",
+      "text": "Google Preview"
+    },
+    {
+      "level": "h2",
+      "text": "SEO Analysis"
+    },
+    {
+      "level": "h2",
+      "text": "Readability Analysis"
+    },
+    {
+      "level": "h2",
+      "text": "Heading Structure"
+    },
+    {
+      "level": "h2",
+      "text": "What Is Real-Time Content Analysis?"
+    },
+    {
+      "level": "h2",
+      "text": "How Real-Time Content Analysis Works"
+    },
+    {
+      "level": "h3",
+      "text": "Keyword Check"
+    },
+    {
+      "level": "h3",
+      "text": "Instant Feedback"
+    },
+    {
+      "level": "h3",
+      "text": "Live Updates"
+    },
+    {
+      "level": "h3",
+      "text": "Why It Matters"
+    },
+    {
+      "level": "h2",
+      "text": "Why Real-Time Content Analysis Is Important for SEO"
+    },
+    {
+      "level": "h2",
+      "text": "Key SEO Factors Checked in Real Time"
+    },
+    {
+      "level": "h3",
+      "text": "Readability and User Experience"
+    },
+    {
+      "level": "h2",
+      "text": "Real-Time Content Analysis vs Traditional SEO Audits"
+    },
+    {
+      "level": "h2",
+      "text": "Who Should Use Real-Time Content Analysis Tools?"
+    },
+    {
+      "level": "h4",
+      "text": "Bloggers"
+    },
+    {
+      "level": "h4",
+      "text": "Business Owners"
+    },
+    {
+      "level": "h4",
+      "text": "Copywriters"
+    },
+    {
+      "level": "h4",
+      "text": "Marketing Teams"
+    },
+    {
+      "level": "h2",
+      "text": "How Real-Time Content Analysis Improves Content Quality"
+    },
+    {
+      "level": "h2",
+      "text": "Future of Real-Time Content Analysis"
+    },
+    {
+      "level": "h4",
+      "text": "The Future Is Real-Time"
+    },
+    {
+      "level": "h2",
+      "text": "Frequently Asked Questions"
+    },
+    {
+      "level": "h2",
+      "text": "Ready to Optimize Your Content in Real Time?"
+    },
+    {
+      "level": "h3",
+      "text": "Solutions"
+    },
+    {
+      "level": "h3",
+      "text": "Resources"
+    },
+    {
+      "level": "h3",
+      "text": "Company"
+    }
+  ],
+  "text_blocks": [
+    "Export JSON",
+    "Focus Keyword / Keyphrase",
+    "Meta Title",
+    "0 / 60",
+    "URL Slug",
+    "Meta Description",
+    "0 / 160",
+    "Desktop",
+    "Mobile",
+    "Your Meta Title",
+    "example.com",
+    "your-page-slug",
+    "Your meta description will appear here. Write a compelling summary to improve click-through rates.",
+    "https://example.com ›",
+    "Content",
+    "0 words",
+    "0 chars",
+    "0 paragraphs",
+    "0 sentences",
+    "Use the toolbar above to add headings (H1–H6), bold, links, lists, and more.",
+    "SEO Score",
+    "Readability",
+    "No headings detected yet.",
+    "Suggestions",
+    "Start typing to get suggestions…",
+    "Real-Time Content Analysis is a way to check your writing while you are still working on it. Instead of waiting until after you publish to see if you made a mistake, this seo optimization tool gives you feedback as you type. It acts like a live guide that helps you follow the best principles of search.",
+    "When you use a free seo tool like this, you can see how a search engine sees your words. It looks at your headings, your links, and your keywords to make sure everything is in the right place. This helps you build a site that is both helpful for people and easy for bots to understand.",
+    "\"Content is the reason search began in the first place.\"",
+    "— Bill Gates",
+    "The process is very simple. You paste your draft into our real-time content analysis checker. As you add or change words, the system updates your score immediately.",
+    "It tracks how often your main word appears to make sure it sounds natural and avoids keyword stuffing.",
+    "You see alerts if a sentence is too long or if a heading is missing from your content structure.",
+    "Every time you fix an error, your optimization score goes up in real time with live seo feedback.",
+    "\"Focus on users and all else will follow.\"",
+    "— Google",
+    "Well-structured content ranks higher",
+    "Fix errors before publishing, not after",
+    "Better experience for visitors",
+    "Build a stronger brand with quality",
+    "Search engines prioritize content that is well-structured, easy to read and relevant to user intent. By using instant content optimization, you ensure that your work meets these standards before the content goes live.",
+    "In 2026, the speed of your work matters. A website seo checker saves you time because you do not have to go back and fix old posts. You get the quality right the first time. This creates a better experience for your visitors and helps you build a stronger brand.",
+    "\"Our algorithms are designed to surface helpful, reliable information that's created primarily for people.\"",
+    "— Danny Sullivan",
+    "Our seo website checker tool looks at four main areas to help you stay ahead.",
+    "\"Great SEO is increasingly dependent on having a great user experience.\"",
+    "— Rand Fishkin",
+    "Area",
+    "What We Check",
+    "Why It Matters",
+    "Keyword Optimization",
+    "How often you use your main/focus word",
+    "Helps you avoid speaking like a robot",
+    "Content Structure",
+    "The use of H1 and H2 tags",
+    "Makes your page easy to scan",
+    "Sentence length and simple words",
+    "Keeps your readers from leaving",
+    "Meta Data Preview",
+    "How your title looks on a phone",
+    "Drives more clicks from search",
+    "We believe that writing should be simple. Our seo tool checks if your paragraphs are too thick. It suggests breaks to give your readers \"visual breathing room.\" This is a big part of on page seo analysis because it lowers your bounce rate.",
+    "Short Paragraphs",
+    "Simple Words",
+    "Clear Structure",
+    "Visual Breaks",
+    "Traditional audits happen after the work is done. A website seo analyse usually tells you what you did wrong last month. Live seo feedback tells you what to fix right now.",
+    "Feature",
+    "Traditional Audit",
+    "Real-Time Analysis",
+    "Timing",
+    "After publishing",
+    "While writing",
+    "Speed",
+    "Slow and manual",
+    "Instant and automatic",
+    "Cost",
+    "Often requires a consultant",
+    "Accessible via our seo tool",
+    "\"The best content doesn't just rank — it satisfies the searcher's intent completely.\"",
+    "— Brian Dean",
+    "Anyone who creates content should check seo online with this tool. It is perfect for:",
+    "To ensure every post is ready to rank",
+    "To check site seo without hiring an agency",
+    "To provide content analysis tool reports to their clients",
+    "To test seo tool features across different projects",
+    "Using a test seo for website ensures that your message is clear. When you follow the seo content evaluation, you remove the fluff that bores readers. It makes your writing more professional and authoritative.",
+    "As search moves toward AI summaries, check web seo will become even more important. Tools will focus more on how well you answer a question rather than just counting words. SEODADA is at the front of this change, helping you check seo rank potential with every sentence.",
+    "AI-powered content suggestions",
+    "Intent-based scoring over word counting",
+    "Deeper readability analysis",
+    "Smarter heading structure checks",
+    "Common questions about Real-Time Content Analysis",
+    "How accurate is real-time content analysis compared to manual SEO review?",
+    "Our seo tool is highly accurate for technical checks like keyword density and heading structure. While a human should always check for tone, the tool catches the errors that humans often miss. It provides a solid foundation for your on page seo analysis.",
+    "Can real-time content analysis help reduce content revision time?",
+    "Yes. By using instant content optimization, you fix errors as you go. This means you do not have to spend hours editing after you finish your draft. It is the fastest way to check seo rank potential.",
+    "How does real-time content analysis support content consistency?",
+    "The tool uses the same rules for every page you write. This ensures that your whole site has the same high level of quality. It acts as a standard seo website checker tool for all your writers.",
+    "Does real-time content analysis replace SEO plugins or tools?",
+    "This tool works alongside your existing setup. It is a specialized seo content evaluation that focuses on the quality of your writing. It gives you deeper insights than a basic free seo tool.",
+    "Start using our real-time content analysis tool now. Scroll up and paste your content to get instant SEO feedback.",
+    "Start Analyzing Now",
+    "URL Analysis",
+    "Keyword Analysis",
+    "Image Analysis",
+    "Heading Analysis",
+    "Meta Analysis",
+    "Sitemap Analysis",
+    "SEODADA Content Checker Tool",
+    "Blog",
+    "Web Stories",
+    "Help Center",
+    "About Us",
+    "Pricing",
+    "Contact Us",
+    "© SEO Dada. All rights reserved.",
+    "Privacy Policy",
+    "Terms of Service",
+    "Cookie & Policy"
+  ],
+  "flow": [
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "SEO Content Analyzer"
+    },
+    {
+      "type": "text",
+      "text": "Export JSON"
+    },
+    {
+      "type": "text",
+      "text": "Focus Keyword / Keyphrase"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Google Snippet Settings"
+    },
+    {
+      "type": "text",
+      "text": "Meta Title"
+    },
+    {
+      "type": "text",
+      "text": "0 / 60"
+    },
+    {
+      "type": "text",
+      "text": "URL Slug"
+    },
+    {
+      "type": "text",
+      "text": "Meta Description"
+    },
+    {
+      "type": "text",
+      "text": "0 / 160"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Google Preview"
+    },
+    {
+      "type": "text",
+      "text": "Desktop"
+    },
+    {
+      "type": "text",
+      "text": "Mobile"
+    },
+    {
+      "type": "text",
+      "text": "Your Meta Title"
+    },
+    {
+      "type": "text",
+      "text": "example.com"
+    },
+    {
+      "type": "text",
+      "text": "your-page-slug"
+    },
+    {
+      "type": "text",
+      "text": "Your meta description will appear here. Write a compelling summary to improve click-through rates."
+    },
+    {
+      "type": "text",
+      "text": "https://example.com ›"
+    },
+    {
+      "type": "text",
+      "text": "Content"
+    },
+    {
+      "type": "text",
+      "text": "0 words"
+    },
+    {
+      "type": "text",
+      "text": "0 chars"
+    },
+    {
+      "type": "text",
+      "text": "0 paragraphs"
+    },
+    {
+      "type": "text",
+      "text": "0 sentences"
+    },
+    {
+      "type": "text",
+      "text": "Use the toolbar above to add headings (H1–H6), bold, links, lists, and more."
+    },
+    {
+      "type": "text",
+      "text": "SEO Score"
+    },
+    {
+      "type": "text",
+      "text": "Readability"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "SEO Analysis"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Readability Analysis"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Heading Structure"
+    },
+    {
+      "type": "text",
+      "text": "No headings detected yet."
+    },
+    {
+      "type": "text",
+      "text": "Suggestions"
+    },
+    {
+      "type": "text",
+      "text": "Start typing to get suggestions…"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "What Is Real-Time Content Analysis?"
+    },
+    {
+      "type": "text",
+      "text": "Real-Time Content Analysis is a way to check your writing while you are still working on it. Instead of waiting until after you publish to see if you made a mistake, this seo optimization tool gives you feedback as you type. It acts like a live guide that helps you follow the best principles of search."
+    },
+    {
+      "type": "text",
+      "text": "When you use a free seo tool like this, you can see how a search engine sees your words. It looks at your headings, your links, and your keywords to make sure everything is in the right place. This helps you build a site that is both helpful for people and easy for bots to understand."
+    },
+    {
+      "type": "text",
+      "text": "\"Content is the reason search began in the first place.\""
+    },
+    {
+      "type": "text",
+      "text": "— Bill Gates"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "How Real-Time Content Analysis Works"
+    },
+    {
+      "type": "text",
+      "text": "The process is very simple. You paste your draft into our real-time content analysis checker. As you add or change words, the system updates your score immediately."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Keyword Check"
+    },
+    {
+      "type": "text",
+      "text": "It tracks how often your main word appears to make sure it sounds natural and avoids keyword stuffing."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Instant Feedback"
+    },
+    {
+      "type": "text",
+      "text": "You see alerts if a sentence is too long or if a heading is missing from your content structure."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Live Updates"
+    },
+    {
+      "type": "text",
+      "text": "Every time you fix an error, your optimization score goes up in real time with live seo feedback."
+    },
+    {
+      "type": "text",
+      "text": "\"Focus on users and all else will follow.\""
+    },
+    {
+      "type": "text",
+      "text": "— Google"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Why It Matters"
+    },
+    {
+      "type": "text",
+      "text": "Well-structured content ranks higher"
+    },
+    {
+      "type": "text",
+      "text": "Fix errors before publishing, not after"
+    },
+    {
+      "type": "text",
+      "text": "Better experience for visitors"
+    },
+    {
+      "type": "text",
+      "text": "Build a stronger brand with quality"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Why Real-Time Content Analysis Is Important for SEO"
+    },
+    {
+      "type": "text",
+      "text": "Search engines prioritize content that is well-structured, easy to read and relevant to user intent. By using instant content optimization, you ensure that your work meets these standards before the content goes live."
+    },
+    {
+      "type": "text",
+      "text": "In 2026, the speed of your work matters. A website seo checker saves you time because you do not have to go back and fix old posts. You get the quality right the first time. This creates a better experience for your visitors and helps you build a stronger brand."
+    },
+    {
+      "type": "text",
+      "text": "\"Our algorithms are designed to surface helpful, reliable information that's created primarily for people.\""
+    },
+    {
+      "type": "text",
+      "text": "— Danny Sullivan"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Key SEO Factors Checked in Real Time"
+    },
+    {
+      "type": "text",
+      "text": "Our seo website checker tool looks at four main areas to help you stay ahead."
+    },
+    {
+      "type": "text",
+      "text": "\"Great SEO is increasingly dependent on having a great user experience.\""
+    },
+    {
+      "type": "text",
+      "text": "— Rand Fishkin"
+    },
+    {
+      "type": "text",
+      "text": "Area"
+    },
+    {
+      "type": "text",
+      "text": "What We Check"
+    },
+    {
+      "type": "text",
+      "text": "Keyword Optimization"
+    },
+    {
+      "type": "text",
+      "text": "How often you use your main/focus word"
+    },
+    {
+      "type": "text",
+      "text": "Helps you avoid speaking like a robot"
+    },
+    {
+      "type": "text",
+      "text": "Content Structure"
+    },
+    {
+      "type": "text",
+      "text": "The use of H1 and H2 tags"
+    },
+    {
+      "type": "text",
+      "text": "Makes your page easy to scan"
+    },
+    {
+      "type": "text",
+      "text": "Sentence length and simple words"
+    },
+    {
+      "type": "text",
+      "text": "Keeps your readers from leaving"
+    },
+    {
+      "type": "text",
+      "text": "Meta Data Preview"
+    },
+    {
+      "type": "text",
+      "text": "How your title looks on a phone"
+    },
+    {
+      "type": "text",
+      "text": "Drives more clicks from search"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Readability and User Experience"
+    },
+    {
+      "type": "text",
+      "text": "We believe that writing should be simple. Our seo tool checks if your paragraphs are too thick. It suggests breaks to give your readers \"visual breathing room.\" This is a big part of on page seo analysis because it lowers your bounce rate."
+    },
+    {
+      "type": "text",
+      "text": "Short Paragraphs"
+    },
+    {
+      "type": "text",
+      "text": "Simple Words"
+    },
+    {
+      "type": "text",
+      "text": "Clear Structure"
+    },
+    {
+      "type": "text",
+      "text": "Visual Breaks"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Real-Time Content Analysis vs Traditional SEO Audits"
+    },
+    {
+      "type": "text",
+      "text": "Traditional audits happen after the work is done. A website seo analyse usually tells you what you did wrong last month. Live seo feedback tells you what to fix right now."
+    },
+    {
+      "type": "text",
+      "text": "Feature"
+    },
+    {
+      "type": "text",
+      "text": "Traditional Audit"
+    },
+    {
+      "type": "text",
+      "text": "Real-Time Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Timing"
+    },
+    {
+      "type": "text",
+      "text": "After publishing"
+    },
+    {
+      "type": "text",
+      "text": "While writing"
+    },
+    {
+      "type": "text",
+      "text": "Speed"
+    },
+    {
+      "type": "text",
+      "text": "Slow and manual"
+    },
+    {
+      "type": "text",
+      "text": "Instant and automatic"
+    },
+    {
+      "type": "text",
+      "text": "Cost"
+    },
+    {
+      "type": "text",
+      "text": "Often requires a consultant"
+    },
+    {
+      "type": "text",
+      "text": "Accessible via our seo tool"
+    },
+    {
+      "type": "text",
+      "text": "\"The best content doesn't just rank — it satisfies the searcher's intent completely.\""
+    },
+    {
+      "type": "text",
+      "text": "— Brian Dean"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Who Should Use Real-Time Content Analysis Tools?"
+    },
+    {
+      "type": "text",
+      "text": "Anyone who creates content should check seo online with this tool. It is perfect for:"
+    },
+    {
+      "type": "heading",
+      "level": "h4",
+      "text": "Bloggers"
+    },
+    {
+      "type": "text",
+      "text": "To ensure every post is ready to rank"
+    },
+    {
+      "type": "heading",
+      "level": "h4",
+      "text": "Business Owners"
+    },
+    {
+      "type": "text",
+      "text": "To check site seo without hiring an agency"
+    },
+    {
+      "type": "heading",
+      "level": "h4",
+      "text": "Copywriters"
+    },
+    {
+      "type": "text",
+      "text": "To provide content analysis tool reports to their clients"
+    },
+    {
+      "type": "heading",
+      "level": "h4",
+      "text": "Marketing Teams"
+    },
+    {
+      "type": "text",
+      "text": "To test seo tool features across different projects"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "How Real-Time Content Analysis Improves Content Quality"
+    },
+    {
+      "type": "text",
+      "text": "Using a test seo for website ensures that your message is clear. When you follow the seo content evaluation, you remove the fluff that bores readers. It makes your writing more professional and authoritative."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Future of Real-Time Content Analysis"
+    },
+    {
+      "type": "text",
+      "text": "As search moves toward AI summaries, check web seo will become even more important. Tools will focus more on how well you answer a question rather than just counting words. SEODADA is at the front of this change, helping you check seo rank potential with every sentence."
+    },
+    {
+      "type": "heading",
+      "level": "h4",
+      "text": "The Future Is Real-Time"
+    },
+    {
+      "type": "text",
+      "text": "AI-powered content suggestions"
+    },
+    {
+      "type": "text",
+      "text": "Intent-based scoring over word counting"
+    },
+    {
+      "type": "text",
+      "text": "Deeper readability analysis"
+    },
+    {
+      "type": "text",
+      "text": "Smarter heading structure checks"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Frequently Asked Questions"
+    },
+    {
+      "type": "text",
+      "text": "Common questions about Real-Time Content Analysis"
+    },
+    {
+      "type": "text",
+      "text": "How accurate is real-time content analysis compared to manual SEO review?"
+    },
+    {
+      "type": "text",
+      "text": "Our seo tool is highly accurate for technical checks like keyword density and heading structure. While a human should always check for tone, the tool catches the errors that humans often miss. It provides a solid foundation for your on page seo analysis."
+    },
+    {
+      "type": "text",
+      "text": "Can real-time content analysis help reduce content revision time?"
+    },
+    {
+      "type": "text",
+      "text": "Yes. By using instant content optimization, you fix errors as you go. This means you do not have to spend hours editing after you finish your draft. It is the fastest way to check seo rank potential."
+    },
+    {
+      "type": "text",
+      "text": "How does real-time content analysis support content consistency?"
+    },
+    {
+      "type": "text",
+      "text": "The tool uses the same rules for every page you write. This ensures that your whole site has the same high level of quality. It acts as a standard seo website checker tool for all your writers."
+    },
+    {
+      "type": "text",
+      "text": "Does real-time content analysis replace SEO plugins or tools?"
+    },
+    {
+      "type": "text",
+      "text": "This tool works alongside your existing setup. It is a specialized seo content evaluation that focuses on the quality of your writing. It gives you deeper insights than a basic free seo tool."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Ready to Optimize Your Content in Real Time?"
+    },
+    {
+      "type": "text",
+      "text": "Start using our real-time content analysis tool now. Scroll up and paste your content to get instant SEO feedback."
+    },
+    {
+      "type": "text",
+      "text": "Start Analyzing Now"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Solutions"
+    },
+    {
+      "type": "text",
+      "text": "URL Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Keyword Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Image Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Heading Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Meta Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Sitemap Analysis"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Resources"
+    },
+    {
+      "type": "text",
+      "text": "SEODADA Content Checker Tool"
+    },
+    {
+      "type": "text",
+      "text": "Blog"
+    },
+    {
+      "type": "text",
+      "text": "Web Stories"
+    },
+    {
+      "type": "text",
+      "text": "Help Center"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Company"
+    },
+    {
+      "type": "text",
+      "text": "About Us"
+    },
+    {
+      "type": "text",
+      "text": "Pricing"
+    },
+    {
+      "type": "text",
+      "text": "Contact Us"
+    },
+    {
+      "type": "text",
+      "text": "© SEO Dada. All rights reserved."
+    },
+    {
+      "type": "text",
+      "text": "Privacy Policy"
+    },
+    {
+      "type": "text",
+      "text": "Terms of Service"
+    },
+    {
+      "type": "text",
+      "text": "Cookie & Policy"
+    }
+  ],
+  "links": [
+    {
+      "href": "#focus-keyword",
+      "text": "Start Analyzing Now"
+    },
+    {
+      "href": " ",
+      "text": "URL Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Keyword Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Image Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Heading Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Meta Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Sitemap Analysis"
+    },
+    {
+      "href": " ",
+      "text": "SEODADA Content Checker Tool"
+    },
+    {
+      "href": " ",
+      "text": "Blog"
+    },
+    {
+      "href": " ",
+      "text": "Web Stories"
+    },
+    {
+      "href": " ",
+      "text": "Help Center"
+    },
+    {
+      "href": "/about",
+      "text": "About Us"
+    },
+    {
+      "href": "/pricing",
+      "text": "Pricing"
+    },
+    {
+      "href": "/contact",
+      "text": "Contact Us"
+    },
+    {
+      "href": "/privacy",
+      "text": "Privacy Policy"
+    },
+    {
+      "href": "/terms",
+      "text": "Terms of Service"
+    },
+    {
+      "href": "/cookie-policy",
+      "text": "Cookie & Policy"
+    }
+  ],
+  "images": [
+    {
+      "src": " ",
+      "alt": " "
+    },
+    {
+      "src": " ",
+      "alt": " "
+    }
+  ],
+  "counts": {
+    "headings": 29,
+    "text_blocks": 119,
+    "links": 17,
+    "images": 2
+  }
+}

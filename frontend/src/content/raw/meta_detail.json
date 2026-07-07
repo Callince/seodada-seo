@@ -1,0 +1,438 @@
+{
+  "slug": "meta_detail",
+  "source": "D:/SEO RENEW/seo/templates/meta_detail.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Meta Details Analysis"
+    },
+    {
+      "level": "h6",
+      "text": "Analyzing"
+    },
+    {
+      "level": "h2",
+      "text": "SEO Score Overview"
+    },
+    {
+      "level": "h3",
+      "text": "SEO Score"
+    },
+    {
+      "level": "h2",
+      "text": "Title Tag Analysis"
+    },
+    {
+      "level": "h3",
+      "text": "Current Title"
+    },
+    {
+      "level": "h3",
+      "text": "Length Analysis"
+    },
+    {
+      "level": "h3",
+      "text": "Recommendation:"
+    },
+    {
+      "level": "h2",
+      "text": "Meta Tags Analysis"
+    },
+    {
+      "level": "h3",
+      "text": "Recommendation:"
+    },
+    {
+      "level": "h2",
+      "text": "Schema Markup Analysis"
+    },
+    {
+      "level": "h3",
+      "text": "Recommendation:"
+    },
+    {
+      "level": "h4",
+      "text": "For Articles/Blogs"
+    },
+    {
+      "level": "h4",
+      "text": "For Products"
+    },
+    {
+      "level": "h4",
+      "text": "For Local Business"
+    },
+    {
+      "level": "h4",
+      "text": "For Events"
+    },
+    {
+      "level": "h2",
+      "text": "Internal Links"
+    }
+  ],
+  "text_blocks": [
+    "Meta Details | SEO Analysis",
+    "Back to Search",
+    "out of best practices implemented",
+    "Great job! Your page has strong SEO fundamentals. Good start. Some improvements could enhance your SEO. Needs work. Several important SEO elements are missing.",
+    "/ 60 characters",
+    "Your title is too long.",
+    "Search engines typically display only the first 50-60 characters. Consider shortening it to improve display in search results.",
+    "Excellent title length!",
+    "Your title is within the ideal range of 50-60 characters.",
+    "Your title is a bit short.",
+    "Consider expanding it to between 50-60 characters to maximize SEO value.",
+    "Critical Issue: No title tag found!",
+    "A title tag is essential for SEO. Search engines use this to determine page topic and display in search results.",
+    "Add a descriptive title tag between 50-60 characters that includes your main keyword.",
+    "Meta Tag",
+    "Content",
+    "Analysis",
+    "Too long ( )",
+    "Recommended: 150-160 chars",
+    "Too short ( )",
+    "Optimal ( )",
+    "Limited SEO value",
+    "Focus on content instead",
+    "Mobile-friendly",
+    "Not indexed!",
+    "No link following",
+    "Indexed",
+    "Social Media",
+    "Twitter Card",
+    "Informational",
+    "True False",
+    "Missing meta description! This is important for SEO and click-through rates.",
+    "Critical Issue: No meta tags found!",
+    "Meta tags provide critical information to search engines about your page content.",
+    "Add at least these essential meta tags:",
+    "Description - 150-160 character summary of your page",
+    "Viewport - For mobile responsiveness",
+    "Open Graph tags - For social media sharing",
+    "Great job! Schema markup detected.",
+    "Schema markup enhances search results with rich snippets and improves visibility.",
+    "Schema Type",
+    "This schema item is a list with elements.",
+    "Unable to display schema content.",
+    "Opportunity: No schema markup detected.",
+    "Schema markup can help search engines understand your content and provide rich results.",
+    "Add appropriate schema markup based on your content type:",
+    "Article, BlogPosting",
+    "Product, Offer",
+    "LocalBusiness, Restaurant",
+    "Event, MusicEvent",
+    "Download as CSV",
+    "Loading..."
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Meta Details | SEO Analysis"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Meta Details Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Back to Search"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Analyzing"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "SEO Score Overview"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "SEO Score"
+    },
+    {
+      "type": "text",
+      "text": "out of best practices implemented"
+    },
+    {
+      "type": "text",
+      "text": "Great job! Your page has strong SEO fundamentals. Good start. Some improvements could enhance your SEO. Needs work. Several important SEO elements are missing."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Title Tag Analysis"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Current Title"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Length Analysis"
+    },
+    {
+      "type": "text",
+      "text": "/ 60 characters"
+    },
+    {
+      "type": "text",
+      "text": "Your title is too long."
+    },
+    {
+      "type": "text",
+      "text": "Search engines typically display only the first 50-60 characters. Consider shortening it to improve display in search results."
+    },
+    {
+      "type": "text",
+      "text": "Excellent title length!"
+    },
+    {
+      "type": "text",
+      "text": "Your title is within the ideal range of 50-60 characters."
+    },
+    {
+      "type": "text",
+      "text": "Your title is a bit short."
+    },
+    {
+      "type": "text",
+      "text": "Consider expanding it to between 50-60 characters to maximize SEO value."
+    },
+    {
+      "type": "text",
+      "text": "Critical Issue: No title tag found!"
+    },
+    {
+      "type": "text",
+      "text": "A title tag is essential for SEO. Search engines use this to determine page topic and display in search results."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Recommendation:"
+    },
+    {
+      "type": "text",
+      "text": "Add a descriptive title tag between 50-60 characters that includes your main keyword."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Meta Tags Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Meta Tag"
+    },
+    {
+      "type": "text",
+      "text": "Content"
+    },
+    {
+      "type": "text",
+      "text": "Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Too long ( )"
+    },
+    {
+      "type": "text",
+      "text": "Recommended: 150-160 chars"
+    },
+    {
+      "type": "text",
+      "text": "Too short ( )"
+    },
+    {
+      "type": "text",
+      "text": "Optimal ( )"
+    },
+    {
+      "type": "text",
+      "text": "Limited SEO value"
+    },
+    {
+      "type": "text",
+      "text": "Focus on content instead"
+    },
+    {
+      "type": "text",
+      "text": "Mobile-friendly"
+    },
+    {
+      "type": "text",
+      "text": "Not indexed!"
+    },
+    {
+      "type": "text",
+      "text": "No link following"
+    },
+    {
+      "type": "text",
+      "text": "Indexed"
+    },
+    {
+      "type": "text",
+      "text": "Social Media"
+    },
+    {
+      "type": "text",
+      "text": "Twitter Card"
+    },
+    {
+      "type": "text",
+      "text": "Informational"
+    },
+    {
+      "type": "text",
+      "text": "True False"
+    },
+    {
+      "type": "text",
+      "text": "Missing meta description! This is important for SEO and click-through rates."
+    },
+    {
+      "type": "text",
+      "text": "Critical Issue: No meta tags found!"
+    },
+    {
+      "type": "text",
+      "text": "Meta tags provide critical information to search engines about your page content."
+    },
+    {
+      "type": "text",
+      "text": "Add at least these essential meta tags:"
+    },
+    {
+      "type": "text",
+      "text": "Description - 150-160 character summary of your page"
+    },
+    {
+      "type": "text",
+      "text": "Viewport - For mobile responsiveness"
+    },
+    {
+      "type": "text",
+      "text": "Open Graph tags - For social media sharing"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Schema Markup Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Great job! Schema markup detected."
+    },
+    {
+      "type": "text",
+      "text": "Schema markup enhances search results with rich snippets and improves visibility."
+    },
+    {
+      "type": "text",
+      "text": "Schema Type"
+    },
+    {
+      "type": "text",
+      "text": "This schema item is a list with elements."
+    },
+    {
+      "type": "text",
+      "text": "Unable to display schema content."
+    },
+    {
+      "type": "text",
+      "text": "Opportunity: No schema markup detected."
+    },
+    {
+      "type": "text",
+      "text": "Schema markup can help search engines understand your content and provide rich results."
+    },
+    {
+      "type": "text",
+      "text": "Add appropriate schema markup based on your content type:"
+    },
+    {
+      "type": "heading",
+      "level": "h4",
+      "text": "For Articles/Blogs"
+    },
+    {
+      "type": "text",
+      "text": "Article, BlogPosting"
+    },
+    {
+      "type": "heading",
+      "level": "h4",
+      "text": "For Products"
+    },
+    {
+      "type": "text",
+      "text": "Product, Offer"
+    },
+    {
+      "type": "heading",
+      "level": "h4",
+      "text": "For Local Business"
+    },
+    {
+      "type": "text",
+      "text": "LocalBusiness, Restaurant"
+    },
+    {
+      "type": "heading",
+      "level": "h4",
+      "text": "For Events"
+    },
+    {
+      "type": "text",
+      "text": "Event, MusicEvent"
+    },
+    {
+      "type": "text",
+      "text": "Download as CSV"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Internal Links"
+    },
+    {
+      "type": "text",
+      "text": "Loading..."
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Back to Search"
+    },
+    {
+      "href": " ",
+      "text": "Download as CSV"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 17,
+    "text_blocks": 52,
+    "links": 2,
+    "images": 0
+  }
+}

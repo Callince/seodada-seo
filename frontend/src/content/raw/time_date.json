@@ -1,0 +1,50 @@
+{
+  "slug": "time_date",
+  "source": "D:/SEO RENEW/seo/templates/time_date.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Current UTC Time & Date"
+    }
+  ],
+  "text_blocks": [
+    "Current Time & Date | SEO Dada",
+    "This time is fetched directly from the server using a live API call.",
+    "Loading..."
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Current Time & Date | SEO Dada"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Current UTC Time & Date"
+    },
+    {
+      "type": "text",
+      "text": "This time is fetched directly from the server using a live API call."
+    },
+    {
+      "type": "text",
+      "text": "Loading..."
+    }
+  ],
+  "links": [],
+  "images": [],
+  "counts": {
+    "headings": 1,
+    "text_blocks": 3,
+    "links": 0,
+    "images": 0
+  }
+}

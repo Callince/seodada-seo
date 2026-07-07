@@ -1,0 +1,114 @@
+{
+  "slug": "loading",
+  "source": "D:/SEO RENEW/seo/templates/loading.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Website Crawler"
+    },
+    {
+      "level": "h3",
+      "text": "Crawling in progress..."
+    }
+  ],
+  "text_blocks": [
+    "Crawling in Progress",
+    "Loading...",
+    "0%",
+    "Initializing crawler...",
+    "Crawl Information",
+    "Target URL:",
+    "Elapsed Time:",
+    "0.0",
+    "seconds",
+    "Status:",
+    "Running",
+    "Cancel",
+    "Back to Home"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Crawling in Progress"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Website Crawler"
+    },
+    {
+      "type": "text",
+      "text": "Loading..."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Crawling in progress..."
+    },
+    {
+      "type": "text",
+      "text": "0%"
+    },
+    {
+      "type": "text",
+      "text": "Initializing crawler..."
+    },
+    {
+      "type": "text",
+      "text": "Crawl Information"
+    },
+    {
+      "type": "text",
+      "text": "Target URL:"
+    },
+    {
+      "type": "text",
+      "text": "Elapsed Time:"
+    },
+    {
+      "type": "text",
+      "text": "0.0"
+    },
+    {
+      "type": "text",
+      "text": "seconds"
+    },
+    {
+      "type": "text",
+      "text": "Status:"
+    },
+    {
+      "type": "text",
+      "text": "Running"
+    },
+    {
+      "type": "text",
+      "text": "Cancel"
+    },
+    {
+      "type": "text",
+      "text": "Back to Home"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Back to Home"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 2,
+    "text_blocks": 13,
+    "links": 1,
+    "images": 0
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "slug": "pricing",
+  "source": "D:/SEO RENEW/seo/templates/pricing.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Pricing Plans"
+    },
+    {
+      "level": "h3",
+      "text": "₹"
+    },
+    {
+      "level": "h3",
+      "text": "All Plans Include"
+    },
+    {
+      "level": "h4",
+      "text": "No Available Plans"
+    },
+    {
+      "level": "h3",
+      "text": "Need a Custom Plan?"
+    }
+  ],
+  "text_blocks": [
+    "Pricing | SEO Dada",
+    "Choose the perfect plan for your SEO needs. All plans include access to our powerful SEO analysis tools.",
+    "POPULAR",
+    "for days",
+    "operations daily",
+    "month s access",
+    "All SEO tools access",
+    "Export reports",
+    "Subscribe",
+    "Comprehensive SEO analysis tools",
+    "Export reports in multiple formats",
+    "Keyword density analysis",
+    "Meta tag optimization",
+    "Image audit tools",
+    "Email support",
+    "There are no plans available for subscription at this time.",
+    "Contact us for enterprise solutions or custom requirements tailored to your business needs.",
+    "Contact Us"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Pricing | SEO Dada"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Pricing Plans"
+    },
+    {
+      "type": "text",
+      "text": "Choose the perfect plan for your SEO needs. All plans include access to our powerful SEO analysis tools."
+    },
+    {
+      "type": "text",
+      "text": "POPULAR"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "₹"
+    },
+    {
+      "type": "text",
+      "text": "for days"
+    },
+    {
+      "type": "text",
+      "text": "operations daily"
+    },
+    {
+      "type": "text",
+      "text": "month s access"
+    },
+    {
+      "type": "text",
+      "text": "All SEO tools access"
+    },
+    {
+      "type": "text",
+      "text": "Export reports"
+    },
+    {
+      "type": "text",
+      "text": "Subscribe"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "All Plans Include"
+    },
+    {
+      "type": "text",
+      "text": "Comprehensive SEO analysis tools"
+    },
+    {
+      "type": "text",
+      "text": "Export reports in multiple formats"
+    },
+    {
+      "type": "text",
+      "text": "Keyword density analysis"
+    },
+    {
+      "type": "text",
+      "text": "Meta tag optimization"
+    },
+    {
+      "type": "text",
+      "text": "Image audit tools"
+    },
+    {
+      "type": "text",
+      "text": "Email support"
+    },
+    {
+      "type": "heading",
+      "level": "h4",
+      "text": "No Available Plans"
+    },
+    {
+      "type": "text",
+      "text": "There are no plans available for subscription at this time."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Need a Custom Plan?"
+    },
+    {
+      "type": "text",
+      "text": "Contact us for enterprise solutions or custom requirements tailored to your business needs."
+    },
+    {
+      "type": "text",
+      "text": "Contact Us"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Subscribe"
+    },
+    {
+      "href": " ",
+      "text": "Contact Us"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 5,
+    "text_blocks": 18,
+    "links": 2,
+    "images": 0
+  }
+}

@@ -1,0 +1,477 @@
+{
+  "slug": "privacy",
+  "source": "D:/SEO RENEW/seo/templates/privacy.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Privacy Policy"
+    },
+    {
+      "level": "h2",
+      "text": "Key Privacy Principles"
+    },
+    {
+      "level": "h2",
+      "text": "Scope and Purpose"
+    },
+    {
+      "level": "h2",
+      "text": "Information We Collect"
+    },
+    {
+      "level": "h3",
+      "text": "Account Information"
+    },
+    {
+      "level": "h3",
+      "text": "Usage and Technical Data"
+    },
+    {
+      "level": "h3",
+      "text": "Cookies and Analytics"
+    },
+    {
+      "level": "h2",
+      "text": "How We Use Your Information"
+    },
+    {
+      "level": "h2",
+      "text": "Data Sharing and Disclosure"
+    },
+    {
+      "level": "h2",
+      "text": "Data Retention"
+    },
+    {
+      "level": "h2",
+      "text": "Data Security"
+    },
+    {
+      "level": "h3",
+      "text": "Industry-Standard Security"
+    },
+    {
+      "level": "h2",
+      "text": "Your Rights"
+    },
+    {
+      "level": "h2",
+      "text": "International Access and Storage"
+    },
+    {
+      "level": "h2",
+      "text": "Children's Privacy"
+    },
+    {
+      "level": "h2",
+      "text": "Third-Party Links and Integrations"
+    },
+    {
+      "level": "h2",
+      "text": "Grievance Officer"
+    },
+    {
+      "level": "h3",
+      "text": "Updates to This Policy"
+    },
+    {
+      "level": "h3",
+      "text": "Contact Information"
+    }
+  ],
+  "text_blocks": [
+    "Privacy Policy | SEO Dada",
+    "At Fourth Dimension SEO Dada, we are committed to protecting your privacy and respecting the data you trust us with. This Privacy Policy explains what data we collect, how we use it, what rights you have, and how we secure and manage your information.",
+    "We do not sell or rent your data to third parties",
+    "We collect only essential information to provide our services",
+    "You have full control over your data and can request deletion at any time",
+    "We use industry-standard security measures to protect your information",
+    "This Privacy Policy applies to all users of the Fourth Dimension SEO Dada platform, website, and associated services. By accessing or using Fourth Dimension SEO Dada, you agree to the practices described here. If you do not agree with this policy, you should not use our services.",
+    "When you register for Fourth Dimension SEO Dada, we collect:",
+    "Name and email address",
+    "Password (hashed and encrypted)",
+    "Company name (if applicable)",
+    "Billing and subscription details (processed via third-party payment gateways)",
+    "When you use Fourth Dimension SEO Dada, we collect:",
+    "URLs you scan and the time of each scan",
+    "Number of audits performed",
+    "Browser type, IP address, operating system, and device type",
+    "Interactions with specific platform features",
+    "We use cookies for secure login, session tracking, and analytics to improve your user experience.",
+    "We use your information to:",
+    "Provide and manage access to Fourth Dimension SEO Dada features",
+    "Process subscriptions and generate invoices",
+    "Improve user experience, identify usage patterns, and optimize product flows",
+    "Communicate updates, feature releases, or billing notifications",
+    "Ensure system stability and security",
+    "Comply with legal obligations and respond to lawful requests",
+    "We do not use your data for third-party marketing or advertising purposes.",
+    "We do not sell or rent your data. We may share data only in the following circumstances:",
+    "With trusted service providers: For payment processing, cloud hosting, and analytics under confidentiality agreements",
+    "With legal authorities: When required to comply with applicable laws, court orders, or government regulations",
+    "Within our organization: For internal operations by authorized personnel",
+    "We retain your account data for as long as your account is active or as needed to fulfill the purposes outlined in this policy. If you cancel your subscription or delete your account, we will retain billing records and system logs as required by law, and remove audit-related data and user activity logs within 60 days, unless retention is legally mandated.",
+    "We use industry-standard security measures to protect your information, including:",
+    "Encrypted transmission (HTTPS)",
+    "Secure cloud infrastructure with access controls",
+    "Encrypted password storage and tokenized sessions",
+    "Role-based access control for internal staff",
+    "While we take every precaution to safeguard your data, no method of transmission or storage is 100% secure. We encourage strong passwords and responsible access practices.",
+    "As a Fourth Dimension SEO Dada user, you have the right to:",
+    "Access the personal data we hold about you",
+    "Request corrections to inaccurate information",
+    "Request deletion of your account and associated data",
+    "Withdraw consent for non-essential data processing",
+    "Opt out of non-critical product communications",
+    "To exercise these rights, contact our support team. We will respond within 7–10 working days.",
+    "Fourth Dimension SEO Dada is operated from India. If you are accessing the service from outside India, you consent to your data being processed and stored in India under Indian data protection laws.",
+    "Fourth Dimension SEO Dada is not intended for use by individuals under 18 years of age. We do not knowingly collect data from minors. If we learn that we have collected personal data from someone underage, we will delete it immediately.",
+    "Our platform may contain links to external websites or services. We are not responsible for the privacy practices or content of these external entities. Use caution and review their policies before sharing any personal information.",
+    "In accordance with the Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021, users can contact our designated grievance officer for privacy-related concerns.",
+    "Working Hours: Monday to Friday, 10:00 AM to 6:00 PM (IST)",
+    "We may update this privacy policy from time to time to reflect legal, technical, or operational changes. When we make material changes, we will notify users by email or through platform alerts. Continued use of the Service after changes take effect implies your agreement with the updated policy.",
+    "For any privacy-related questions, concerns, or data access requests, please contact:",
+    "Fourth Dimension SEO Dada",
+    "📍 Address: Shyamala Towers, 3rd floor, No. 136, Arcot Rd, Saligramam, Chennai, Tamil Nadu 600092",
+    "support@seodada.com",
+    "Effective Date: June 12, 2025 | Last Updated: June 12, 2025"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Privacy Policy | SEO Dada"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Privacy Policy"
+    },
+    {
+      "type": "text",
+      "text": "At Fourth Dimension SEO Dada, we are committed to protecting your privacy and respecting the data you trust us with. This Privacy Policy explains what data we collect, how we use it, what rights you have, and how we secure and manage your information."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Key Privacy Principles"
+    },
+    {
+      "type": "text",
+      "text": "We do not sell or rent your data to third parties"
+    },
+    {
+      "type": "text",
+      "text": "We collect only essential information to provide our services"
+    },
+    {
+      "type": "text",
+      "text": "You have full control over your data and can request deletion at any time"
+    },
+    {
+      "type": "text",
+      "text": "We use industry-standard security measures to protect your information"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Scope and Purpose"
+    },
+    {
+      "type": "text",
+      "text": "This Privacy Policy applies to all users of the Fourth Dimension SEO Dada platform, website, and associated services. By accessing or using Fourth Dimension SEO Dada, you agree to the practices described here. If you do not agree with this policy, you should not use our services."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Information We Collect"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Account Information"
+    },
+    {
+      "type": "text",
+      "text": "When you register for Fourth Dimension SEO Dada, we collect:"
+    },
+    {
+      "type": "text",
+      "text": "Name and email address"
+    },
+    {
+      "type": "text",
+      "text": "Password (hashed and encrypted)"
+    },
+    {
+      "type": "text",
+      "text": "Company name (if applicable)"
+    },
+    {
+      "type": "text",
+      "text": "Billing and subscription details (processed via third-party payment gateways)"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Usage and Technical Data"
+    },
+    {
+      "type": "text",
+      "text": "When you use Fourth Dimension SEO Dada, we collect:"
+    },
+    {
+      "type": "text",
+      "text": "URLs you scan and the time of each scan"
+    },
+    {
+      "type": "text",
+      "text": "Number of audits performed"
+    },
+    {
+      "type": "text",
+      "text": "Browser type, IP address, operating system, and device type"
+    },
+    {
+      "type": "text",
+      "text": "Interactions with specific platform features"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Cookies and Analytics"
+    },
+    {
+      "type": "text",
+      "text": "We use cookies for secure login, session tracking, and analytics to improve your user experience."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "How We Use Your Information"
+    },
+    {
+      "type": "text",
+      "text": "We use your information to:"
+    },
+    {
+      "type": "text",
+      "text": "Provide and manage access to Fourth Dimension SEO Dada features"
+    },
+    {
+      "type": "text",
+      "text": "Process subscriptions and generate invoices"
+    },
+    {
+      "type": "text",
+      "text": "Improve user experience, identify usage patterns, and optimize product flows"
+    },
+    {
+      "type": "text",
+      "text": "Communicate updates, feature releases, or billing notifications"
+    },
+    {
+      "type": "text",
+      "text": "Ensure system stability and security"
+    },
+    {
+      "type": "text",
+      "text": "Comply with legal obligations and respond to lawful requests"
+    },
+    {
+      "type": "text",
+      "text": "We do not use your data for third-party marketing or advertising purposes."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Data Sharing and Disclosure"
+    },
+    {
+      "type": "text",
+      "text": "We do not sell or rent your data. We may share data only in the following circumstances:"
+    },
+    {
+      "type": "text",
+      "text": "With trusted service providers: For payment processing, cloud hosting, and analytics under confidentiality agreements"
+    },
+    {
+      "type": "text",
+      "text": "With legal authorities: When required to comply with applicable laws, court orders, or government regulations"
+    },
+    {
+      "type": "text",
+      "text": "Within our organization: For internal operations by authorized personnel"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Data Retention"
+    },
+    {
+      "type": "text",
+      "text": "We retain your account data for as long as your account is active or as needed to fulfill the purposes outlined in this policy. If you cancel your subscription or delete your account, we will retain billing records and system logs as required by law, and remove audit-related data and user activity logs within 60 days, unless retention is legally mandated."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Data Security"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Industry-Standard Security"
+    },
+    {
+      "type": "text",
+      "text": "We use industry-standard security measures to protect your information, including:"
+    },
+    {
+      "type": "text",
+      "text": "Encrypted transmission (HTTPS)"
+    },
+    {
+      "type": "text",
+      "text": "Secure cloud infrastructure with access controls"
+    },
+    {
+      "type": "text",
+      "text": "Encrypted password storage and tokenized sessions"
+    },
+    {
+      "type": "text",
+      "text": "Role-based access control for internal staff"
+    },
+    {
+      "type": "text",
+      "text": "While we take every precaution to safeguard your data, no method of transmission or storage is 100% secure. We encourage strong passwords and responsible access practices."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Your Rights"
+    },
+    {
+      "type": "text",
+      "text": "As a Fourth Dimension SEO Dada user, you have the right to:"
+    },
+    {
+      "type": "text",
+      "text": "Access the personal data we hold about you"
+    },
+    {
+      "type": "text",
+      "text": "Request corrections to inaccurate information"
+    },
+    {
+      "type": "text",
+      "text": "Request deletion of your account and associated data"
+    },
+    {
+      "type": "text",
+      "text": "Withdraw consent for non-essential data processing"
+    },
+    {
+      "type": "text",
+      "text": "Opt out of non-critical product communications"
+    },
+    {
+      "type": "text",
+      "text": "To exercise these rights, contact our support team. We will respond within 7–10 working days."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "International Access and Storage"
+    },
+    {
+      "type": "text",
+      "text": "Fourth Dimension SEO Dada is operated from India. If you are accessing the service from outside India, you consent to your data being processed and stored in India under Indian data protection laws."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Children's Privacy"
+    },
+    {
+      "type": "text",
+      "text": "Fourth Dimension SEO Dada is not intended for use by individuals under 18 years of age. We do not knowingly collect data from minors. If we learn that we have collected personal data from someone underage, we will delete it immediately."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Third-Party Links and Integrations"
+    },
+    {
+      "type": "text",
+      "text": "Our platform may contain links to external websites or services. We are not responsible for the privacy practices or content of these external entities. Use caution and review their policies before sharing any personal information."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Grievance Officer"
+    },
+    {
+      "type": "text",
+      "text": "In accordance with the Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021, users can contact our designated grievance officer for privacy-related concerns."
+    },
+    {
+      "type": "text",
+      "text": "Working Hours: Monday to Friday, 10:00 AM to 6:00 PM (IST)"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Updates to This Policy"
+    },
+    {
+      "type": "text",
+      "text": "We may update this privacy policy from time to time to reflect legal, technical, or operational changes. When we make material changes, we will notify users by email or through platform alerts. Continued use of the Service after changes take effect implies your agreement with the updated policy."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Contact Information"
+    },
+    {
+      "type": "text",
+      "text": "For any privacy-related questions, concerns, or data access requests, please contact:"
+    },
+    {
+      "type": "text",
+      "text": "Fourth Dimension SEO Dada"
+    },
+    {
+      "type": "text",
+      "text": "📍 Address: Shyamala Towers, 3rd floor, No. 136, Arcot Rd, Saligramam, Chennai, Tamil Nadu 600092"
+    },
+    {
+      "type": "text",
+      "text": "support@seodada.com"
+    },
+    {
+      "type": "text",
+      "text": "Effective Date: June 12, 2025 | Last Updated: June 12, 2025"
+    }
+  ],
+  "links": [
+    {
+      "href": "mailto:support@seodada.com",
+      "text": "support@seodada.com"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 19,
+    "text_blocks": 55,
+    "links": 1,
+    "images": 0
+  }
+}

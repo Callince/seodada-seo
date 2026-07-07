@@ -1,0 +1,217 @@
+{
+  "slug": "signup",
+  "source": "D:/SEO RENEW/seo/templates/signup.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Create your account"
+    },
+    {
+      "level": "h2",
+      "text": "Join Fourth Dimension"
+    }
+  ],
+  "text_blocks": [
+    "Sign Up | Fourth Dimension",
+    "Get started with Fourth Dimension",
+    "Account",
+    "Password",
+    "Verification",
+    "Full Name",
+    "Company Email",
+    "Continue",
+    "Create Password",
+    "Password strength",
+    "At least 8 characters",
+    "At least one uppercase letter",
+    "At least one lowercase letter",
+    "At least one number",
+    "At least one special character",
+    "Confirm Password",
+    "Back",
+    "After creating your account, you'll need to verify your email address. We'll send you a verification link to activate your account.",
+    "I agree to the",
+    "Terms of Service",
+    "and",
+    "Privacy Policy",
+    "Create Account",
+    "Already have an account?",
+    "Log in",
+    "Access powerful web analysis tools and unlock insights that drive growth and optimization.",
+    "Complete URL analysis in seconds",
+    "Track performance metrics over time",
+    "Visualize site structures and hierarchies",
+    "Secure and private data processing",
+    "Checking..."
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Sign Up | Fourth Dimension"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Create your account"
+    },
+    {
+      "type": "text",
+      "text": "Get started with Fourth Dimension"
+    },
+    {
+      "type": "text",
+      "text": "Account"
+    },
+    {
+      "type": "text",
+      "text": "Password"
+    },
+    {
+      "type": "text",
+      "text": "Verification"
+    },
+    {
+      "type": "text",
+      "text": "Full Name"
+    },
+    {
+      "type": "text",
+      "text": "Company Email"
+    },
+    {
+      "type": "text",
+      "text": "Continue"
+    },
+    {
+      "type": "text",
+      "text": "Create Password"
+    },
+    {
+      "type": "text",
+      "text": "Password strength"
+    },
+    {
+      "type": "text",
+      "text": "At least 8 characters"
+    },
+    {
+      "type": "text",
+      "text": "At least one uppercase letter"
+    },
+    {
+      "type": "text",
+      "text": "At least one lowercase letter"
+    },
+    {
+      "type": "text",
+      "text": "At least one number"
+    },
+    {
+      "type": "text",
+      "text": "At least one special character"
+    },
+    {
+      "type": "text",
+      "text": "Confirm Password"
+    },
+    {
+      "type": "text",
+      "text": "Back"
+    },
+    {
+      "type": "text",
+      "text": "After creating your account, you'll need to verify your email address. We'll send you a verification link to activate your account."
+    },
+    {
+      "type": "text",
+      "text": "I agree to the"
+    },
+    {
+      "type": "text",
+      "text": "Terms of Service"
+    },
+    {
+      "type": "text",
+      "text": "and"
+    },
+    {
+      "type": "text",
+      "text": "Privacy Policy"
+    },
+    {
+      "type": "text",
+      "text": "Create Account"
+    },
+    {
+      "type": "text",
+      "text": "Already have an account?"
+    },
+    {
+      "type": "text",
+      "text": "Log in"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Join Fourth Dimension"
+    },
+    {
+      "type": "text",
+      "text": "Access powerful web analysis tools and unlock insights that drive growth and optimization."
+    },
+    {
+      "type": "text",
+      "text": "Complete URL analysis in seconds"
+    },
+    {
+      "type": "text",
+      "text": "Track performance metrics over time"
+    },
+    {
+      "type": "text",
+      "text": "Visualize site structures and hierarchies"
+    },
+    {
+      "type": "text",
+      "text": "Secure and private data processing"
+    },
+    {
+      "type": "text",
+      "text": "Checking..."
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Terms of Service"
+    },
+    {
+      "href": " ",
+      "text": "Privacy Policy"
+    },
+    {
+      "href": " ",
+      "text": "Log in"
+    }
+  ],
+  "images": [
+    {
+      "src": " ",
+      "alt": "  Logo"
+    }
+  ],
+  "counts": {
+    "headings": 2,
+    "text_blocks": 31,
+    "links": 3,
+    "images": 1
+  }
+}

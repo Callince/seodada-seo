@@ -1,0 +1,322 @@
+{
+  "slug": "cookie_policy",
+  "source": "D:/SEO RENEW/seo/templates/cookie_policy.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Cookie Policy"
+    },
+    {
+      "level": "h2",
+      "text": "What Are Cookies?"
+    },
+    {
+      "level": "h2",
+      "text": "Why We Use Cookies"
+    },
+    {
+      "level": "h3",
+      "text": "Privacy First"
+    },
+    {
+      "level": "h2",
+      "text": "Types of Cookies We Use"
+    },
+    {
+      "level": "h3",
+      "text": "Strictly Necessary"
+    },
+    {
+      "level": "h3",
+      "text": "Functional"
+    },
+    {
+      "level": "h3",
+      "text": "Analytics"
+    },
+    {
+      "level": "h2",
+      "text": "Third-Party Cookies"
+    },
+    {
+      "level": "h2",
+      "text": "How You Can Control Cookies"
+    },
+    {
+      "level": "h3",
+      "text": "Important Note"
+    },
+    {
+      "level": "h2",
+      "text": "Consent and Updates"
+    },
+    {
+      "level": "h3",
+      "text": "Changes to This Cookie Policy"
+    },
+    {
+      "level": "h3",
+      "text": "Contact Information"
+    }
+  ],
+  "text_blocks": [
+    "Cookie Policy | SEO Dada",
+    "This Cookie Policy explains how Fourth Dimension SEO Dada uses cookies and similar technologies to recognize you when you visit our website or use our platform. It outlines what these technologies are, why we use them, and how you can control them.",
+    "Cookies are small text files that are stored on your device when you visit a website. They allow a site to recognize your device, remember your preferences, and help improve your user experience. Cookies may be set by us (first-party cookies) or by third-party services we integrate with (third-party cookies).",
+    "Fourth Dimension SEO Dada uses cookies for the following purposes:",
+    "Essential Access: To allow you to log in and securely use the dashboard and account areas",
+    "Session Management: To manage your current session and track basic user interactions like scan history and navigation",
+    "Performance & Analytics: To understand how the platform is used and improve product performance",
+    "User Preferences: To remember UI configurations like theme settings for a smoother experience",
+    "We do not use cookies for advertising or behavioral tracking. Our cookie usage is focused on functionality and product improvement.",
+    "Required for core platform functions such as login and secure browsing",
+    "session_id, csrf_token",
+    "Help remember your preferences across sessions",
+    "user_theme, locale_pref",
+    "Help us understand how users interact with features and flows",
+    "_ga, _gid (Google Analytics)",
+    "We may use third-party services to help us monitor system performance or gather anonymized usage insights. These third-party services may set their own cookies in your browser. For example:",
+    "Google Analytics may store a cookie to differentiate new and returning users",
+    "Cloudflare or CDN providers may use cookies to optimize security or traffic routing",
+    "Fourth Dimension SEO Dada does not allow third-party advertisers or social media trackers to place cookies on our platform.",
+    "You can manage or delete cookies through your browser settings at any time. Most modern browsers provide settings to:",
+    "Block all cookies",
+    "Clear existing cookies",
+    "Set exceptions for trusted websites",
+    "Blocking essential cookies may affect your ability to use some features of the Fourth Dimension SEO Dada platform, such as logging in or saving settings.",
+    "By continuing to use Fourth Dimension SEO Dada, you consent to the use of cookies as described in this policy. You may withdraw consent at any time by adjusting your browser settings or clearing cookies.",
+    "We may update this Cookie Policy from time to time to reflect changes in legal requirements, third-party services, or platform features. When we do, the \"Last Updated\" date will be revised.",
+    "We will notify you of any material changes by posting the new Cookie Policy on this page and updating the effective date.",
+    "If you have any questions about our use of cookies or this policy, please contact:",
+    "Fourth Dimension SEO Dada",
+    "📧 Email: support@seodada.com",
+    "📍 Address: Shyamala Towers, 3rd floor, No. 136, Arcot Rd, Saligramam, Chennai, Tamil Nadu 600092",
+    "support@seodada.com",
+    "Effective Date: June 12, 2025 | Last Updated: June 12, 2025"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Cookie Policy | SEO Dada"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Cookie Policy"
+    },
+    {
+      "type": "text",
+      "text": "This Cookie Policy explains how Fourth Dimension SEO Dada uses cookies and similar technologies to recognize you when you visit our website or use our platform. It outlines what these technologies are, why we use them, and how you can control them."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "What Are Cookies?"
+    },
+    {
+      "type": "text",
+      "text": "Cookies are small text files that are stored on your device when you visit a website. They allow a site to recognize your device, remember your preferences, and help improve your user experience. Cookies may be set by us (first-party cookies) or by third-party services we integrate with (third-party cookies)."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Why We Use Cookies"
+    },
+    {
+      "type": "text",
+      "text": "Fourth Dimension SEO Dada uses cookies for the following purposes:"
+    },
+    {
+      "type": "text",
+      "text": "Essential Access: To allow you to log in and securely use the dashboard and account areas"
+    },
+    {
+      "type": "text",
+      "text": "Session Management: To manage your current session and track basic user interactions like scan history and navigation"
+    },
+    {
+      "type": "text",
+      "text": "Performance & Analytics: To understand how the platform is used and improve product performance"
+    },
+    {
+      "type": "text",
+      "text": "User Preferences: To remember UI configurations like theme settings for a smoother experience"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Privacy First"
+    },
+    {
+      "type": "text",
+      "text": "We do not use cookies for advertising or behavioral tracking. Our cookie usage is focused on functionality and product improvement."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Types of Cookies We Use"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Strictly Necessary"
+    },
+    {
+      "type": "text",
+      "text": "Required for core platform functions such as login and secure browsing"
+    },
+    {
+      "type": "text",
+      "text": "session_id, csrf_token"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Functional"
+    },
+    {
+      "type": "text",
+      "text": "Help remember your preferences across sessions"
+    },
+    {
+      "type": "text",
+      "text": "user_theme, locale_pref"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Analytics"
+    },
+    {
+      "type": "text",
+      "text": "Help us understand how users interact with features and flows"
+    },
+    {
+      "type": "text",
+      "text": "_ga, _gid (Google Analytics)"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Third-Party Cookies"
+    },
+    {
+      "type": "text",
+      "text": "We may use third-party services to help us monitor system performance or gather anonymized usage insights. These third-party services may set their own cookies in your browser. For example:"
+    },
+    {
+      "type": "text",
+      "text": "Google Analytics may store a cookie to differentiate new and returning users"
+    },
+    {
+      "type": "text",
+      "text": "Cloudflare or CDN providers may use cookies to optimize security or traffic routing"
+    },
+    {
+      "type": "text",
+      "text": "Fourth Dimension SEO Dada does not allow third-party advertisers or social media trackers to place cookies on our platform."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "How You Can Control Cookies"
+    },
+    {
+      "type": "text",
+      "text": "You can manage or delete cookies through your browser settings at any time. Most modern browsers provide settings to:"
+    },
+    {
+      "type": "text",
+      "text": "Block all cookies"
+    },
+    {
+      "type": "text",
+      "text": "Clear existing cookies"
+    },
+    {
+      "type": "text",
+      "text": "Set exceptions for trusted websites"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Important Note"
+    },
+    {
+      "type": "text",
+      "text": "Blocking essential cookies may affect your ability to use some features of the Fourth Dimension SEO Dada platform, such as logging in or saving settings."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Consent and Updates"
+    },
+    {
+      "type": "text",
+      "text": "By continuing to use Fourth Dimension SEO Dada, you consent to the use of cookies as described in this policy. You may withdraw consent at any time by adjusting your browser settings or clearing cookies."
+    },
+    {
+      "type": "text",
+      "text": "We may update this Cookie Policy from time to time to reflect changes in legal requirements, third-party services, or platform features. When we do, the \"Last Updated\" date will be revised."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Changes to This Cookie Policy"
+    },
+    {
+      "type": "text",
+      "text": "We will notify you of any material changes by posting the new Cookie Policy on this page and updating the effective date."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Contact Information"
+    },
+    {
+      "type": "text",
+      "text": "If you have any questions about our use of cookies or this policy, please contact:"
+    },
+    {
+      "type": "text",
+      "text": "Fourth Dimension SEO Dada"
+    },
+    {
+      "type": "text",
+      "text": "📧 Email: support@seodada.com"
+    },
+    {
+      "type": "text",
+      "text": "📍 Address: Shyamala Towers, 3rd floor, No. 136, Arcot Rd, Saligramam, Chennai, Tamil Nadu 600092"
+    },
+    {
+      "type": "text",
+      "text": "support@seodada.com"
+    },
+    {
+      "type": "text",
+      "text": "Effective Date: June 12, 2025 | Last Updated: June 12, 2025"
+    }
+  ],
+  "links": [
+    {
+      "href": "mailto:support@seodada.com",
+      "text": "support@seodada.com"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 14,
+    "text_blocks": 33,
+    "links": 1,
+    "images": 0
+  }
+}

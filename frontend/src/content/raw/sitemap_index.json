@@ -1,0 +1,186 @@
+{
+  "slug": "sitemap_index",
+  "source": "D:/SEO RENEW/seo/templates/sitemap_index.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Sitemap"
+    },
+    {
+      "level": "h2",
+      "text": "Pages"
+    },
+    {
+      "level": "h2",
+      "text": "Posts"
+    },
+    {
+      "level": "h2",
+      "text": "Web Stories"
+    },
+    {
+      "level": "h3",
+      "text": "XML Sitemap for Search Engines"
+    }
+  ],
+  "text_blocks": [
+    "Back to Home",
+    "Explore all pages and resources available on SEO Dada",
+    "Main website pages, services, and legal pages",
+    "View All Pages",
+    "pages",
+    "Articles, tutorials, and latest updates",
+    "View All Posts",
+    "articles",
+    "Visual stories and interactive content",
+    "View All Stories",
+    "stories",
+    "For search engine crawlers and SEO tools",
+    "View XML Sitemap",
+    "© SEO Dada. All rights reserved.",
+    "Privacy",
+    "Terms",
+    "Contact"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Back to Home"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Sitemap"
+    },
+    {
+      "type": "text",
+      "text": "Explore all pages and resources available on SEO Dada"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Pages"
+    },
+    {
+      "type": "text",
+      "text": "Main website pages, services, and legal pages"
+    },
+    {
+      "type": "text",
+      "text": "View All Pages"
+    },
+    {
+      "type": "text",
+      "text": "pages"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Posts"
+    },
+    {
+      "type": "text",
+      "text": "Articles, tutorials, and latest updates"
+    },
+    {
+      "type": "text",
+      "text": "View All Posts"
+    },
+    {
+      "type": "text",
+      "text": "articles"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Web Stories"
+    },
+    {
+      "type": "text",
+      "text": "Visual stories and interactive content"
+    },
+    {
+      "type": "text",
+      "text": "View All Stories"
+    },
+    {
+      "type": "text",
+      "text": "stories"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "XML Sitemap for Search Engines"
+    },
+    {
+      "type": "text",
+      "text": "For search engine crawlers and SEO tools"
+    },
+    {
+      "type": "text",
+      "text": "View XML Sitemap"
+    },
+    {
+      "type": "text",
+      "text": "© SEO Dada. All rights reserved."
+    },
+    {
+      "type": "text",
+      "text": "Privacy"
+    },
+    {
+      "type": "text",
+      "text": "Terms"
+    },
+    {
+      "type": "text",
+      "text": "Contact"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Back to Home"
+    },
+    {
+      "href": " ",
+      "text": "View XML Sitemap"
+    },
+    {
+      "href": " ",
+      "text": "Privacy"
+    },
+    {
+      "href": " ",
+      "text": "Terms"
+    },
+    {
+      "href": " ",
+      "text": "Contact"
+    }
+  ],
+  "images": [
+    {
+      "src": " ",
+      "alt": "SEO Dada Logo"
+    },
+    {
+      "src": " ",
+      "alt": "SEO Dada Logo"
+    }
+  ],
+  "counts": {
+    "headings": 5,
+    "text_blocks": 17,
+    "links": 5,
+    "images": 2
+  }
+}

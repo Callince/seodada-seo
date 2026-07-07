@@ -1,0 +1,111 @@
+{
+  "slug": "_robots_display",
+  "source": "D:/SEO RENEW/seo/templates/_robots_display.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h5",
+      "text": "Robots.txt Analysis"
+    },
+    {
+      "level": "h6",
+      "text": "Disallow Rules:"
+    },
+    {
+      "level": "h6",
+      "text": "Allow Rules:"
+    },
+    {
+      "level": "h6",
+      "text": "Sitemaps:"
+    },
+    {
+      "level": "h6",
+      "text": "Crawl Delay:"
+    }
+  ],
+  "text_blocks": [
+    "Domain:",
+    "robots.txt found",
+    "no robots.txt found",
+    "No disallow rules found. All paths are allowed.",
+    "No allow rules found.",
+    "Analyze Sitemap",
+    "seconds"
+  ],
+  "flow": [
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Robots.txt Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Domain:"
+    },
+    {
+      "type": "text",
+      "text": "robots.txt found"
+    },
+    {
+      "type": "text",
+      "text": "no robots.txt found"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Disallow Rules:"
+    },
+    {
+      "type": "text",
+      "text": "No disallow rules found. All paths are allowed."
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Allow Rules:"
+    },
+    {
+      "type": "text",
+      "text": "No allow rules found."
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Sitemaps:"
+    },
+    {
+      "type": "text",
+      "text": "Analyze Sitemap"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Crawl Delay:"
+    },
+    {
+      "type": "text",
+      "text": "seconds"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Analyze Sitemap"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 5,
+    "text_blocks": 7,
+    "links": 1,
+    "images": 0
+  }
+}

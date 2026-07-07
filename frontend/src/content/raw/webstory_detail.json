@@ -1,0 +1,45 @@
+{
+  "slug": "webstory_detail",
+  "source": "D:/SEO RENEW/seo/templates/webstory_detail.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [],
+  "text_blocks": [
+    "Loading Story...",
+    "1 /",
+    "Learn More"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Loading Story..."
+    },
+    {
+      "type": "text",
+      "text": "1 /"
+    },
+    {
+      "type": "text",
+      "text": "Learn More"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Learn More"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 0,
+    "text_blocks": 3,
+    "links": 1,
+    "images": 0
+  }
+}

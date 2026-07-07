@@ -1,0 +1,132 @@
+{
+  "slug": "image_search",
+  "source": "D:/SEO RENEW/seo/templates/image_search.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Image Search Tool"
+    },
+    {
+      "level": "h5",
+      "text": "Search for Images"
+    },
+    {
+      "level": "h5",
+      "text": "Home Links"
+    }
+  ],
+  "text_blocks": [
+    "Image Search",
+    "Enter URL to analyze:",
+    "Respect robots.txt rules (mandatory)",
+    "This will analyze the site's robots.txt file and filter out any disallowed URLs",
+    "Analyze URL",
+    "Analyze this link",
+    "links found",
+    "Download Links CSV",
+    "Analyze",
+    "Link",
+    "No home links found.",
+    "Back to Home",
+    "Loading...",
+    "Analyzing website..."
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Image Search"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Image Search Tool"
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Search for Images"
+    },
+    {
+      "type": "text",
+      "text": "Enter URL to analyze:"
+    },
+    {
+      "type": "text",
+      "text": "Respect robots.txt rules (mandatory)"
+    },
+    {
+      "type": "text",
+      "text": "This will analyze the site's robots.txt file and filter out any disallowed URLs"
+    },
+    {
+      "type": "text",
+      "text": "Analyze URL"
+    },
+    {
+      "type": "text",
+      "text": "Analyze this link"
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Home Links"
+    },
+    {
+      "type": "text",
+      "text": "links found"
+    },
+    {
+      "type": "text",
+      "text": "Download Links CSV"
+    },
+    {
+      "type": "text",
+      "text": "Analyze"
+    },
+    {
+      "type": "text",
+      "text": "Link"
+    },
+    {
+      "type": "text",
+      "text": "No home links found."
+    },
+    {
+      "type": "text",
+      "text": "Back to Home"
+    },
+    {
+      "type": "text",
+      "text": "Loading..."
+    },
+    {
+      "type": "text",
+      "text": "Analyzing website..."
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Download Links CSV"
+    },
+    {
+      "href": " ",
+      "text": "Back to Home"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 3,
+    "text_blocks": 14,
+    "links": 2,
+    "images": 0
+  }
+}

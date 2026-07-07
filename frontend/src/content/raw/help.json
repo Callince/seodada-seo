@@ -1,0 +1,669 @@
+{
+  "slug": "help",
+  "source": "D:/SEO RENEW/seo/templates/help.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Help Center"
+    },
+    {
+      "level": "h2",
+      "text": "Welcome to Fourth Dimension SEO Dada"
+    },
+    {
+      "level": "h2",
+      "text": "Analysis Tools Overview"
+    },
+    {
+      "level": "h3",
+      "text": "URL Search (1 Token)"
+    },
+    {
+      "level": "h3",
+      "text": "Keyword Analysis (3 Tokens)"
+    },
+    {
+      "level": "h3",
+      "text": "Image Analysis (2 Tokens)"
+    },
+    {
+      "level": "h3",
+      "text": "Heading Analysis (1 Token)"
+    },
+    {
+      "level": "h3",
+      "text": "Meta Tag Analysis (2 Tokens)"
+    },
+    {
+      "level": "h3",
+      "text": "Site Structure (2 Tokens)"
+    },
+    {
+      "level": "h2",
+      "text": "Account Management"
+    },
+    {
+      "level": "h3",
+      "text": "Profile Management"
+    },
+    {
+      "level": "h3",
+      "text": "Password Security"
+    },
+    {
+      "level": "h3",
+      "text": "Email Verification"
+    },
+    {
+      "level": "h2",
+      "text": "Subscriptions & Token System"
+    },
+    {
+      "level": "h3",
+      "text": "Understanding Tokens"
+    },
+    {
+      "level": "h3",
+      "text": "Subscription Plans"
+    },
+    {
+      "level": "h3",
+      "text": "Purchasing Additional Tokens"
+    },
+    {
+      "level": "h2",
+      "text": "Dashboard"
+    },
+    {
+      "level": "h3",
+      "text": "Subscription Overview"
+    },
+    {
+      "level": "h2",
+      "text": "Search History"
+    },
+    {
+      "level": "h3",
+      "text": "History Information"
+    },
+    {
+      "level": "h2",
+      "text": "Exports & Downloads"
+    },
+    {
+      "level": "h3",
+      "text": "How to Export Data"
+    },
+    {
+      "level": "h2",
+      "text": "Troubleshooting"
+    },
+    {
+      "level": "h3",
+      "text": "Analysis Not Working"
+    },
+    {
+      "level": "h3",
+      "text": "Access Denied Errors"
+    },
+    {
+      "level": "h2",
+      "text": "Frequently Asked Questions"
+    },
+    {
+      "level": "h3",
+      "text": "What happens when I run out of daily tokens?"
+    },
+    {
+      "level": "h3",
+      "text": "Can I analyze password-protected websites?"
+    },
+    {
+      "level": "h3",
+      "text": "How accurate is the SEO analysis?"
+    },
+    {
+      "level": "h3",
+      "text": "Can I cancel my subscription anytime?"
+    },
+    {
+      "level": "h3",
+      "text": "Need More Help?"
+    }
+  ],
+  "text_blocks": [
+    "Help Center | SEO Dada",
+    "Comprehensive guide to using Fourth Dimension SEO Dada. Learn how to use our powerful analysis tools, manage your account, and optimize your website for search engines.",
+    "Our platform helps you analyze websites comprehensively with tools for link analysis, SEO optimization, content analysis, and more. Get started by signing up, choosing a subscription plan, and exploring our powerful analysis tools.",
+    "Fourth Dimension provides six powerful analysis tools to help you understand and optimize websites:",
+    "Analyze all links on a webpage, categorize internal vs external links, and respect robots.txt rules. Navigate to URL Search, enter the website URL, choose whether to respect robots.txt, and click Analyze.",
+    "Extract text content and analyze keyword density, frequency, and distribution across the page. Enter up to 10 keywords (comma-separated) and get comprehensive keyword insights including density percentages and frequency counts.",
+    "Find all images on a page with details like file size, dimensions, alt text, and optimization status. Perfect for identifying image optimization opportunities and ensuring all images have proper alt text for accessibility.",
+    "Examine the heading structure (H1-H6) for SEO optimization and content hierarchy. Ensure your pages follow proper heading hierarchy and include target keywords in headings.",
+    "Extract and analyze meta tags, Open Graph data, and JSON-LD schema markup. Optimize your title tags (50-60 characters), meta descriptions (150-160 characters), and social media tags.",
+    "Comprehensive website crawling with visual representation of site architecture. Start from any URL and the crawler will follow all internal links, respect robots.txt rules, check HTTP status codes, and build a complete site map.",
+    "Update your personal information, change passwords, and manage account settings. Navigate to Profile from the main menu to update your name, change password (requires current password), and view account activity.",
+    "Your password must meet these requirements:",
+    "At least 8 characters long",
+    "Contains uppercase and lowercase letters",
+    "Includes at least one number",
+    "Has at least one special character (!@#$%^&*)",
+    "If you haven't verified your email or need to resend verification, go to the login page, click \"Resend Verification\", enter your email address, and check your inbox for the verification link.",
+    "Our platform uses a token-based system. Each analysis tool consumes a certain number of tokens. You get daily tokens with your subscription, and can purchase additional tokens when needed. Daily tokens reset every 24 hours, while additional tokens expire when your subscription ends.",
+    "Visit the Subscriptions page to view available plans and features. Each plan includes:",
+    "Daily token allocation",
+    "Access to all analysis tools",
+    "Search history and exports",
+    "Email support",
+    "To purchase additional tokens:",
+    "Go to your Subscriptions page",
+    "Click \"Purchase Additional Tokens\"",
+    "Select the number of tokens you need",
+    "Complete payment via Razorpay",
+    "Tokens are immediately added to your account",
+    "Your dashboard provides an overview of your account activity and usage statistics including daily token usage and remaining tokens, total analyses performed, most used analysis tools, and weekly usage trends.",
+    "The dashboard shows your current subscription status including active plan details, token usage progress, subscription expiry date, and auto-renewal status.",
+    "Track all your previous analyses and easily re-run them or reference past results. Click Search History in the main menu to view a chronological list of all analyses. Filter by date range or analysis tool, and click on any entry to view details.",
+    "Each entry includes:",
+    "URL Analyzed: The website or page examined",
+    "Tool Used: Which analysis tool was used",
+    "Date & Time: When the analysis was performed",
+    "Search Count: Number of times this URL was analyzed",
+    "Export your analysis results in various formats for further processing or reporting. Download structured CSV data for link analysis results, image information, heading structure, meta tag data, and site structure.",
+    "Complete any analysis using our tools",
+    "Look for the Download or Export button",
+    "Choose your preferred format (usually CSV)",
+    "File will download automatically",
+    "Possible Causes:",
+    "Website blocks automated crawling",
+    "Invalid or non-existent URL",
+    "Insufficient tokens remaining",
+    "Network connectivity issues",
+    "Solutions:",
+    "Verify the URL is correct and accessible",
+    "Check your token balance",
+    "Try a different URL to test functionality",
+    "Contact support if issues persist",
+    "Common Causes:",
+    "Subscription expired",
+    "Daily token limit reached",
+    "Account not verified",
+    "Check subscription status",
+    "Purchase additional tokens",
+    "Verify your email address",
+    "Renew expired subscription",
+    "When you exhaust your daily token allocation, you can either purchase additional tokens immediately or wait until the next day when your daily tokens reset. Additional tokens can be purchased in bundles of 10, 25, 50, or 100.",
+    "Our tools can only analyze publicly accessible web pages. Password-protected, login-required, or private areas of websites cannot be analyzed as our crawlers don't have authentication credentials.",
+    "Our analysis follows current SEO best practices and guidelines. However, SEO is complex and involves many factors. Use our results as guidance alongside other SEO tools and professional expertise for comprehensive optimization.",
+    "Yes, you can cancel your subscription at any time from the Subscriptions page. You'll continue to have access until your current billing period ends. Auto-renewal can be disabled without canceling immediately.",
+    "If you have any questions or need additional support, please contact our team:",
+    "Fourth Dimension SEO Dada",
+    "📧 Email: support@seodada.com",
+    "📍 Address: Shyamala Towers, 3rd floor, No. 136, Arcot Rd, Saligramam, Chennai, Tamil Nadu 600092",
+    "Contact Support",
+    "Last Updated: June 12, 2025"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Help Center | SEO Dada"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Help Center"
+    },
+    {
+      "type": "text",
+      "text": "Comprehensive guide to using Fourth Dimension SEO Dada. Learn how to use our powerful analysis tools, manage your account, and optimize your website for search engines."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Welcome to Fourth Dimension SEO Dada"
+    },
+    {
+      "type": "text",
+      "text": "Our platform helps you analyze websites comprehensively with tools for link analysis, SEO optimization, content analysis, and more. Get started by signing up, choosing a subscription plan, and exploring our powerful analysis tools."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Analysis Tools Overview"
+    },
+    {
+      "type": "text",
+      "text": "Fourth Dimension provides six powerful analysis tools to help you understand and optimize websites:"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "URL Search (1 Token)"
+    },
+    {
+      "type": "text",
+      "text": "Analyze all links on a webpage, categorize internal vs external links, and respect robots.txt rules. Navigate to URL Search, enter the website URL, choose whether to respect robots.txt, and click Analyze."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Keyword Analysis (3 Tokens)"
+    },
+    {
+      "type": "text",
+      "text": "Extract text content and analyze keyword density, frequency, and distribution across the page. Enter up to 10 keywords (comma-separated) and get comprehensive keyword insights including density percentages and frequency counts."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Image Analysis (2 Tokens)"
+    },
+    {
+      "type": "text",
+      "text": "Find all images on a page with details like file size, dimensions, alt text, and optimization status. Perfect for identifying image optimization opportunities and ensuring all images have proper alt text for accessibility."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Heading Analysis (1 Token)"
+    },
+    {
+      "type": "text",
+      "text": "Examine the heading structure (H1-H6) for SEO optimization and content hierarchy. Ensure your pages follow proper heading hierarchy and include target keywords in headings."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Meta Tag Analysis (2 Tokens)"
+    },
+    {
+      "type": "text",
+      "text": "Extract and analyze meta tags, Open Graph data, and JSON-LD schema markup. Optimize your title tags (50-60 characters), meta descriptions (150-160 characters), and social media tags."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Site Structure (2 Tokens)"
+    },
+    {
+      "type": "text",
+      "text": "Comprehensive website crawling with visual representation of site architecture. Start from any URL and the crawler will follow all internal links, respect robots.txt rules, check HTTP status codes, and build a complete site map."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Account Management"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Profile Management"
+    },
+    {
+      "type": "text",
+      "text": "Update your personal information, change passwords, and manage account settings. Navigate to Profile from the main menu to update your name, change password (requires current password), and view account activity."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Password Security"
+    },
+    {
+      "type": "text",
+      "text": "Your password must meet these requirements:"
+    },
+    {
+      "type": "text",
+      "text": "At least 8 characters long"
+    },
+    {
+      "type": "text",
+      "text": "Contains uppercase and lowercase letters"
+    },
+    {
+      "type": "text",
+      "text": "Includes at least one number"
+    },
+    {
+      "type": "text",
+      "text": "Has at least one special character (!@#$%^&*)"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Email Verification"
+    },
+    {
+      "type": "text",
+      "text": "If you haven't verified your email or need to resend verification, go to the login page, click \"Resend Verification\", enter your email address, and check your inbox for the verification link."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Subscriptions & Token System"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Understanding Tokens"
+    },
+    {
+      "type": "text",
+      "text": "Our platform uses a token-based system. Each analysis tool consumes a certain number of tokens. You get daily tokens with your subscription, and can purchase additional tokens when needed. Daily tokens reset every 24 hours, while additional tokens expire when your subscription ends."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Subscription Plans"
+    },
+    {
+      "type": "text",
+      "text": "Visit the Subscriptions page to view available plans and features. Each plan includes:"
+    },
+    {
+      "type": "text",
+      "text": "Daily token allocation"
+    },
+    {
+      "type": "text",
+      "text": "Access to all analysis tools"
+    },
+    {
+      "type": "text",
+      "text": "Search history and exports"
+    },
+    {
+      "type": "text",
+      "text": "Email support"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Purchasing Additional Tokens"
+    },
+    {
+      "type": "text",
+      "text": "To purchase additional tokens:"
+    },
+    {
+      "type": "text",
+      "text": "Go to your Subscriptions page"
+    },
+    {
+      "type": "text",
+      "text": "Click \"Purchase Additional Tokens\""
+    },
+    {
+      "type": "text",
+      "text": "Select the number of tokens you need"
+    },
+    {
+      "type": "text",
+      "text": "Complete payment via Razorpay"
+    },
+    {
+      "type": "text",
+      "text": "Tokens are immediately added to your account"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Dashboard"
+    },
+    {
+      "type": "text",
+      "text": "Your dashboard provides an overview of your account activity and usage statistics including daily token usage and remaining tokens, total analyses performed, most used analysis tools, and weekly usage trends."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Subscription Overview"
+    },
+    {
+      "type": "text",
+      "text": "The dashboard shows your current subscription status including active plan details, token usage progress, subscription expiry date, and auto-renewal status."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Search History"
+    },
+    {
+      "type": "text",
+      "text": "Track all your previous analyses and easily re-run them or reference past results. Click Search History in the main menu to view a chronological list of all analyses. Filter by date range or analysis tool, and click on any entry to view details."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "History Information"
+    },
+    {
+      "type": "text",
+      "text": "Each entry includes:"
+    },
+    {
+      "type": "text",
+      "text": "URL Analyzed: The website or page examined"
+    },
+    {
+      "type": "text",
+      "text": "Tool Used: Which analysis tool was used"
+    },
+    {
+      "type": "text",
+      "text": "Date & Time: When the analysis was performed"
+    },
+    {
+      "type": "text",
+      "text": "Search Count: Number of times this URL was analyzed"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Exports & Downloads"
+    },
+    {
+      "type": "text",
+      "text": "Export your analysis results in various formats for further processing or reporting. Download structured CSV data for link analysis results, image information, heading structure, meta tag data, and site structure."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "How to Export Data"
+    },
+    {
+      "type": "text",
+      "text": "Complete any analysis using our tools"
+    },
+    {
+      "type": "text",
+      "text": "Look for the Download or Export button"
+    },
+    {
+      "type": "text",
+      "text": "Choose your preferred format (usually CSV)"
+    },
+    {
+      "type": "text",
+      "text": "File will download automatically"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Troubleshooting"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Analysis Not Working"
+    },
+    {
+      "type": "text",
+      "text": "Possible Causes:"
+    },
+    {
+      "type": "text",
+      "text": "Website blocks automated crawling"
+    },
+    {
+      "type": "text",
+      "text": "Invalid or non-existent URL"
+    },
+    {
+      "type": "text",
+      "text": "Insufficient tokens remaining"
+    },
+    {
+      "type": "text",
+      "text": "Network connectivity issues"
+    },
+    {
+      "type": "text",
+      "text": "Solutions:"
+    },
+    {
+      "type": "text",
+      "text": "Verify the URL is correct and accessible"
+    },
+    {
+      "type": "text",
+      "text": "Check your token balance"
+    },
+    {
+      "type": "text",
+      "text": "Try a different URL to test functionality"
+    },
+    {
+      "type": "text",
+      "text": "Contact support if issues persist"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Access Denied Errors"
+    },
+    {
+      "type": "text",
+      "text": "Common Causes:"
+    },
+    {
+      "type": "text",
+      "text": "Subscription expired"
+    },
+    {
+      "type": "text",
+      "text": "Daily token limit reached"
+    },
+    {
+      "type": "text",
+      "text": "Account not verified"
+    },
+    {
+      "type": "text",
+      "text": "Check subscription status"
+    },
+    {
+      "type": "text",
+      "text": "Purchase additional tokens"
+    },
+    {
+      "type": "text",
+      "text": "Verify your email address"
+    },
+    {
+      "type": "text",
+      "text": "Renew expired subscription"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Frequently Asked Questions"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "What happens when I run out of daily tokens?"
+    },
+    {
+      "type": "text",
+      "text": "When you exhaust your daily token allocation, you can either purchase additional tokens immediately or wait until the next day when your daily tokens reset. Additional tokens can be purchased in bundles of 10, 25, 50, or 100."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Can I analyze password-protected websites?"
+    },
+    {
+      "type": "text",
+      "text": "Our tools can only analyze publicly accessible web pages. Password-protected, login-required, or private areas of websites cannot be analyzed as our crawlers don't have authentication credentials."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "How accurate is the SEO analysis?"
+    },
+    {
+      "type": "text",
+      "text": "Our analysis follows current SEO best practices and guidelines. However, SEO is complex and involves many factors. Use our results as guidance alongside other SEO tools and professional expertise for comprehensive optimization."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Can I cancel my subscription anytime?"
+    },
+    {
+      "type": "text",
+      "text": "Yes, you can cancel your subscription at any time from the Subscriptions page. You'll continue to have access until your current billing period ends. Auto-renewal can be disabled without canceling immediately."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Need More Help?"
+    },
+    {
+      "type": "text",
+      "text": "If you have any questions or need additional support, please contact our team:"
+    },
+    {
+      "type": "text",
+      "text": "Fourth Dimension SEO Dada"
+    },
+    {
+      "type": "text",
+      "text": "📧 Email: support@seodada.com"
+    },
+    {
+      "type": "text",
+      "text": "📍 Address: Shyamala Towers, 3rd floor, No. 136, Arcot Rd, Saligramam, Chennai, Tamil Nadu 600092"
+    },
+    {
+      "type": "text",
+      "text": "Contact Support"
+    },
+    {
+      "type": "text",
+      "text": "Last Updated: June 12, 2025"
+    }
+  ],
+  "links": [
+    {
+      "href": "mailto:support@seodada.com",
+      "text": "Contact Support"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 32,
+    "text_blocks": 70,
+    "links": 1,
+    "images": 0
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "slug": "login",
+  "source": "D:/SEO RENEW/seo/templates/login.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Welcome back"
+    },
+    {
+      "level": "h2",
+      "text": "Elevate Your SEO Score"
+    }
+  ],
+  "text_blocks": [
+    "Login | Fourth Dimension",
+    "Please enter your credentials to sign in",
+    "Email Address",
+    "Password",
+    "Forgot password?",
+    "Log in",
+    "Don't have an account?",
+    "Sign up",
+    "Get comprehensive insights into website performance, SEO optimization, and content structure with our advanced tools.",
+    "Complete URL analysis in seconds",
+    "Track performance metrics over time",
+    "Visualize site structures and hierarchies",
+    "Secure and private data processing"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Login | Fourth Dimension"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Welcome back"
+    },
+    {
+      "type": "text",
+      "text": "Please enter your credentials to sign in"
+    },
+    {
+      "type": "text",
+      "text": "Email Address"
+    },
+    {
+      "type": "text",
+      "text": "Password"
+    },
+    {
+      "type": "text",
+      "text": "Forgot password?"
+    },
+    {
+      "type": "text",
+      "text": "Log in"
+    },
+    {
+      "type": "text",
+      "text": "Don't have an account?"
+    },
+    {
+      "type": "text",
+      "text": "Sign up"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Elevate Your SEO Score"
+    },
+    {
+      "type": "text",
+      "text": "Get comprehensive insights into website performance, SEO optimization, and content structure with our advanced tools."
+    },
+    {
+      "type": "text",
+      "text": "Complete URL analysis in seconds"
+    },
+    {
+      "type": "text",
+      "text": "Track performance metrics over time"
+    },
+    {
+      "type": "text",
+      "text": "Visualize site structures and hierarchies"
+    },
+    {
+      "type": "text",
+      "text": "Secure and private data processing"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Forgot password?"
+    },
+    {
+      "href": " ",
+      "text": "Sign up"
+    }
+  ],
+  "images": [
+    {
+      "src": " ",
+      "alt": "  Logo"
+    }
+  ],
+  "counts": {
+    "headings": 2,
+    "text_blocks": 13,
+    "links": 2,
+    "images": 1
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "slug": "sitemap_blogs",
+  "source": "D:/SEO RENEW/seo/templates/sitemap_blogs.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Posts"
+    },
+    {
+      "level": "h2",
+      "text": "All Post Articles"
+    }
+  ],
+  "text_blocks": [
+    "Back to Sitemap",
+    "All post articles on SEO Dada",
+    "Sitemap",
+    "Posts",
+    "articles published",
+    "Visit Posts",
+    "Article Title",
+    "Category",
+    "URL",
+    "Images",
+    "Last Updated",
+    "All Posts (Main Page)",
+    "/blogs",
+    "/blog/",
+    "No post articles published yet.",
+    "© SEO Dada. All rights reserved.",
+    "Privacy",
+    "Terms",
+    "Contact"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Back to Sitemap"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Posts"
+    },
+    {
+      "type": "text",
+      "text": "All post articles on SEO Dada"
+    },
+    {
+      "type": "text",
+      "text": "Sitemap"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "All Post Articles"
+    },
+    {
+      "type": "text",
+      "text": "articles published"
+    },
+    {
+      "type": "text",
+      "text": "Visit Posts"
+    },
+    {
+      "type": "text",
+      "text": "Article Title"
+    },
+    {
+      "type": "text",
+      "text": "Category"
+    },
+    {
+      "type": "text",
+      "text": "URL"
+    },
+    {
+      "type": "text",
+      "text": "Images"
+    },
+    {
+      "type": "text",
+      "text": "Last Updated"
+    },
+    {
+      "type": "text",
+      "text": "All Posts (Main Page)"
+    },
+    {
+      "type": "text",
+      "text": "/blogs"
+    },
+    {
+      "type": "text",
+      "text": "/blog/"
+    },
+    {
+      "type": "text",
+      "text": "No post articles published yet."
+    },
+    {
+      "type": "text",
+      "text": "© SEO Dada. All rights reserved."
+    },
+    {
+      "type": "text",
+      "text": "Privacy"
+    },
+    {
+      "type": "text",
+      "text": "Terms"
+    },
+    {
+      "type": "text",
+      "text": "Contact"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Back to Sitemap"
+    },
+    {
+      "href": " ",
+      "text": "Sitemap"
+    },
+    {
+      "href": " ",
+      "text": "Visit Posts"
+    },
+    {
+      "href": " ",
+      "text": "All Posts (Main Page)"
+    },
+    {
+      "href": " ",
+      "text": "Privacy"
+    },
+    {
+      "href": " ",
+      "text": "Terms"
+    },
+    {
+      "href": " ",
+      "text": "Contact"
+    }
+  ],
+  "images": [
+    {
+      "src": " ",
+      "alt": "SEO Dada Logo"
+    },
+    {
+      "src": " ",
+      "alt": "SEO Dada Logo"
+    }
+  ],
+  "counts": {
+    "headings": 2,
+    "text_blocks": 19,
+    "links": 7,
+    "images": 2
+  }
+}

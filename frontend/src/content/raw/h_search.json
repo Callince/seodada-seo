@@ -1,0 +1,127 @@
+{
+  "slug": "h_search",
+  "source": "D:/SEO RENEW/seo/templates/h_search.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Heading Analysis Tool"
+    },
+    {
+      "level": "h5",
+      "text": "Search for Headings"
+    },
+    {
+      "level": "h5",
+      "text": "Home Links"
+    }
+  ],
+  "text_blocks": [
+    "Heading Search",
+    "Enter URL to analyze:",
+    "Respect robots.txt rules (mandatory)",
+    "This will analyze the site's robots.txt file and filter out any disallowed URLs",
+    "Analyze URL",
+    "Analyze this link",
+    "links found",
+    "Download Links CSV",
+    "Analyze",
+    "Link",
+    "No home links found.",
+    "Back to Home",
+    "Loading..."
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Heading Search"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Heading Analysis Tool"
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Search for Headings"
+    },
+    {
+      "type": "text",
+      "text": "Enter URL to analyze:"
+    },
+    {
+      "type": "text",
+      "text": "Respect robots.txt rules (mandatory)"
+    },
+    {
+      "type": "text",
+      "text": "This will analyze the site's robots.txt file and filter out any disallowed URLs"
+    },
+    {
+      "type": "text",
+      "text": "Analyze URL"
+    },
+    {
+      "type": "text",
+      "text": "Analyze this link"
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Home Links"
+    },
+    {
+      "type": "text",
+      "text": "links found"
+    },
+    {
+      "type": "text",
+      "text": "Download Links CSV"
+    },
+    {
+      "type": "text",
+      "text": "Analyze"
+    },
+    {
+      "type": "text",
+      "text": "Link"
+    },
+    {
+      "type": "text",
+      "text": "No home links found."
+    },
+    {
+      "type": "text",
+      "text": "Back to Home"
+    },
+    {
+      "type": "text",
+      "text": "Loading..."
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Download Links CSV"
+    },
+    {
+      "href": " ",
+      "text": "Back to Home"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 3,
+    "text_blocks": 13,
+    "links": 2,
+    "images": 0
+  }
+}

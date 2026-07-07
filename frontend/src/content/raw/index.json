@@ -1,0 +1,339 @@
+{
+  "slug": "index",
+  "source": "D:/SEO RENEW/seo/templates/index.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Hello , Welcome to SEO Analyzer"
+    },
+    {
+      "level": "h5",
+      "text": "Subscription Required"
+    },
+    {
+      "level": "h2",
+      "text": "Powerful Analysis Tools"
+    },
+    {
+      "level": "h3",
+      "text": "URL Analysis"
+    },
+    {
+      "level": "h3",
+      "text": "Heading Analysis"
+    },
+    {
+      "level": "h3",
+      "text": "Keyword Analysis"
+    },
+    {
+      "level": "h3",
+      "text": "Image Analysis"
+    },
+    {
+      "level": "h3",
+      "text": "Meta Analysis"
+    },
+    {
+      "level": "h3",
+      "text": "Site Structure"
+    },
+    {
+      "level": "h2",
+      "text": "Recent Analyses"
+    }
+  ],
+  "text_blocks": [
+    "Dashboard - SEO Dada",
+    "Your comprehensive tool for analyzing websites and improving online presence.",
+    "To access advanced features and tools, please upgrade your subscription.",
+    "Upgrade Now",
+    "Today's Tokens",
+    "Daily Quota:",
+    "Additional:",
+    "From daily quota",
+    "+ %",
+    "vs yesterday",
+    "Total Tokens",
+    "Lifetime consumption",
+    "% to next milestone",
+    "Top Tool",
+    "Most frequently used",
+    "Weekly Growth",
+    "+ % 0.0%",
+    "Last 7 days",
+    "1 token",
+    "Comprehensive analysis of individual URLs for performance and SEO.",
+    "Explore",
+    "Locked",
+    "Analyze H1-H6 tags to ensure proper heading structure and SEO optimization.",
+    "3 tokens",
+    "Extract and analyze keyword usage and density across your web pages.",
+    "2 tokens",
+    "Check image optimization, alt tags, and loading performance.",
+    "Evaluate meta tags, descriptions, and other critical SEO elements.",
+    "Review your site structure and navigation patterns for better UX.",
+    "URL",
+    "Analysis Type",
+    "Date & Time",
+    "Actions",
+    "N/A",
+    "View",
+    "No recent analyses found",
+    "View Full History",
+    "Loading..."
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Dashboard - SEO Dada"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Hello , Welcome to SEO Analyzer"
+    },
+    {
+      "type": "text",
+      "text": "Your comprehensive tool for analyzing websites and improving online presence."
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Subscription Required"
+    },
+    {
+      "type": "text",
+      "text": "To access advanced features and tools, please upgrade your subscription."
+    },
+    {
+      "type": "text",
+      "text": "Upgrade Now"
+    },
+    {
+      "type": "text",
+      "text": "Today's Tokens"
+    },
+    {
+      "type": "text",
+      "text": "Daily Quota:"
+    },
+    {
+      "type": "text",
+      "text": "Additional:"
+    },
+    {
+      "type": "text",
+      "text": "From daily quota"
+    },
+    {
+      "type": "text",
+      "text": "+ %"
+    },
+    {
+      "type": "text",
+      "text": "vs yesterday"
+    },
+    {
+      "type": "text",
+      "text": "Total Tokens"
+    },
+    {
+      "type": "text",
+      "text": "Lifetime consumption"
+    },
+    {
+      "type": "text",
+      "text": "% to next milestone"
+    },
+    {
+      "type": "text",
+      "text": "Top Tool"
+    },
+    {
+      "type": "text",
+      "text": "Most frequently used"
+    },
+    {
+      "type": "text",
+      "text": "Weekly Growth"
+    },
+    {
+      "type": "text",
+      "text": "+ % 0.0%"
+    },
+    {
+      "type": "text",
+      "text": "Last 7 days"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Powerful Analysis Tools"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "URL Analysis"
+    },
+    {
+      "type": "text",
+      "text": "1 token"
+    },
+    {
+      "type": "text",
+      "text": "Comprehensive analysis of individual URLs for performance and SEO."
+    },
+    {
+      "type": "text",
+      "text": "Explore"
+    },
+    {
+      "type": "text",
+      "text": "Locked"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Heading Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Analyze H1-H6 tags to ensure proper heading structure and SEO optimization."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Keyword Analysis"
+    },
+    {
+      "type": "text",
+      "text": "3 tokens"
+    },
+    {
+      "type": "text",
+      "text": "Extract and analyze keyword usage and density across your web pages."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Image Analysis"
+    },
+    {
+      "type": "text",
+      "text": "2 tokens"
+    },
+    {
+      "type": "text",
+      "text": "Check image optimization, alt tags, and loading performance."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Meta Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Evaluate meta tags, descriptions, and other critical SEO elements."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Site Structure"
+    },
+    {
+      "type": "text",
+      "text": "Review your site structure and navigation patterns for better UX."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Recent Analyses"
+    },
+    {
+      "type": "text",
+      "text": "URL"
+    },
+    {
+      "type": "text",
+      "text": "Analysis Type"
+    },
+    {
+      "type": "text",
+      "text": "Date & Time"
+    },
+    {
+      "type": "text",
+      "text": "Actions"
+    },
+    {
+      "type": "text",
+      "text": "N/A"
+    },
+    {
+      "type": "text",
+      "text": "View"
+    },
+    {
+      "type": "text",
+      "text": "No recent analyses found"
+    },
+    {
+      "type": "text",
+      "text": "View Full History"
+    },
+    {
+      "type": "text",
+      "text": "Loading..."
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Upgrade Now"
+    },
+    {
+      "href": " ",
+      "text": "Explore"
+    },
+    {
+      "href": " ",
+      "text": "Explore"
+    },
+    {
+      "href": " ",
+      "text": "Explore"
+    },
+    {
+      "href": " ",
+      "text": "Explore"
+    },
+    {
+      "href": " ",
+      "text": "Explore"
+    },
+    {
+      "href": " ",
+      "text": "Explore"
+    },
+    {
+      "href": " ",
+      "text": "View Full History"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 10,
+    "text_blocks": 38,
+    "links": 8,
+    "images": 0
+  }
+}

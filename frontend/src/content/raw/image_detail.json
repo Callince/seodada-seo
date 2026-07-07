@@ -1,0 +1,280 @@
+{
+  "slug": "image_detail",
+  "source": "D:/SEO RENEW/seo/templates/image_detail.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h5",
+      "text": "Loading Images..."
+    },
+    {
+      "level": "h1",
+      "text": "Image Analysis Results"
+    },
+    {
+      "level": "h5",
+      "text": "Image Extraction Error"
+    },
+    {
+      "level": "h5",
+      "text": "Image Extraction Error"
+    },
+    {
+      "level": "h6",
+      "text": "Error Details"
+    },
+    {
+      "level": "h6",
+      "text": "Troubleshooting Suggestions"
+    }
+  ],
+  "text_blocks": [
+    "Loading...",
+    "Please wait while we analyze the images.",
+    "Analyzing:",
+    "Back",
+    "CSV",
+    "Download (",
+    "Select All Images",
+    "(Maximum 50 images can be selected for download)",
+    "Filter by Extension",
+    "All Extensions Errors",
+    "Search",
+    "Filter by SEO Status",
+    "All Images Missing Alt Text Has Alt Text Missing Title Has Title Errors",
+    "Total Images",
+    "Alt Text Present",
+    "Missing Alt Text",
+    "SEO Score",
+    "No images match your current filters.",
+    "ERROR",
+    "Error Image",
+    "URL:",
+    "Error:",
+    "Details:",
+    "...",
+    "Title:",
+    "Alt Text:",
+    "Size:",
+    "Resolution:",
+    "Image Extraction Failed",
+    "Missing Title",
+    "Title Present",
+    "Large File Size",
+    "Additional Details:",
+    "Verify the image URL is accessible",
+    "Check for SSL/security restrictions",
+    "Ensure the server allows image downloads",
+    "Check network connectivity",
+    "Close",
+    "Copy URL"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Loading..."
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Loading Images..."
+    },
+    {
+      "type": "text",
+      "text": "Please wait while we analyze the images."
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Image Analysis Results"
+    },
+    {
+      "type": "text",
+      "text": "Analyzing:"
+    },
+    {
+      "type": "text",
+      "text": "Back"
+    },
+    {
+      "type": "text",
+      "text": "CSV"
+    },
+    {
+      "type": "text",
+      "text": "Download ("
+    },
+    {
+      "type": "text",
+      "text": "Select All Images"
+    },
+    {
+      "type": "text",
+      "text": "(Maximum 50 images can be selected for download)"
+    },
+    {
+      "type": "text",
+      "text": "Filter by Extension"
+    },
+    {
+      "type": "text",
+      "text": "All Extensions Errors"
+    },
+    {
+      "type": "text",
+      "text": "Search"
+    },
+    {
+      "type": "text",
+      "text": "Filter by SEO Status"
+    },
+    {
+      "type": "text",
+      "text": "All Images Missing Alt Text Has Alt Text Missing Title Has Title Errors"
+    },
+    {
+      "type": "text",
+      "text": "Total Images"
+    },
+    {
+      "type": "text",
+      "text": "Alt Text Present"
+    },
+    {
+      "type": "text",
+      "text": "Missing Alt Text"
+    },
+    {
+      "type": "text",
+      "text": "SEO Score"
+    },
+    {
+      "type": "text",
+      "text": "No images match your current filters."
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Image Extraction Error"
+    },
+    {
+      "type": "text",
+      "text": "ERROR"
+    },
+    {
+      "type": "text",
+      "text": "Error Image"
+    },
+    {
+      "type": "text",
+      "text": "URL:"
+    },
+    {
+      "type": "text",
+      "text": "Error:"
+    },
+    {
+      "type": "text",
+      "text": "Details:"
+    },
+    {
+      "type": "text",
+      "text": "..."
+    },
+    {
+      "type": "text",
+      "text": "Title:"
+    },
+    {
+      "type": "text",
+      "text": "Alt Text:"
+    },
+    {
+      "type": "text",
+      "text": "Size:"
+    },
+    {
+      "type": "text",
+      "text": "Resolution:"
+    },
+    {
+      "type": "text",
+      "text": "Image Extraction Failed"
+    },
+    {
+      "type": "text",
+      "text": "Missing Title"
+    },
+    {
+      "type": "text",
+      "text": "Title Present"
+    },
+    {
+      "type": "text",
+      "text": "Large File Size"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Error Details"
+    },
+    {
+      "type": "text",
+      "text": "Additional Details:"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Troubleshooting Suggestions"
+    },
+    {
+      "type": "text",
+      "text": "Verify the image URL is accessible"
+    },
+    {
+      "type": "text",
+      "text": "Check for SSL/security restrictions"
+    },
+    {
+      "type": "text",
+      "text": "Ensure the server allows image downloads"
+    },
+    {
+      "type": "text",
+      "text": "Check network connectivity"
+    },
+    {
+      "type": "text",
+      "text": "Close"
+    },
+    {
+      "type": "text",
+      "text": "Copy URL"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Back"
+    }
+  ],
+  "images": [
+    {
+      "src": " ",
+      "alt": " "
+    }
+  ],
+  "counts": {
+    "headings": 6,
+    "text_blocks": 39,
+    "links": 1,
+    "images": 1
+  }
+}

@@ -1,0 +1,290 @@
+{
+  "slug": "h_detail",
+  "source": "D:/SEO RENEW/seo/templates/h_detail.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Heading Analysis Results"
+    },
+    {
+      "level": "h2",
+      "text": "Quick Actions"
+    },
+    {
+      "level": "h2",
+      "text": "Heading Distribution"
+    },
+    {
+      "level": "h3",
+      "text": "Heading Hierarchy"
+    },
+    {
+      "level": "h3",
+      "text": "Summary Statistics"
+    },
+    {
+      "level": "h3",
+      "text": "Heading SEO Analysis"
+    },
+    {
+      "level": "h3",
+      "text": "All Headings (DOM Order)"
+    },
+    {
+      "level": "h2",
+      "text": "Related Links"
+    },
+    {
+      "level": "h2",
+      "text": "Recommendations"
+    },
+    {
+      "level": "h3",
+      "text": "Suggested Improvements"
+    }
+  ],
+  "text_blocks": [
+    "Analyzing:",
+    "(opens in new tab)",
+    "Download CSV",
+    "Back to Search",
+    "Total Headings",
+    "Average Length",
+    "Longest Heading",
+    "Single H1 tag (recommended)",
+    "Missing H1 tag (required for SEO)",
+    "Multiple H1 tags ( ) found (not recommended)",
+    "No H1 tag found — cannot measure length.",
+    "H1 length is optimal (under 60 characters)",
+    "H1 tag exceeds recommended length",
+    "Multiple H1 tags detected — cannot evaluate proper length.",
+    "Proper heading hierarchy",
+    "Improper heading hierarchy (skipping levels)",
+    "No headings found on this page.",
+    "Search",
+    "Clear",
+    "Tag",
+    "Text",
+    "Length",
+    "[No content]",
+    "Fix H1 Issues",
+    "Add a single H1 tag that clearly describes your page content. Consolidate multiple H1 tags into a single, descriptive H1.",
+    "Empty Headings",
+    "heading(s) have no text. Consider adding content or removing them.",
+    "Fix Heading Hierarchy",
+    "Ensure proper nesting of headings without skipping levels (e.g., H1 → H2 → H3).",
+    "Optimize Heading Length",
+    "heading(s) exceed 60 characters. Consider making them more concise.",
+    "Add Subheadings",
+    "Consider adding H2 subheadings to improve content structure and readability."
+  ],
+  "flow": [
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Heading Analysis Results"
+    },
+    {
+      "type": "text",
+      "text": "Analyzing:"
+    },
+    {
+      "type": "text",
+      "text": "(opens in new tab)"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Quick Actions"
+    },
+    {
+      "type": "text",
+      "text": "Download CSV"
+    },
+    {
+      "type": "text",
+      "text": "Back to Search"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Heading Distribution"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Heading Hierarchy"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Summary Statistics"
+    },
+    {
+      "type": "text",
+      "text": "Total Headings"
+    },
+    {
+      "type": "text",
+      "text": "Average Length"
+    },
+    {
+      "type": "text",
+      "text": "Longest Heading"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Heading SEO Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Single H1 tag (recommended)"
+    },
+    {
+      "type": "text",
+      "text": "Missing H1 tag (required for SEO)"
+    },
+    {
+      "type": "text",
+      "text": "Multiple H1 tags ( ) found (not recommended)"
+    },
+    {
+      "type": "text",
+      "text": "No H1 tag found — cannot measure length."
+    },
+    {
+      "type": "text",
+      "text": "H1 length is optimal (under 60 characters)"
+    },
+    {
+      "type": "text",
+      "text": "H1 tag exceeds recommended length"
+    },
+    {
+      "type": "text",
+      "text": "Multiple H1 tags detected — cannot evaluate proper length."
+    },
+    {
+      "type": "text",
+      "text": "Proper heading hierarchy"
+    },
+    {
+      "type": "text",
+      "text": "Improper heading hierarchy (skipping levels)"
+    },
+    {
+      "type": "text",
+      "text": "No headings found on this page."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "All Headings (DOM Order)"
+    },
+    {
+      "type": "text",
+      "text": "Search"
+    },
+    {
+      "type": "text",
+      "text": "Clear"
+    },
+    {
+      "type": "text",
+      "text": "Tag"
+    },
+    {
+      "type": "text",
+      "text": "Text"
+    },
+    {
+      "type": "text",
+      "text": "Length"
+    },
+    {
+      "type": "text",
+      "text": "[No content]"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Related Links"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Recommendations"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Suggested Improvements"
+    },
+    {
+      "type": "text",
+      "text": "Fix H1 Issues"
+    },
+    {
+      "type": "text",
+      "text": "Add a single H1 tag that clearly describes your page content. Consolidate multiple H1 tags into a single, descriptive H1."
+    },
+    {
+      "type": "text",
+      "text": "Empty Headings"
+    },
+    {
+      "type": "text",
+      "text": "heading(s) have no text. Consider adding content or removing them."
+    },
+    {
+      "type": "text",
+      "text": "Fix Heading Hierarchy"
+    },
+    {
+      "type": "text",
+      "text": "Ensure proper nesting of headings without skipping levels (e.g., H1 → H2 → H3)."
+    },
+    {
+      "type": "text",
+      "text": "Optimize Heading Length"
+    },
+    {
+      "type": "text",
+      "text": "heading(s) exceed 60 characters. Consider making them more concise."
+    },
+    {
+      "type": "text",
+      "text": "Add Subheadings"
+    },
+    {
+      "type": "text",
+      "text": "Consider adding H2 subheadings to improve content structure and readability."
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Download CSV"
+    },
+    {
+      "href": " ",
+      "text": "Back to Search"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 10,
+    "text_blocks": 33,
+    "links": 2,
+    "images": 0
+  }
+}

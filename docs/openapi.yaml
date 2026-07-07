@@ -1,0 +1,3162 @@
+openapi: 3.1.0
+info:
+  title: DataForSEO Intelligence API
+  version: 1.0.0
+  summary: Multi-tenant SEO research API on top of DataForSEO v3.
+  description: 'A multi-tenant SaaS SEO platform. Every billed call flows through a three-tier cost engine
+    (Redis -> Postgres -> upstream) with singleflight coalescing and stale-while-revalidate, so repeat
+    reads are $0.
+
+
+    **Conventions**
+
+    - All endpoints are versioned under `/api/v1`.
+
+    - Every data response embeds a `meta` object (`from_cache`, `cost_cents`, `source`, `latency_ms`).
+
+    - All money values are integer **USD cents**.
+
+    - Auth is JWT Bearer; access tokens are short-lived, refreshed via `/auth/refresh`.
+
+    - Per-organization monthly quota is enforced before any billed call (HTTP 402).'
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: Proprietary
+paths:
+  /api/v1/auth/register:
+    post:
+      tags:
+      - auth
+      summary: Register
+      operationId: register_api_v1_auth_register_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security: []
+  /api/v1/auth/login:
+    post:
+      tags:
+      - auth
+      summary: Login
+      operationId: login_api_v1_auth_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security: []
+  /api/v1/auth/refresh:
+    post:
+      tags:
+      - auth
+      summary: Refresh
+      operationId: refresh_api_v1_auth_refresh_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security: []
+  /api/v1/auth/me:
+    get:
+      tags:
+      - auth
+      summary: Me
+      operationId: me_api_v1_auth_me_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeOut'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/serp/ranking:
+    post:
+      tags:
+      - serp
+      summary: Ranking
+      operationId: ranking_api_v1_serp_ranking_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SerpRankingRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SerpResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/keywords/volume:
+    post:
+      tags:
+      - keywords
+      summary: Volume
+      operationId: volume_api_v1_keywords_volume_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VolumeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VolumeResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/keywords/trends:
+    post:
+      tags:
+      - keywords
+      summary: Trends
+      operationId: trends_api_v1_keywords_trends_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrendsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrendsResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/keywords/suggestions:
+    post:
+      tags:
+      - keywords
+      summary: Suggestions
+      operationId: suggestions_api_v1_keywords_suggestions_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeedRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeywordListResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/keywords/related:
+    post:
+      tags:
+      - keywords
+      summary: Related
+      operationId: related_api_v1_keywords_related_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeedRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeywordListResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/keywords/ideas:
+    post:
+      tags:
+      - keywords
+      summary: Ideas
+      operationId: ideas_api_v1_keywords_ideas_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdeasRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeywordListResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/keywords/paa:
+    post:
+      tags:
+      - keywords
+      summary: Paa
+      operationId: paa_api_v1_keywords_paa_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaaRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaaResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/domains/ranked-keywords:
+    post:
+      tags:
+      - domains
+      summary: Ranked Keywords
+      operationId: ranked_keywords_api_v1_domains_ranked_keywords_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TargetRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RankedKeywordsResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/domains/competitors:
+    post:
+      tags:
+      - domains
+      summary: Competitors
+      operationId: competitors_api_v1_domains_competitors_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TargetRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompetitorsResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/domains/overview:
+    post:
+      tags:
+      - domains
+      summary: Overview
+      operationId: overview_api_v1_domains_overview_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TargetRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverviewResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/domains/intersection:
+    post:
+      tags:
+      - domains
+      summary: Intersection
+      operationId: intersection_api_v1_domains_intersection_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntersectionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntersectionResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/onpage/analyze:
+    post:
+      tags:
+      - onpage
+      summary: Analyze
+      operationId: analyze_api_v1_onpage_analyze_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OnPageRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnPageResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/content/analyze:
+    post:
+      tags:
+      - content
+      summary: Analyze
+      operationId: analyze_api_v1_content_analyze_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContentRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContentResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/rank/track:
+    post:
+      tags:
+      - rank
+      summary: Track
+      operationId: track_api_v1_rank_track_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RankTrackRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RankTrackResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/rank/history:
+    get:
+      tags:
+      - rank
+      summary: History
+      operationId: history_api_v1_rank_history_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: keyword
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Keyword
+      - name: domain
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Domain
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RankHistoryResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/v1/rank/tracked:
+    get:
+      tags:
+      - rank
+      summary: Tracked
+      operationId: tracked_api_v1_rank_tracked_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackedListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/report/site:
+    post:
+      tags:
+      - report
+      summary: Site
+      operationId: site_api_v1_report_site_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteReportRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteReportResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/projects:
+    get:
+      tags:
+      - projects
+      summary: List Projects
+      operationId: list_projects_api_v1_projects_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Opaque pagination cursor.
+          title: Cursor
+        description: Opaque pagination cursor.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 50
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_ProjectOut_'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags:
+      - projects
+      summary: Create Project
+      operationId: create_project_api_v1_projects_post
+      security:
+      - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOut'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /api/v1/projects/{project_id}:
+    get:
+      tags:
+      - projects
+      summary: Get Project
+      operationId: get_project_api_v1_projects__project_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDetail'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+      - projects
+      summary: Update Project
+      operationId: update_project_api_v1_projects__project_id__put
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectOut'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+      - projects
+      summary: Delete Project
+      operationId: delete_project_api_v1_projects__project_id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/projects/{project_id}/runs:
+    post:
+      tags:
+      - projects
+      summary: Save Run
+      operationId: save_run_api_v1_projects__project_id__runs_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectRunCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRunOut'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    get:
+      tags:
+      - projects
+      summary: List Runs
+      operationId: list_runs_api_v1_projects__project_id__runs_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      - name: cursor
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Opaque pagination cursor.
+          title: Cursor
+        description: Opaque pagination cursor.
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 50
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Page_ProjectRunOut_'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/projects/{project_id}/runs/{run_id}:
+    get:
+      tags:
+      - projects
+      summary: Open Run
+      operationId: open_run_api_v1_projects__project_id__runs__run_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      - name: run_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Run Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectRunResult'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/schedules:
+    get:
+      tags:
+      - schedules
+      summary: List Schedules
+      operationId: list_schedules_api_v1_schedules_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+      - OAuth2PasswordBearer: []
+    post:
+      tags:
+      - schedules
+      summary: Create Schedule
+      operationId: create_schedule_api_v1_schedules_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleOut'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/schedules/{schedule_id}:
+    patch:
+      tags:
+      - schedules
+      summary: Update Schedule
+      operationId: update_schedule_api_v1_schedules__schedule_id__patch
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: schedule_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Schedule Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleOut'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags:
+      - schedules
+      summary: Delete Schedule
+      operationId: delete_schedule_api_v1_schedules__schedule_id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: schedule_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Schedule Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/schedules/{schedule_id}/run:
+    post:
+      tags:
+      - schedules
+      summary: Run Now
+      description: Trigger a schedule immediately (also used by external cron).
+      operationId: run_now_api_v1_schedules__schedule_id__run_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: schedule_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Schedule Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleOut'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/usage/summary:
+    get:
+      tags:
+      - usage
+      summary: Summary
+      operationId: summary_api_v1_usage_summary_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      security:
+      - OAuth2PasswordBearer: []
+  /health:
+    get:
+      tags:
+      - health
+      summary: Health
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Response Health Health Get
+      security: []
+components:
+  schemas:
+    AuthResponse:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+        refresh_token:
+          type: string
+          title: Refresh Token
+        token_type:
+          type: string
+          title: Token Type
+          default: bearer
+        user:
+          $ref: '#/components/schemas/UserOut'
+      type: object
+      required:
+      - access_token
+      - refresh_token
+      - user
+      title: AuthResponse
+    Benchmark:
+      properties:
+        keyword:
+          type: string
+          title: Keyword
+        competitors_analyzed:
+          type: integer
+          title: Competitors Analyzed
+        word_count:
+          $ref: '#/components/schemas/WordCountBenchmark'
+        headings:
+          $ref: '#/components/schemas/HeadingBenchmark'
+        missing_terms:
+          items:
+            $ref: '#/components/schemas/GapTerm'
+          type: array
+          title: Missing Terms
+          default: []
+      type: object
+      required:
+      - keyword
+      - competitors_analyzed
+      - word_count
+      - headings
+      title: Benchmark
+    Citation:
+      properties:
+        domain:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Domain
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        snippet:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Snippet
+      type: object
+      title: Citation
+    CompetitorRow:
+      properties:
+        domain:
+          type: string
+          title: Domain
+        common_keywords:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Common Keywords
+        avg_position:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Position
+        etv:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Etv
+        keywords_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Keywords Count
+      type: object
+      required:
+      - domain
+      title: CompetitorRow
+    CompetitorsResponse:
+      properties:
+        target:
+          type: string
+          title: Target
+        rows:
+          items:
+            $ref: '#/components/schemas/CompetitorRow'
+          type: array
+          title: Rows
+        meta:
+          $ref: '#/components/schemas/Meta'
+      type: object
+      required:
+      - target
+      - rows
+      - meta
+      title: CompetitorsResponse
+    Connotations:
+      properties:
+        anger:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Anger
+        happiness:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Happiness
+        love:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Love
+        sadness:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Sadness
+        fun:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Fun
+      type: object
+      title: Connotations
+    ContentRequest:
+      properties:
+        keyword:
+          type: string
+          maxLength: 300
+          minLength: 1
+          title: Keyword
+        citation_limit:
+          type: integer
+          maximum: 100.0
+          minimum: 1.0
+          title: Citation Limit
+          default: 20
+      type: object
+      required:
+      - keyword
+      title: ContentRequest
+    ContentResponse:
+      properties:
+        keyword:
+          type: string
+          title: Keyword
+        total_count:
+          type: integer
+          title: Total Count
+        sentiment:
+          $ref: '#/components/schemas/Sentiment'
+        connotations:
+          $ref: '#/components/schemas/Connotations'
+        top_citations:
+          items:
+            $ref: '#/components/schemas/Citation'
+          type: array
+          title: Top Citations
+        meta:
+          $ref: '#/components/schemas/Meta'
+      type: object
+      required:
+      - keyword
+      - total_count
+      - sentiment
+      - connotations
+      - top_citations
+      - meta
+      title: ContentResponse
+    CursorPage:
+      properties:
+        next_cursor:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Next Cursor
+        has_more:
+          type: boolean
+          title: Has More
+          default: false
+      type: object
+      title: CursorPage
+    DensityRow:
+      properties:
+        keyword:
+          type: string
+          title: Keyword
+        frequency:
+          type: integer
+          title: Frequency
+        density:
+          type: number
+          title: Density
+      type: object
+      required:
+      - keyword
+      - frequency
+      - density
+      title: DensityRow
+    GapTerm:
+      properties:
+        term:
+          type: string
+          title: Term
+        competitors_using:
+          type: integer
+          title: Competitors Using
+        your_count:
+          type: integer
+          title: Your Count
+      type: object
+      required:
+      - term
+      - competitors_using
+      - your_count
+      title: GapTerm
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HeadingBenchmark:
+      properties:
+        you:
+          type: integer
+          title: You
+        median:
+          type: integer
+          title: Median
+      type: object
+      required:
+      - you
+      - median
+      title: HeadingBenchmark
+    IdeasRequest:
+      properties:
+        keywords:
+          items:
+            type: string
+          type: array
+          maxItems: 200
+          minItems: 1
+          title: Keywords
+        location_code:
+          type: integer
+          title: Location Code
+          default: 2840
+        language_code:
+          type: string
+          title: Language Code
+          default: en
+        limit:
+          type: integer
+          maximum: 1000.0
+          minimum: 1.0
+          title: Limit
+          default: 100
+      type: object
+      required:
+      - keywords
+      title: IdeasRequest
+    ImageAudit:
+      properties:
+        total:
+          type: integer
+          title: Total
+        missing_alt:
+          type: integer
+          title: Missing Alt
+        with_keyword_alt:
+          type: boolean
+          title: With Keyword Alt
+        items:
+          items:
+            $ref: '#/components/schemas/ImageItem'
+          type: array
+          title: Items
+          default: []
+      type: object
+      required:
+      - total
+      - missing_alt
+      - with_keyword_alt
+      title: ImageAudit
+    ImageItem:
+      properties:
+        src:
+          type: string
+          title: Src
+        alt:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Alt
+        has_alt:
+          type: boolean
+          title: Has Alt
+      type: object
+      required:
+      - src
+      - has_alt
+      title: ImageItem
+    Indexability:
+      properties:
+        canonical:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Canonical
+        noindex:
+          type: boolean
+          title: Noindex
+          default: false
+        nofollow:
+          type: boolean
+          title: Nofollow
+          default: false
+        robots:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Robots
+        has_viewport:
+          type: boolean
+          title: Has Viewport
+          default: false
+        lang:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Lang
+        open_graph:
+          type: boolean
+          title: Open Graph
+          default: false
+        twitter_card:
+          type: boolean
+          title: Twitter Card
+          default: false
+        schema_types:
+          items:
+            type: string
+          type: array
+          title: Schema Types
+          default: []
+      type: object
+      title: Indexability
+    IntersectionRequest:
+      properties:
+        target1:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Target1
+        target2:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Target2
+        location_code:
+          type: integer
+          title: Location Code
+          default: 2840
+        language_code:
+          type: string
+          title: Language Code
+          default: en
+        limit:
+          type: integer
+          maximum: 1000.0
+          minimum: 1.0
+          title: Limit
+          default: 100
+      type: object
+      required:
+      - target1
+      - target2
+      title: IntersectionRequest
+    IntersectionResponse:
+      properties:
+        target1:
+          type: string
+          title: Target1
+        target2:
+          type: string
+          title: Target2
+        rows:
+          items:
+            $ref: '#/components/schemas/IntersectionRow'
+          type: array
+          title: Rows
+        meta:
+          $ref: '#/components/schemas/Meta'
+      type: object
+      required:
+      - target1
+      - target2
+      - rows
+      - meta
+      title: IntersectionResponse
+    IntersectionRow:
+      properties:
+        keyword:
+          type: string
+          title: Keyword
+        search_volume:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Search Volume
+        target1_position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Target1 Position
+        target2_position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Target2 Position
+      type: object
+      required:
+      - keyword
+      title: IntersectionRow
+    KeywordAnalysis:
+      properties:
+        keyword:
+          type: string
+          title: Keyword
+        frequency:
+          type: integer
+          title: Frequency
+        density:
+          type: number
+          title: Density
+        health:
+          type: string
+          title: Health
+        placements:
+          additionalProperties:
+            type: boolean
+          type: object
+          title: Placements
+        placement_count:
+          type: integer
+          title: Placement Count
+      type: object
+      required:
+      - keyword
+      - frequency
+      - density
+      - health
+      - placements
+      - placement_count
+      title: KeywordAnalysis
+    KeywordListResponse:
+      properties:
+        rows:
+          items:
+            $ref: '#/components/schemas/KeywordRow'
+          type: array
+          title: Rows
+        meta:
+          $ref: '#/components/schemas/Meta'
+      type: object
+      required:
+      - rows
+      - meta
+      title: KeywordListResponse
+    KeywordRow:
+      properties:
+        keyword:
+          type: string
+          title: Keyword
+        search_volume:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Search Volume
+        cpc:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Cpc
+        competition:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Competition
+        keyword_difficulty:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Keyword Difficulty
+        intent:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Intent
+      type: object
+      required:
+      - keyword
+      title: KeywordRow
+    LinkAudit:
+      properties:
+        internal:
+          type: integer
+          title: Internal
+          default: 0
+        external:
+          type: integer
+          title: External
+          default: 0
+      type: object
+      title: LinkAudit
+    LoginRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        password:
+          type: string
+          title: Password
+      type: object
+      required:
+      - email
+      - password
+      title: LoginRequest
+    MeOut:
+      properties:
+        user:
+          $ref: '#/components/schemas/UserOut'
+        org:
+          $ref: '#/components/schemas/OrgOut'
+      type: object
+      required:
+      - user
+      - org
+      title: MeOut
+    Meta:
+      properties:
+        from_cache:
+          type: boolean
+          title: From Cache
+        cost_cents:
+          type: integer
+          title: Cost Cents
+        source:
+          type: string
+          title: Source
+        latency_ms:
+          type: integer
+          title: Latency Ms
+      type: object
+      required:
+      - from_cache
+      - cost_cents
+      - source
+      - latency_ms
+      title: Meta
+    MonthlyPoint:
+      properties:
+        year:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Year
+        month:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Month
+        volume:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Volume
+      type: object
+      title: MonthlyPoint
+    OnPageRequest:
+      properties:
+        url:
+          type: string
+          maxLength: 2000
+          minLength: 4
+          title: Url
+        target_keyword:
+          anyOf:
+          - type: string
+            maxLength: 300
+          - type: 'null'
+          title: Target Keyword
+        location_code:
+          type: integer
+          title: Location Code
+          default: 2840
+        language_code:
+          type: string
+          title: Language Code
+          default: en
+      type: object
+      required:
+      - url
+      title: OnPageRequest
+    OnPageResponse:
+      properties:
+        url:
+          type: string
+          title: Url
+        content_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Content Score
+        technical_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Technical Score
+        word_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Word Count
+        readability:
+          $ref: '#/components/schemas/Readability'
+        keyword_density:
+          items:
+            $ref: '#/components/schemas/DensityRow'
+          type: array
+          title: Keyword Density
+        keyword_analysis:
+          anyOf:
+          - $ref: '#/components/schemas/KeywordAnalysis'
+          - type: 'null'
+        subscores:
+          items:
+            $ref: '#/components/schemas/SubScore'
+          type: array
+          title: Subscores
+          default: []
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        meta_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Meta Description
+        h1:
+          items:
+            type: string
+          type: array
+          title: H1
+          default: []
+        h2:
+          items:
+            type: string
+          type: array
+          title: H2
+          default: []
+        issues:
+          items:
+            type: string
+          type: array
+          title: Issues
+          default: []
+        recommendations:
+          items:
+            type: string
+          type: array
+          title: Recommendations
+          default: []
+        snippet:
+          anyOf:
+          - $ref: '#/components/schemas/SnippetPreview'
+          - type: 'null'
+        images:
+          anyOf:
+          - $ref: '#/components/schemas/ImageAudit'
+          - type: 'null'
+        indexability:
+          anyOf:
+          - $ref: '#/components/schemas/Indexability'
+          - type: 'null'
+        links:
+          anyOf:
+          - $ref: '#/components/schemas/LinkAudit'
+          - type: 'null'
+        benchmark:
+          anyOf:
+          - $ref: '#/components/schemas/Benchmark'
+          - type: 'null'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      type: object
+      required:
+      - url
+      - readability
+      - keyword_density
+      - meta
+      title: OnPageResponse
+    OrgOut:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        plan:
+          type: string
+          title: Plan
+        monthly_quota_cents:
+          type: integer
+          title: Monthly Quota Cents
+      type: object
+      required:
+      - id
+      - name
+      - plan
+      - monthly_quota_cents
+      title: OrgOut
+    OverviewBlock:
+      properties:
+        organic:
+          $ref: '#/components/schemas/OverviewMetrics'
+        paid:
+          $ref: '#/components/schemas/OverviewMetrics'
+      type: object
+      required:
+      - organic
+      - paid
+      title: OverviewBlock
+    OverviewMetrics:
+      properties:
+        count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Count
+        etv:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Etv
+        traffic_cost:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Traffic Cost
+      type: object
+      title: OverviewMetrics
+    OverviewResponse:
+      properties:
+        target:
+          type: string
+          title: Target
+        organic:
+          $ref: '#/components/schemas/OverviewMetrics'
+        paid:
+          $ref: '#/components/schemas/OverviewMetrics'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      type: object
+      required:
+      - target
+      - organic
+      - paid
+      - meta
+      title: OverviewResponse
+    PaaItem:
+      properties:
+        question:
+          type: string
+          title: Question
+          default: ''
+        answer:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Answer
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+      type: object
+      title: PaaItem
+    PaaRequest:
+      properties:
+        keyword:
+          type: string
+          maxLength: 300
+          minLength: 1
+          title: Keyword
+        location_code:
+          type: integer
+          title: Location Code
+          default: 2840
+        language_code:
+          type: string
+          title: Language Code
+          default: en
+      type: object
+      required:
+      - keyword
+      title: PaaRequest
+    PaaResponse:
+      properties:
+        keyword:
+          type: string
+          title: Keyword
+        paa:
+          items:
+            $ref: '#/components/schemas/PaaItem'
+          type: array
+          title: Paa
+        meta:
+          $ref: '#/components/schemas/Meta'
+      type: object
+      required:
+      - keyword
+      - paa
+      - meta
+      title: PaaResponse
+    PageReport:
+      properties:
+        url:
+          type: string
+          title: Url
+        content_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Content Score
+        word_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Word Count
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        issues:
+          items:
+            type: string
+          type: array
+          title: Issues
+          default: []
+        recommendation:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommendation
+      type: object
+      required:
+      - url
+      title: PageReport
+    Page_ProjectOut_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/ProjectOut'
+          type: array
+          title: Data
+        pagination:
+          $ref: '#/components/schemas/CursorPage'
+      type: object
+      required:
+      - data
+      - pagination
+      title: Page[ProjectOut]
+    Page_ProjectRunOut_:
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/ProjectRunOut'
+          type: array
+          title: Data
+        pagination:
+          $ref: '#/components/schemas/CursorPage'
+      type: object
+      required:
+      - data
+      - pagination
+      title: Page[ProjectRunOut]
+    ProjectCreate:
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+        type:
+          type: string
+          title: Type
+          default: keyword
+        config:
+          type: object
+          title: Config
+      type: object
+      required:
+      - name
+      title: ProjectCreate
+    ProjectDetail:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        type:
+          type: string
+          title: Type
+        config:
+          type: object
+          title: Config
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        run_count:
+          type: integer
+          title: Run Count
+          default: 0
+        runs:
+          items:
+            $ref: '#/components/schemas/ProjectRunOut'
+          type: array
+          title: Runs
+      type: object
+      required:
+      - id
+      - name
+      - type
+      - config
+      - created_at
+      - updated_at
+      title: ProjectDetail
+    ProjectOut:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        type:
+          type: string
+          title: Type
+        config:
+          type: object
+          title: Config
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        run_count:
+          type: integer
+          title: Run Count
+          default: 0
+      type: object
+      required:
+      - id
+      - name
+      - type
+      - config
+      - created_at
+      - updated_at
+      title: ProjectOut
+    ProjectRunCreate:
+      properties:
+        module:
+          type: string
+          maxLength: 50
+          minLength: 1
+          title: Module
+        params:
+          type: object
+          title: Params
+        result:
+          type: object
+          title: Result
+      type: object
+      required:
+      - module
+      title: ProjectRunCreate
+    ProjectRunOut:
+      properties:
+        id:
+          type: string
+          title: Id
+        module:
+          type: string
+          title: Module
+        params:
+          type: object
+          title: Params
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - module
+      - params
+      - created_at
+      title: ProjectRunOut
+    ProjectRunResult:
+      properties:
+        id:
+          type: string
+          title: Id
+        module:
+          type: string
+          title: Module
+        params:
+          type: object
+          title: Params
+        result:
+          type: object
+          title: Result
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - module
+      - params
+      - result
+      - created_at
+      title: ProjectRunResult
+    ProjectUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+            maxLength: 255
+            minLength: 1
+          - type: 'null'
+          title: Name
+        config:
+          anyOf:
+          - type: object
+          - type: 'null'
+          title: Config
+      type: object
+      title: ProjectUpdate
+    RankHistoryResponse:
+      properties:
+        keyword:
+          type: string
+          title: Keyword
+        domain:
+          type: string
+          title: Domain
+        history:
+          items:
+            $ref: '#/components/schemas/RankPoint'
+          type: array
+          title: History
+          default: []
+      type: object
+      required:
+      - keyword
+      - domain
+      title: RankHistoryResponse
+    RankPoint:
+      properties:
+        position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Position
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        created_at:
+          type: string
+          title: Created At
+      type: object
+      required:
+      - created_at
+      title: RankPoint
+    RankTrackRequest:
+      properties:
+        keyword:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Keyword
+        domain:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Domain
+        location_code:
+          type: integer
+          title: Location Code
+          default: 2840
+        language_code:
+          type: string
+          title: Language Code
+          default: en
+        depth:
+          type: integer
+          maximum: 100.0
+          minimum: 10.0
+          title: Depth
+          default: 100
+      type: object
+      required:
+      - keyword
+      - domain
+      title: RankTrackRequest
+    RankTrackResponse:
+      properties:
+        keyword:
+          type: string
+          title: Keyword
+        domain:
+          type: string
+          title: Domain
+        position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Position
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        found:
+          type: boolean
+          title: Found
+        depth:
+          type: integer
+          title: Depth
+        history:
+          items:
+            $ref: '#/components/schemas/RankPoint'
+          type: array
+          title: History
+          default: []
+        meta:
+          $ref: '#/components/schemas/Meta'
+      type: object
+      required:
+      - keyword
+      - domain
+      - found
+      - depth
+      - meta
+      title: RankTrackResponse
+    RankedKeywordRow:
+      properties:
+        keyword:
+          type: string
+          title: Keyword
+        position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Position
+        search_volume:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Search Volume
+        etv:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Etv
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+      type: object
+      required:
+      - keyword
+      title: RankedKeywordRow
+    RankedKeywordsResponse:
+      properties:
+        target:
+          type: string
+          title: Target
+        rows:
+          items:
+            $ref: '#/components/schemas/RankedKeywordRow'
+          type: array
+          title: Rows
+        meta:
+          $ref: '#/components/schemas/Meta'
+      type: object
+      required:
+      - target
+      - rows
+      - meta
+      title: RankedKeywordsResponse
+    Readability:
+      properties:
+        ari:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Ari
+        flesch_kincaid:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Flesch Kincaid
+      type: object
+      title: Readability
+    RefreshRequest:
+      properties:
+        refresh_token:
+          type: string
+          title: Refresh Token
+      type: object
+      required:
+      - refresh_token
+      title: RefreshRequest
+    RegisterRequest:
+      properties:
+        email:
+          type: string
+          format: email
+          title: Email
+        password:
+          type: string
+          maxLength: 128
+          minLength: 8
+          title: Password
+        full_name:
+          type: string
+          title: Full Name
+          default: ''
+        org_name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Org Name
+      type: object
+      required:
+      - email
+      - password
+      - org_name
+      title: RegisterRequest
+    ReportRanking:
+      properties:
+        keyword:
+          type: string
+          title: Keyword
+        position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Position
+        url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Url
+        found:
+          type: boolean
+          title: Found
+      type: object
+      required:
+      - keyword
+      - found
+      title: ReportRanking
+    ScheduleCreate:
+      properties:
+        kind:
+          type: string
+          const: site_report
+          title: Kind
+          default: site_report
+        frequency:
+          type: string
+          enum:
+          - daily
+          - weekly
+          - monthly
+          title: Frequency
+          default: weekly
+        params:
+          type: object
+          title: Params
+        project_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Project Id
+      type: object
+      title: ScheduleCreate
+    ScheduleListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/ScheduleOut'
+          type: array
+          title: Items
+          default: []
+      type: object
+      title: ScheduleListResponse
+    ScheduleOut:
+      properties:
+        id:
+          type: string
+          title: Id
+        kind:
+          type: string
+          title: Kind
+        frequency:
+          type: string
+          title: Frequency
+        params:
+          type: object
+          title: Params
+        project_id:
+          type: string
+          title: Project Id
+        active:
+          type: boolean
+          title: Active
+        next_run_at:
+          type: string
+          title: Next Run At
+        last_run_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Run At
+        last_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Status
+        label:
+          type: string
+          title: Label
+      type: object
+      required:
+      - id
+      - kind
+      - frequency
+      - params
+      - project_id
+      - active
+      - next_run_at
+      - label
+      title: ScheduleOut
+    ScheduleUpdate:
+      properties:
+        active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Active
+        frequency:
+          anyOf:
+          - type: string
+            enum:
+            - daily
+            - weekly
+            - monthly
+          - type: 'null'
+          title: Frequency
+      type: object
+      title: ScheduleUpdate
+    SeedRequest:
+      properties:
+        seed:
+          type: string
+          maxLength: 300
+          minLength: 1
+          title: Seed
+        location_code:
+          type: integer
+          title: Location Code
+          default: 2840
+        language_code:
+          type: string
+          title: Language Code
+          default: en
+        limit:
+          type: integer
+          maximum: 1000.0
+          minimum: 1.0
+          title: Limit
+          default: 100
+      type: object
+      required:
+      - seed
+      title: SeedRequest
+    Sentiment:
+      properties:
+        positive:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Positive
+        negative:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Negative
+        neutral:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Neutral
+      type: object
+      title: Sentiment
+    SerpRankingRequest:
+      properties:
+        keyword:
+          type: string
+          maxLength: 300
+          minLength: 1
+          title: Keyword
+        location_code:
+          type: integer
+          title: Location Code
+          default: 2840
+        language_code:
+          type: string
+          title: Language Code
+          default: en
+        depth:
+          type: integer
+          maximum: 100.0
+          minimum: 1.0
+          title: Depth
+          default: 10
+      type: object
+      required:
+      - keyword
+      title: SerpRankingRequest
+    SerpResponse:
+      properties:
+        keyword:
+          type: string
+          title: Keyword
+        results:
+          items:
+            $ref: '#/components/schemas/SerpResult'
+          type: array
+          title: Results
+        paa:
+          items:
+            $ref: '#/components/schemas/PaaItem'
+          type: array
+          title: Paa
+        meta:
+          $ref: '#/components/schemas/Meta'
+      type: object
+      required:
+      - keyword
+      - results
+      - paa
+      - meta
+      title: SerpResponse
+    SerpResult:
+      properties:
+        position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Position
+        title:
+          type: string
+          title: Title
+          default: ''
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        url:
+          type: string
+          title: Url
+          default: ''
+        domain:
+          type: string
+          title: Domain
+          default: ''
+        brand_name:
+          type: string
+          title: Brand Name
+          default: ''
+        brand_volume:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Brand Volume
+      type: object
+      title: SerpResult
+    SiteReportRequest:
+      properties:
+        domain:
+          type: string
+          maxLength: 255
+          minLength: 3
+          title: Domain
+        keyword:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Keyword
+        location_code:
+          type: integer
+          title: Location Code
+          default: 2840
+        language_code:
+          type: string
+          title: Language Code
+          default: en
+        max_pages:
+          type: integer
+          maximum: 10.0
+          minimum: 1.0
+          title: Max Pages
+          default: 5
+      type: object
+      required:
+      - domain
+      title: SiteReportRequest
+    SiteReportResponse:
+      properties:
+        domain:
+          type: string
+          title: Domain
+        keyword:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Keyword
+        location_code:
+          type: integer
+          title: Location Code
+        language_code:
+          type: string
+          title: Language Code
+        health_score:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Health Score
+        overview:
+          $ref: '#/components/schemas/OverviewBlock'
+        pages:
+          items:
+            $ref: '#/components/schemas/PageReport'
+          type: array
+          title: Pages
+          default: []
+        top_keywords:
+          items:
+            $ref: '#/components/schemas/RankedKeywordRow'
+          type: array
+          title: Top Keywords
+          default: []
+        competitors:
+          items:
+            $ref: '#/components/schemas/CompetitorRow'
+          type: array
+          title: Competitors
+          default: []
+        ranking:
+          anyOf:
+          - $ref: '#/components/schemas/ReportRanking'
+          - type: 'null'
+        findings:
+          items:
+            type: string
+          type: array
+          title: Findings
+          default: []
+        recommendations:
+          items:
+            type: string
+          type: array
+          title: Recommendations
+          default: []
+        meta:
+          $ref: '#/components/schemas/Meta'
+      type: object
+      required:
+      - domain
+      - location_code
+      - language_code
+      - overview
+      - meta
+      title: SiteReportResponse
+    SnippetMeasure:
+      properties:
+        text:
+          type: string
+          title: Text
+        pixels:
+          type: number
+          title: Pixels
+        limit_pixels:
+          type: integer
+          title: Limit Pixels
+        truncated:
+          type: boolean
+          title: Truncated
+        preview:
+          type: string
+          title: Preview
+        fill_pct:
+          type: number
+          title: Fill Pct
+      type: object
+      required:
+      - text
+      - pixels
+      - limit_pixels
+      - truncated
+      - preview
+      - fill_pct
+      title: SnippetMeasure
+    SnippetPreview:
+      properties:
+        url:
+          type: string
+          title: Url
+        title:
+          $ref: '#/components/schemas/SnippetMeasure'
+        meta_description:
+          $ref: '#/components/schemas/SnippetMeasure'
+      type: object
+      required:
+      - url
+      - title
+      - meta_description
+      title: SnippetPreview
+    SubScore:
+      properties:
+        label:
+          type: string
+          title: Label
+        score:
+          type: number
+          title: Score
+        max:
+          type: integer
+          title: Max
+        status:
+          type: string
+          title: Status
+        note:
+          type: string
+          title: Note
+          default: ''
+      type: object
+      required:
+      - label
+      - score
+      - max
+      - status
+      title: SubScore
+    TargetRequest:
+      properties:
+        target:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Target
+        location_code:
+          type: integer
+          title: Location Code
+          default: 2840
+        language_code:
+          type: string
+          title: Language Code
+          default: en
+        limit:
+          type: integer
+          maximum: 1000.0
+          minimum: 1.0
+          title: Limit
+          default: 100
+      type: object
+      required:
+      - target
+      title: TargetRequest
+    TokenPair:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+        refresh_token:
+          type: string
+          title: Refresh Token
+        token_type:
+          type: string
+          title: Token Type
+          default: bearer
+      type: object
+      required:
+      - access_token
+      - refresh_token
+      title: TokenPair
+    TrackedItem:
+      properties:
+        keyword:
+          type: string
+          title: Keyword
+        domain:
+          type: string
+          title: Domain
+        location_code:
+          type: integer
+          title: Location Code
+        language_code:
+          type: string
+          title: Language Code
+        latest_position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Latest Position
+        previous_position:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Previous Position
+        delta:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Delta
+        last_checked:
+          type: string
+          title: Last Checked
+        observations:
+          type: integer
+          title: Observations
+      type: object
+      required:
+      - keyword
+      - domain
+      - location_code
+      - language_code
+      - last_checked
+      - observations
+      title: TrackedItem
+    TrackedListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/TrackedItem'
+          type: array
+          title: Items
+          default: []
+      type: object
+      title: TrackedListResponse
+    TrendsPoint:
+      properties:
+        date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date
+        values:
+          items:
+            anyOf:
+            - type: integer
+            - type: 'null'
+          type: array
+          title: Values
+          default: []
+      type: object
+      title: TrendsPoint
+    TrendsRequest:
+      properties:
+        keywords:
+          items:
+            type: string
+          type: array
+          maxItems: 5
+          minItems: 1
+          title: Keywords
+        location_code:
+          type: integer
+          title: Location Code
+          default: 2840
+        language_code:
+          type: string
+          title: Language Code
+          default: en
+        time_range:
+          type: string
+          title: Time Range
+          default: past_12_months
+        date_from:
+          anyOf:
+          - type: string
+            maxLength: 10
+          - type: 'null'
+          title: Date From
+        date_to:
+          anyOf:
+          - type: string
+            maxLength: 10
+          - type: 'null'
+          title: Date To
+      type: object
+      required:
+      - keywords
+      title: TrendsRequest
+    TrendsResponse:
+      properties:
+        keywords:
+          items:
+            type: string
+          type: array
+          title: Keywords
+        graph:
+          items:
+            $ref: '#/components/schemas/TrendsPoint'
+          type: array
+          title: Graph
+        meta:
+          $ref: '#/components/schemas/Meta'
+      type: object
+      required:
+      - keywords
+      - graph
+      - meta
+      title: TrendsResponse
+    UserOut:
+      properties:
+        id:
+          type: string
+          title: Id
+        email:
+          type: string
+          format: email
+          title: Email
+        full_name:
+          type: string
+          title: Full Name
+        role:
+          type: string
+          title: Role
+        org_id:
+          type: string
+          title: Org Id
+      type: object
+      required:
+      - id
+      - email
+      - full_name
+      - role
+      - org_id
+      title: UserOut
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    VolumeRequest:
+      properties:
+        keywords:
+          items:
+            type: string
+          type: array
+          maxItems: 1000
+          minItems: 1
+          title: Keywords
+        location_code:
+          type: integer
+          title: Location Code
+          default: 2840
+        language_code:
+          type: string
+          title: Language Code
+          default: en
+      type: object
+      required:
+      - keywords
+      title: VolumeRequest
+    VolumeResponse:
+      properties:
+        rows:
+          items:
+            $ref: '#/components/schemas/VolumeRow'
+          type: array
+          title: Rows
+        meta:
+          $ref: '#/components/schemas/Meta'
+      type: object
+      required:
+      - rows
+      - meta
+      title: VolumeResponse
+    VolumeRow:
+      properties:
+        keyword:
+          type: string
+          title: Keyword
+        search_volume:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Search Volume
+        cpc:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Cpc
+        competition:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Competition
+        competition_level:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Competition Level
+        monthly_searches:
+          items:
+            $ref: '#/components/schemas/MonthlyPoint'
+          type: array
+          title: Monthly Searches
+          default: []
+      type: object
+      required:
+      - keyword
+      title: VolumeRow
+    WordCountBenchmark:
+      properties:
+        you:
+          type: integer
+          title: You
+        median:
+          type: integer
+          title: Median
+        max:
+          type: integer
+          title: Max
+      type: object
+      required:
+      - you
+      - median
+      - max
+      title: WordCountBenchmark
+    Problem:
+      type: object
+      description: RFC 7807 Problem Details (media type `application/problem+json`).
+      required:
+      - type
+      - title
+      - status
+      - detail
+      properties:
+        type:
+          type: string
+          format: uri
+          examples:
+          - https://docs.seo-intelligence.app/errors/quota-exceeded
+        title:
+          type: string
+          examples:
+          - Payment Required
+        status:
+          type: integer
+          examples:
+          - 402
+        detail:
+          type: string
+          examples:
+          - Monthly organization quota exhausted.
+        instance:
+          type: string
+          examples:
+          - /api/v1/serp/ranking
+        errors:
+          type: array
+          description: Field-level validation failures (422 only).
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /api/v1/auth/login
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT access token from `/auth/login` or `/auth/refresh`.
+  responses:
+    Unauthorized:
+      description: Missing or invalid access token.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    PaymentRequired:
+      description: Monthly organization quota exhausted — top up or wait for the next cycle.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    NotFound:
+      description: The requested resource does not exist or is not visible to you.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    TooManyRequests:
+      description: Upstream rate limit hit; retry after the indicated delay.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before retrying.
+    ValidationFailed:
+      description: Request body or parameters failed validation.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+servers:
+- url: http://localhost:8000
+  description: Local development
+- url: https://api.example.com
+  description: Production
+tags:
+- name: auth
+  description: Registration, login, token refresh, and the current user/org.
+- name: serp
+  description: Google SERP rankings with brand enrichment and People Also Ask.
+- name: keywords
+  description: Search volume, trends (Google/DataForSEO/seasonal), suggestions, related, ideas, and PAA.
+- name: domains
+  description: 'Domain-level analytics: ranked keywords, competitors, overview, and keyword gap.'
+- name: onpage
+  description: On-page content scoring, audits, SERP snippet preview, and competitive benchmarking.
+- name: content
+  description: Sentiment, connotations, and citations for a keyword or brand.
+- name: rank
+  description: Track a domain's position for a keyword over time.
+- name: projects
+  description: Saved workspaces; reopen any saved run for $0 from cache.
+- name: usage
+  description: Per-organization spend, quota, and usage breakdown.
+- name: health
+  description: Liveness and active-provider probe.
+security:
+- BearerAuth: []

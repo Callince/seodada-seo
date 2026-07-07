@@ -1,0 +1,99 @@
+{
+  "slug": "search_history",
+  "source": "D:/SEO RENEW/seo/templates/search_history.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Search History"
+    },
+    {
+      "level": "h3",
+      "text": "Welcome, !"
+    }
+  ],
+  "text_blocks": [
+    "Search History",
+    "Start Date:",
+    "End Date:",
+    "Filter",
+    "Reset",
+    "URL",
+    "Tool",
+    "Count",
+    "Most Used Tool",
+    "Date & Time (UTC)",
+    "You have no search history yet."
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Search History"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Welcome, !"
+    },
+    {
+      "type": "text",
+      "text": "Start Date:"
+    },
+    {
+      "type": "text",
+      "text": "End Date:"
+    },
+    {
+      "type": "text",
+      "text": "Filter"
+    },
+    {
+      "type": "text",
+      "text": "Reset"
+    },
+    {
+      "type": "text",
+      "text": "URL"
+    },
+    {
+      "type": "text",
+      "text": "Tool"
+    },
+    {
+      "type": "text",
+      "text": "Count"
+    },
+    {
+      "type": "text",
+      "text": "Most Used Tool"
+    },
+    {
+      "type": "text",
+      "text": "Date & Time (UTC)"
+    },
+    {
+      "type": "text",
+      "text": "You have no search history yet."
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Reset"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 2,
+    "text_blocks": 11,
+    "links": 1,
+    "images": 0
+  }
+}

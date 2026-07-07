@@ -1,0 +1,61 @@
+import { Suspense, useEffect, useState } from "react";
+import { Outlet, useLocation } from "react-router-dom";
+
+import { Sidebar } from "@/components/layout/Sidebar";
+import { TopBar } from "@/components/layout/TopBar";
+import { CommandPalette } from "@/components/shared/CommandPalette";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Toaster } from "@/components/ui/toaster";
+
+export function AppShell() {
+  const [navOpen, setNavOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem("nav-collapsed") === "1");
+  const location = useLocation();
+
+  const toggleCollapsed = () =>
+    setCollapsed((c) => {
+      const next = !c;
+      localStorage.setItem("nav-collapsed", next ? "1" : "0");
+      return next;
+    });
+
+  // Global ⌘K / Ctrl+K toggle for the command palette.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  return (
+    <div className="flex h-screen overflow-hidden">
+      <Sidebar
+        open={navOpen}
+        onClose={() => setNavOpen(false)}
+        collapsed={collapsed}
+        onToggleCollapse={toggleCollapsed}
+      />
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <TopBar onMenu={() => setNavOpen(true)} onCommand={() => setPaletteOpen(true)} />
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <div className="mx-auto max-w-[1440px]">
+            <Suspense fallback={<Skeleton className="h-64 w-full" />}>
+              {/* Re-key on path so the CSS fade-rise replays on each navigation
+                  (zero-JS page transition — no Framer Motion in the bundle). */}
+              <div key={location.pathname} className="animate-fade-rise">
+                <Outlet />
+              </div>
+            </Suspense>
+          </div>
+        </main>
+      </div>
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      <Toaster />
+    </div>
+  );
+}

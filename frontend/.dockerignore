@@ -1,0 +1,16 @@
+# Smaller, faster, reproducible builds — deps are installed fresh inside the image.
+# NOTE: dist/ is intentionally NOT ignored — Dockerfile.prebuilt ships the
+# locally-built dist/ so small servers don't have to run the Vite build.
+node_modules/
+.vite/
+
+# Logs
+*.log
+vite.*.log
+
+# Secrets / local env (the app uses a relative /api path, so no build-time env is needed)
+.env
+.env.*
+
+# Editor / OS noise
+.DS_Store

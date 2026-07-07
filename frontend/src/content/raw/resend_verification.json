@@ -1,0 +1,85 @@
+{
+  "slug": "resend_verification",
+  "source": "D:/SEO RENEW/seo/templates/resend_verification.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Check Your Email"
+    }
+  ],
+  "text_blocks": [
+    "Verify Account | Fourth Dimension",
+    "We've sent a verification link to your email address. Please check your inbox and click the link to activate your account.",
+    "Don't see the email? Check your spam folder. The email might take a few minutes to arrive.",
+    "Resend Verification Email",
+    "or",
+    "I'll Verify Later - Go to Login",
+    "You can request another email in",
+    "60",
+    "seconds"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Verify Account | Fourth Dimension"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Check Your Email"
+    },
+    {
+      "type": "text",
+      "text": "We've sent a verification link to your email address. Please check your inbox and click the link to activate your account."
+    },
+    {
+      "type": "text",
+      "text": "Don't see the email? Check your spam folder. The email might take a few minutes to arrive."
+    },
+    {
+      "type": "text",
+      "text": "Resend Verification Email"
+    },
+    {
+      "type": "text",
+      "text": "or"
+    },
+    {
+      "type": "text",
+      "text": "I'll Verify Later - Go to Login"
+    },
+    {
+      "type": "text",
+      "text": "You can request another email in"
+    },
+    {
+      "type": "text",
+      "text": "60"
+    },
+    {
+      "type": "text",
+      "text": "seconds"
+    }
+  ],
+  "links": [],
+  "images": [
+    {
+      "src": " ",
+      "alt": "Logo"
+    }
+  ],
+  "counts": {
+    "headings": 1,
+    "text_blocks": 9,
+    "links": 0,
+    "images": 1
+  }
+}

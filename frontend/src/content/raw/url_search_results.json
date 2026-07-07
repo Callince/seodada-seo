@@ -1,0 +1,192 @@
+{
+  "slug": "url_search_results",
+  "source": "D:/SEO RENEW/seo/templates/url_search_results.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h3",
+      "text": "URL Search Results"
+    },
+    {
+      "level": "h3",
+      "text": "Home Links"
+    },
+    {
+      "level": "h3",
+      "text": "Other Links"
+    },
+    {
+      "level": "h3",
+      "text": "Quick Stats"
+    },
+    {
+      "level": "h4",
+      "text": "%"
+    },
+    {
+      "level": "h5",
+      "text": "Robots.txt Analysis"
+    },
+    {
+      "level": "h6",
+      "text": "Disallow Rules:"
+    },
+    {
+      "level": "h6",
+      "text": "Allow Rules:"
+    },
+    {
+      "level": "h6",
+      "text": "Sitemaps:"
+    },
+    {
+      "level": "h6",
+      "text": "Crawl Delay:"
+    }
+  ],
+  "text_blocks": [
+    "Download All Links CSV",
+    "Link",
+    "No home links found.",
+    "No other links found.",
+    "Back to Home",
+    "Total Links",
+    "Home Links",
+    "Other Links",
+    "Home Ratio",
+    "Domain:",
+    "robots.txt found",
+    "no robots.txt found",
+    "No disallow rules found. All paths are allowed.",
+    "No allow rules found.",
+    "seconds"
+  ],
+  "flow": [
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "URL Search Results"
+    },
+    {
+      "type": "text",
+      "text": "Download All Links CSV"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Home Links"
+    },
+    {
+      "type": "text",
+      "text": "Link"
+    },
+    {
+      "type": "text",
+      "text": "No home links found."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Other Links"
+    },
+    {
+      "type": "text",
+      "text": "No other links found."
+    },
+    {
+      "type": "text",
+      "text": "Back to Home"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Quick Stats"
+    },
+    {
+      "type": "text",
+      "text": "Total Links"
+    },
+    {
+      "type": "heading",
+      "level": "h4",
+      "text": "%"
+    },
+    {
+      "type": "text",
+      "text": "Home Ratio"
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Robots.txt Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Domain:"
+    },
+    {
+      "type": "text",
+      "text": "robots.txt found"
+    },
+    {
+      "type": "text",
+      "text": "no robots.txt found"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Disallow Rules:"
+    },
+    {
+      "type": "text",
+      "text": "No disallow rules found. All paths are allowed."
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Allow Rules:"
+    },
+    {
+      "type": "text",
+      "text": "No allow rules found."
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Sitemaps:"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Crawl Delay:"
+    },
+    {
+      "type": "text",
+      "text": "seconds"
+    }
+  ],
+  "links": [
+    {
+      "href": "#",
+      "text": "Download All Links CSV"
+    },
+    {
+      "href": " ",
+      "text": "Back to Home"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 10,
+    "text_blocks": 15,
+    "links": 2,
+    "images": 0
+  }
+}

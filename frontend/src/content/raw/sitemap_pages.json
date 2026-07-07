@@ -1,0 +1,340 @@
+{
+  "slug": "sitemap_pages",
+  "source": "D:/SEO RENEW/seo/templates/sitemap_pages.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Pages"
+    },
+    {
+      "level": "h2",
+      "text": "Main Pages"
+    },
+    {
+      "level": "h2",
+      "text": "SEO Analysis Services"
+    },
+    {
+      "level": "h2",
+      "text": "Legal & Support"
+    }
+  ],
+  "text_blocks": [
+    "Back to Sitemap",
+    "All website pages on SEO Dada",
+    "Sitemap",
+    "Pages",
+    "Core website pages",
+    "Page",
+    "URL",
+    "Last Updated",
+    "Home",
+    "About Us",
+    "/about",
+    "Contact Us",
+    "/contact",
+    "Analyze and optimize your website SEO",
+    "Service",
+    "URL Analysis",
+    "/services/url-analysis",
+    "Heading Analysis",
+    "/services/heading-analysis",
+    "Keyword Analysis",
+    "/services/keyword-analysis",
+    "Image Analysis",
+    "/services/image-analysis",
+    "Meta Analysis",
+    "/services/meta-analysis",
+    "Sitemap Analysis",
+    "/services/sitemap-analysis",
+    "Policies, terms, and help resources",
+    "Privacy Policy",
+    "/privacy",
+    "Terms of Service",
+    "/terms",
+    "Cookie Policy",
+    "/cookie-policy",
+    "Help Center",
+    "/help",
+    "© SEO Dada. All rights reserved.",
+    "Privacy",
+    "Terms",
+    "Contact"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Back to Sitemap"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Pages"
+    },
+    {
+      "type": "text",
+      "text": "All website pages on SEO Dada"
+    },
+    {
+      "type": "text",
+      "text": "Sitemap"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Main Pages"
+    },
+    {
+      "type": "text",
+      "text": "Core website pages"
+    },
+    {
+      "type": "text",
+      "text": "Page"
+    },
+    {
+      "type": "text",
+      "text": "URL"
+    },
+    {
+      "type": "text",
+      "text": "Last Updated"
+    },
+    {
+      "type": "text",
+      "text": "Home"
+    },
+    {
+      "type": "text",
+      "text": "About Us"
+    },
+    {
+      "type": "text",
+      "text": "/about"
+    },
+    {
+      "type": "text",
+      "text": "Contact Us"
+    },
+    {
+      "type": "text",
+      "text": "/contact"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "SEO Analysis Services"
+    },
+    {
+      "type": "text",
+      "text": "Analyze and optimize your website SEO"
+    },
+    {
+      "type": "text",
+      "text": "Service"
+    },
+    {
+      "type": "text",
+      "text": "URL Analysis"
+    },
+    {
+      "type": "text",
+      "text": "/services/url-analysis"
+    },
+    {
+      "type": "text",
+      "text": "Heading Analysis"
+    },
+    {
+      "type": "text",
+      "text": "/services/heading-analysis"
+    },
+    {
+      "type": "text",
+      "text": "Keyword Analysis"
+    },
+    {
+      "type": "text",
+      "text": "/services/keyword-analysis"
+    },
+    {
+      "type": "text",
+      "text": "Image Analysis"
+    },
+    {
+      "type": "text",
+      "text": "/services/image-analysis"
+    },
+    {
+      "type": "text",
+      "text": "Meta Analysis"
+    },
+    {
+      "type": "text",
+      "text": "/services/meta-analysis"
+    },
+    {
+      "type": "text",
+      "text": "Sitemap Analysis"
+    },
+    {
+      "type": "text",
+      "text": "/services/sitemap-analysis"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Legal & Support"
+    },
+    {
+      "type": "text",
+      "text": "Policies, terms, and help resources"
+    },
+    {
+      "type": "text",
+      "text": "Privacy Policy"
+    },
+    {
+      "type": "text",
+      "text": "/privacy"
+    },
+    {
+      "type": "text",
+      "text": "Terms of Service"
+    },
+    {
+      "type": "text",
+      "text": "/terms"
+    },
+    {
+      "type": "text",
+      "text": "Cookie Policy"
+    },
+    {
+      "type": "text",
+      "text": "/cookie-policy"
+    },
+    {
+      "type": "text",
+      "text": "Help Center"
+    },
+    {
+      "type": "text",
+      "text": "/help"
+    },
+    {
+      "type": "text",
+      "text": "© SEO Dada. All rights reserved."
+    },
+    {
+      "type": "text",
+      "text": "Privacy"
+    },
+    {
+      "type": "text",
+      "text": "Terms"
+    },
+    {
+      "type": "text",
+      "text": "Contact"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Back to Sitemap"
+    },
+    {
+      "href": " ",
+      "text": "Sitemap"
+    },
+    {
+      "href": " ",
+      "text": "Home"
+    },
+    {
+      "href": " ",
+      "text": "About Us"
+    },
+    {
+      "href": " ",
+      "text": "Contact Us"
+    },
+    {
+      "href": " ",
+      "text": "URL Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Heading Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Keyword Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Image Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Meta Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Sitemap Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Privacy Policy"
+    },
+    {
+      "href": " ",
+      "text": "Terms of Service"
+    },
+    {
+      "href": " ",
+      "text": "Cookie Policy"
+    },
+    {
+      "href": " ",
+      "text": "Help Center"
+    },
+    {
+      "href": " ",
+      "text": "Privacy"
+    },
+    {
+      "href": " ",
+      "text": "Terms"
+    },
+    {
+      "href": " ",
+      "text": "Contact"
+    }
+  ],
+  "images": [
+    {
+      "src": " ",
+      "alt": "SEO Dada Logo"
+    },
+    {
+      "src": " ",
+      "alt": "SEO Dada Logo"
+    }
+  ],
+  "counts": {
+    "headings": 4,
+    "text_blocks": 40,
+    "links": 18,
+    "images": 2
+  }
+}

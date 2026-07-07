@@ -1,0 +1,140 @@
+{
+  "slug": "visualize",
+  "source": "D:/SEO RENEW/seo/templates/visualize.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h3",
+      "text": "Page Details"
+    }
+  ],
+  "text_blocks": [
+    "Site Structure Visualization - SEO Dada",
+    "Site Structure",
+    "Loading…",
+    "total",
+    "ok",
+    "redirect",
+    "4xx",
+    "5xx",
+    "Radial",
+    "Force",
+    "Pack",
+    "Labels",
+    "Fit",
+    "Table",
+    "Export",
+    "Loading visualization…",
+    "URL",
+    "Status",
+    "Depth",
+    "Children"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Site Structure Visualization - SEO Dada"
+    },
+    {
+      "type": "text",
+      "text": "Site Structure"
+    },
+    {
+      "type": "text",
+      "text": "Loading…"
+    },
+    {
+      "type": "text",
+      "text": "total"
+    },
+    {
+      "type": "text",
+      "text": "ok"
+    },
+    {
+      "type": "text",
+      "text": "redirect"
+    },
+    {
+      "type": "text",
+      "text": "4xx"
+    },
+    {
+      "type": "text",
+      "text": "5xx"
+    },
+    {
+      "type": "text",
+      "text": "Radial"
+    },
+    {
+      "type": "text",
+      "text": "Force"
+    },
+    {
+      "type": "text",
+      "text": "Pack"
+    },
+    {
+      "type": "text",
+      "text": "Labels"
+    },
+    {
+      "type": "text",
+      "text": "Fit"
+    },
+    {
+      "type": "text",
+      "text": "Table"
+    },
+    {
+      "type": "text",
+      "text": "Export"
+    },
+    {
+      "type": "text",
+      "text": "Loading visualization…"
+    },
+    {
+      "type": "text",
+      "text": "URL"
+    },
+    {
+      "type": "text",
+      "text": "Status"
+    },
+    {
+      "type": "text",
+      "text": "Depth"
+    },
+    {
+      "type": "text",
+      "text": "Children"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Page Details"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Export"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 1,
+    "text_blocks": 20,
+    "links": 1,
+    "images": 0
+  }
+}

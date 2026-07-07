@@ -1,0 +1,67 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: seo
+      POSTGRES_PASSWORD: "Devi@1234"
+      POSTGRES_DB: seo
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U seo"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # One-shot: bring the database schema up to date, then exit. The api/worker
+  # wait for this to finish so they never serve against a stale schema.
+  migrate:
+    build: ./backend
+    env_file: .env
+    environment:
+      DATABASE_URL: "postgresql+asyncpg://seo:Devi%401234@db:5432/seo"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: alembic upgrade head
+    restart: "no"
+
+  api:
+    build: ./backend
+    env_file: .env
+    environment:
+      DATABASE_URL: "postgresql+asyncpg://seo:Devi%401234@db:5432/seo"
+      REDIS_URL: redis://redis:6379/0
+      CACHE_BACKEND: redis
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+  web:
+    build: ./frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

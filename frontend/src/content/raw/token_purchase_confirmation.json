@@ -1,0 +1,201 @@
+{
+  "slug": "token_purchase_confirmation",
+  "source": "D:/SEO RENEW/seo/templates/emails/token_purchase_confirmation.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "SEO Dada"
+    },
+    {
+      "level": "h2",
+      "text": "🎉 Token Purchase Successful!"
+    },
+    {
+      "level": "h3",
+      "text": "Purchase Details"
+    },
+    {
+      "level": "h3",
+      "text": "How Your Tokens Work"
+    }
+  ],
+  "text_blocks": [
+    "Token Purchase Confirmation",
+    "Hello {user.name},",
+    "Great news! Your token purchase has been processed successfully. You now have {token_purchase.token_count} additional tokens available in your account.",
+    "Tokens Purchased:",
+    "{token_purchase.token_count} tokens",
+    "Amount Paid:",
+    "₹{token_purchase.total_amount}",
+    "Invoice Number:",
+    "{token_purchase.invoice_number}",
+    "Purchase Date:",
+    "{token_purchase.created_at.strftime('%d %b %Y, %H:%M UTC')}",
+    "Order ID:",
+    "{token_purchase.razorpay_order_id}",
+    "✅ Tokens are immediately available in your account",
+    "⏰ Valid for 1 year from purchase date",
+    "🔄 Used automatically when daily quota is exhausted",
+    "📊 Track usage in your subscription dashboard",
+    "View Dashboard",
+    "Download Invoice",
+    "💡 Pro Tips:",
+    "Your tokens will be used automatically when daily limits are reached",
+    "Monitor your token usage in the subscription dashboard",
+    "Consider purchasing tokens in advance for heavy usage periods",
+    "Contact support if you have any questions about token usage",
+    "Thanks for choosing SEO Dada!The SEO Dada Team",
+    "Need help? Contact us at support@seodada.com"
+  ],
+  "flow": [
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "SEO Dada"
+    },
+    {
+      "type": "text",
+      "text": "Token Purchase Confirmation"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "🎉 Token Purchase Successful!"
+    },
+    {
+      "type": "text",
+      "text": "Hello {user.name},"
+    },
+    {
+      "type": "text",
+      "text": "Great news! Your token purchase has been processed successfully. You now have {token_purchase.token_count} additional tokens available in your account."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Purchase Details"
+    },
+    {
+      "type": "text",
+      "text": "Tokens Purchased:"
+    },
+    {
+      "type": "text",
+      "text": "{token_purchase.token_count} tokens"
+    },
+    {
+      "type": "text",
+      "text": "Amount Paid:"
+    },
+    {
+      "type": "text",
+      "text": "₹{token_purchase.total_amount}"
+    },
+    {
+      "type": "text",
+      "text": "Invoice Number:"
+    },
+    {
+      "type": "text",
+      "text": "{token_purchase.invoice_number}"
+    },
+    {
+      "type": "text",
+      "text": "Purchase Date:"
+    },
+    {
+      "type": "text",
+      "text": "{token_purchase.created_at.strftime('%d %b %Y, %H:%M UTC')}"
+    },
+    {
+      "type": "text",
+      "text": "Order ID:"
+    },
+    {
+      "type": "text",
+      "text": "{token_purchase.razorpay_order_id}"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "How Your Tokens Work"
+    },
+    {
+      "type": "text",
+      "text": "✅ Tokens are immediately available in your account"
+    },
+    {
+      "type": "text",
+      "text": "⏰ Valid for 1 year from purchase date"
+    },
+    {
+      "type": "text",
+      "text": "🔄 Used automatically when daily quota is exhausted"
+    },
+    {
+      "type": "text",
+      "text": "📊 Track usage in your subscription dashboard"
+    },
+    {
+      "type": "text",
+      "text": "View Dashboard"
+    },
+    {
+      "type": "text",
+      "text": "Download Invoice"
+    },
+    {
+      "type": "text",
+      "text": "💡 Pro Tips:"
+    },
+    {
+      "type": "text",
+      "text": "Your tokens will be used automatically when daily limits are reached"
+    },
+    {
+      "type": "text",
+      "text": "Monitor your token usage in the subscription dashboard"
+    },
+    {
+      "type": "text",
+      "text": "Consider purchasing tokens in advance for heavy usage periods"
+    },
+    {
+      "type": "text",
+      "text": "Contact support if you have any questions about token usage"
+    },
+    {
+      "type": "text",
+      "text": "Thanks for choosing SEO Dada!The SEO Dada Team"
+    },
+    {
+      "type": "text",
+      "text": "Need help? Contact us at support@seodada.com"
+    }
+  ],
+  "links": [
+    {
+      "href": "{url_for('payment.user_subscriptions', _external=True)}",
+      "text": "View Dashboard"
+    },
+    {
+      "href": "{url_for('payment.download_token_invoice', token_purchase_id=token_purchase.id, _external=True)}",
+      "text": "Download Invoice"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 4,
+    "text_blocks": 26,
+    "links": 2,
+    "images": 0
+  }
+}

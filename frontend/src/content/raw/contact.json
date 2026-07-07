@@ -1,0 +1,202 @@
+{
+  "slug": "contact",
+  "source": "D:/SEO RENEW/seo/templates/contact.html",
+  "seo": {
+    "title": "Contact Us - SEO Dada",
+    "description": "Contact SEO Dada for support, questions, or feedback. Get in touch with our team for any assistance you need.",
+    "canonical": "https://seodada.com/contact",
+    "robots": "index, follow",
+    "og_image": "https://seodada.com/static/images/seodada.png",
+    "og_type": "website"
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Get In Touch"
+    },
+    {
+      "level": "h2",
+      "text": "Contact Information"
+    },
+    {
+      "level": "h3",
+      "text": "Our Location"
+    },
+    {
+      "level": "h3",
+      "text": "Email Us"
+    },
+    {
+      "level": "h3",
+      "text": "Business Hours"
+    },
+    {
+      "level": "h3",
+      "text": "Follow Us"
+    },
+    {
+      "level": "h2",
+      "text": "Send us a Message"
+    },
+    {
+      "level": "h3",
+      "text": "Need Immediate Assistance?"
+    }
+  ],
+  "text_blocks": [
+    "Contact Us | SEO Dada",
+    "Have questions about our SEO Dada tools? Need support? We're here to help you optimize your website's performance.",
+    "Shyamala Towers, 3rd floor No. 136, Arcot Rd, Saligramam Chennai, Tamil Nadu 600092",
+    "support@seodada.com",
+    "Monday - Friday: 9:00 AM - 6:00 PM Saturday: 10:00 AM - 4:00 PM Sunday: Closed",
+    "Your Name *",
+    "Please enter your full name (2-100 characters)",
+    "Email Address *",
+    "Please enter a valid email address",
+    "Your Message *",
+    "Please enter a message (10-5000 characters)",
+    "/5000 characters",
+    "Please complete the security check",
+    "Send Message",
+    "We typically respond within 24 hours during business days.",
+    "Our support team is dedicated to helping you succeed with SEO Dada. Whether you have technical questions, need guidance, or want to learn more about our features, we're here for you.",
+    "Visit Help Center",
+    "About Us",
+    "Fourth Dimension SEO Dada - Your Partner in SEO Excellence"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Contact Us | SEO Dada"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Get In Touch"
+    },
+    {
+      "type": "text",
+      "text": "Have questions about our SEO Dada tools? Need support? We're here to help you optimize your website's performance."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Contact Information"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Our Location"
+    },
+    {
+      "type": "text",
+      "text": "Shyamala Towers, 3rd floor No. 136, Arcot Rd, Saligramam Chennai, Tamil Nadu 600092"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Email Us"
+    },
+    {
+      "type": "text",
+      "text": "support@seodada.com"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Business Hours"
+    },
+    {
+      "type": "text",
+      "text": "Monday - Friday: 9:00 AM - 6:00 PM Saturday: 10:00 AM - 4:00 PM Sunday: Closed"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Follow Us"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Send us a Message"
+    },
+    {
+      "type": "text",
+      "text": "Your Name *"
+    },
+    {
+      "type": "text",
+      "text": "Please enter your full name (2-100 characters)"
+    },
+    {
+      "type": "text",
+      "text": "Email Address *"
+    },
+    {
+      "type": "text",
+      "text": "Please enter a valid email address"
+    },
+    {
+      "type": "text",
+      "text": "Your Message *"
+    },
+    {
+      "type": "text",
+      "text": "Please enter a message (10-5000 characters)"
+    },
+    {
+      "type": "text",
+      "text": "/5000 characters"
+    },
+    {
+      "type": "text",
+      "text": "Please complete the security check"
+    },
+    {
+      "type": "text",
+      "text": "Send Message"
+    },
+    {
+      "type": "text",
+      "text": "We typically respond within 24 hours during business days."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Need Immediate Assistance?"
+    },
+    {
+      "type": "text",
+      "text": "Our support team is dedicated to helping you succeed with SEO Dada. Whether you have technical questions, need guidance, or want to learn more about our features, we're here for you."
+    },
+    {
+      "type": "text",
+      "text": "Visit Help Center"
+    },
+    {
+      "type": "text",
+      "text": "About Us"
+    },
+    {
+      "type": "text",
+      "text": "Fourth Dimension SEO Dada - Your Partner in SEO Excellence"
+    }
+  ],
+  "links": [
+    {
+      "href": "/help",
+      "text": "Visit Help Center"
+    },
+    {
+      "href": "/about",
+      "text": "About Us"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 8,
+    "text_blocks": 19,
+    "links": 2,
+    "images": 0
+  }
+}

@@ -1,0 +1,434 @@
+{
+  "slug": "base2",
+  "source": "D:/SEO RENEW/seo/templates/base2.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h3",
+      "text": "Solutions"
+    },
+    {
+      "level": "h3",
+      "text": "Resources"
+    },
+    {
+      "level": "h3",
+      "text": "Company"
+    }
+  ],
+  "text_blocks": [
+    "Features",
+    "How It Works",
+    "Analytics",
+    "Our Clients",
+    "Blog",
+    "Our Services",
+    "URL Analysis",
+    "Heading Analysis",
+    "Keyword Analysis",
+    "Image Analysis",
+    "Meta Analysis",
+    "Sitemap Analysis",
+    "Dashboard",
+    "Profile",
+    "Subscriptions",
+    "Logout",
+    "Login",
+    "Get Started",
+    "Need help?",
+    "Contact Support",
+    "SEODADA Content Checker Tool",
+    "Technical SEO Guide",
+    "Web Stories",
+    "Help Center",
+    "About Us",
+    "Pricing",
+    "Contact Us",
+    "© SEO Dada. All rights reserved.",
+    "Privacy Policy",
+    "Terms of Service",
+    "Cookie & Policy"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Features"
+    },
+    {
+      "type": "text",
+      "text": "How It Works"
+    },
+    {
+      "type": "text",
+      "text": "Analytics"
+    },
+    {
+      "type": "text",
+      "text": "Our Clients"
+    },
+    {
+      "type": "text",
+      "text": "Blog"
+    },
+    {
+      "type": "text",
+      "text": "Our Services"
+    },
+    {
+      "type": "text",
+      "text": "URL Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Heading Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Keyword Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Image Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Meta Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Sitemap Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Dashboard"
+    },
+    {
+      "type": "text",
+      "text": "Profile"
+    },
+    {
+      "type": "text",
+      "text": "Subscriptions"
+    },
+    {
+      "type": "text",
+      "text": "Logout"
+    },
+    {
+      "type": "text",
+      "text": "Login"
+    },
+    {
+      "type": "text",
+      "text": "Get Started"
+    },
+    {
+      "type": "text",
+      "text": "Need help?"
+    },
+    {
+      "type": "text",
+      "text": "Contact Support"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Solutions"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Resources"
+    },
+    {
+      "type": "text",
+      "text": "SEODADA Content Checker Tool"
+    },
+    {
+      "type": "text",
+      "text": "Technical SEO Guide"
+    },
+    {
+      "type": "text",
+      "text": "Web Stories"
+    },
+    {
+      "type": "text",
+      "text": "Help Center"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Company"
+    },
+    {
+      "type": "text",
+      "text": "About Us"
+    },
+    {
+      "type": "text",
+      "text": "Pricing"
+    },
+    {
+      "type": "text",
+      "text": "Contact Us"
+    },
+    {
+      "type": "text",
+      "text": "© SEO Dada. All rights reserved."
+    },
+    {
+      "type": "text",
+      "text": "Privacy Policy"
+    },
+    {
+      "type": "text",
+      "text": "Terms of Service"
+    },
+    {
+      "type": "text",
+      "text": "Cookie & Policy"
+    }
+  ],
+  "links": [
+    {
+      "href": " #features",
+      "text": "Features"
+    },
+    {
+      "href": " #how-it-works",
+      "text": "How It Works"
+    },
+    {
+      "href": " #analytics",
+      "text": "Analytics"
+    },
+    {
+      "href": " #clients",
+      "text": "Our Clients"
+    },
+    {
+      "href": " ",
+      "text": "Blog"
+    },
+    {
+      "href": " ",
+      "text": "URL Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Heading Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Keyword Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Image Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Meta Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Sitemap Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Dashboard"
+    },
+    {
+      "href": " ",
+      "text": "Profile"
+    },
+    {
+      "href": " ",
+      "text": "Subscriptions"
+    },
+    {
+      "href": " ",
+      "text": "Logout"
+    },
+    {
+      "href": "/login",
+      "text": "Login"
+    },
+    {
+      "href": "/signup",
+      "text": "Get Started"
+    },
+    {
+      "href": "/contact",
+      "text": "Contact Support"
+    },
+    {
+      "href": " #features",
+      "text": "Features"
+    },
+    {
+      "href": " #how-it-works",
+      "text": "How It Works"
+    },
+    {
+      "href": " #analytics",
+      "text": "Analytics"
+    },
+    {
+      "href": " #clients",
+      "text": "Our Clients"
+    },
+    {
+      "href": "#",
+      "text": "Our Services"
+    },
+    {
+      "href": " ",
+      "text": "URL Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Heading Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Keyword Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Image Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Meta Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Sitemap Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Blog"
+    },
+    {
+      "href": " ",
+      "text": "Dashboard"
+    },
+    {
+      "href": " ",
+      "text": "Profile"
+    },
+    {
+      "href": " ",
+      "text": "Subscriptions"
+    },
+    {
+      "href": " ",
+      "text": "Logout"
+    },
+    {
+      "href": "/login",
+      "text": "Login"
+    },
+    {
+      "href": "/signup",
+      "text": "Get Started"
+    },
+    {
+      "href": " ",
+      "text": "URL Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Keyword Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Image Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Heading Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Meta Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Sitemap Analysis"
+    },
+    {
+      "href": " ",
+      "text": "SEODADA Content Checker Tool"
+    },
+    {
+      "href": " ",
+      "text": "Technical SEO Guide"
+    },
+    {
+      "href": " ",
+      "text": "Blog"
+    },
+    {
+      "href": " ",
+      "text": "Web Stories"
+    },
+    {
+      "href": " ",
+      "text": "Help Center"
+    },
+    {
+      "href": "/about",
+      "text": "About Us"
+    },
+    {
+      "href": "/pricing",
+      "text": "Pricing"
+    },
+    {
+      "href": "/contact",
+      "text": "Contact Us"
+    },
+    {
+      "href": "/privacy",
+      "text": "Privacy Policy"
+    },
+    {
+      "href": "/terms",
+      "text": "Terms of Service"
+    },
+    {
+      "href": "/cookie-policy",
+      "text": "Cookie & Policy"
+    }
+  ],
+  "images": [
+    {
+      "src": " ",
+      "alt": " "
+    },
+    {
+      "src": " ",
+      "alt": " "
+    },
+    {
+      "src": " ",
+      "alt": ""
+    }
+  ],
+  "counts": {
+    "headings": 3,
+    "text_blocks": 31,
+    "links": 53,
+    "images": 3
+  }
+}

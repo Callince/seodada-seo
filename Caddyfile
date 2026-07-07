@@ -1,0 +1,46 @@
+# Caddy edge proxy — terminates TLS (auto Let's Encrypt) and routes traffic.
+#   {$DOMAIN}    e.g. seo.fourdm.services   (set in .env.production)
+#   {$TLS_EMAIL} e.g. you@example.com       (Let's Encrypt account / expiry notices)
+#
+# Routing (shared by both site blocks below):
+#   /api/*  -> FastAPI backend (path is preserved; the API serves /api/v1/*)
+#   /*      -> the SPA static server (nginx) which does the client-side fallback
+{
+	email {$TLS_EMAIL}
+	# To use the Let's Encrypt STAGING CA while testing (avoids rate limits),
+	# uncomment the next line, deploy once, then re-comment and redeploy.
+	# acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+}
+
+(routes) {
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	# API → FastAPI. Keep the full path so the backend's /api/v1/* routes match.
+	handle /api/* {
+		reverse_proxy api:8000
+	}
+
+	# Everything else → the single-page app.
+	handle {
+		reverse_proxy web:80
+	}
+}
+
+# Primary site — the domain, with automatic HTTPS.
+{$DOMAIN} {
+	import routes
+	header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+}
+
+# Fallback — plain HTTP on the bare IP, kept so the app stays reachable while
+# DNS propagates (and as an emergency door if DNS ever breaks).
+http://168.144.125.165 {
+	import routes
+}

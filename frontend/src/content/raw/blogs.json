@@ -1,0 +1,175 @@
+{
+  "slug": "blogs",
+  "source": "D:/SEO RENEW/seo/templates/blogs.html",
+  "seo": {
+    "title": "-  Blog - SEODADA",
+    "description": "Explore our blog posts about  . Explore our latest blog posts about SEO, digital marketing, and technology insights.",
+    "canonical": " ",
+    "robots": "",
+    "og_image": "",
+    "og_type": "website"
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Our Blog"
+    },
+    {
+      "level": "h5",
+      "text": "Filter by Category"
+    },
+    {
+      "level": "h2",
+      "text": "Latest Articles"
+    },
+    {
+      "level": "h3",
+      "text": "No articles found"
+    },
+    {
+      "level": "h3",
+      "text": "No Blog Posts Yet"
+    }
+  ],
+  "text_blocks": [
+    "- Blog - SEODADA",
+    "Home",
+    "Blog",
+    "Browse articles about Discover insights, tips, and expert knowledge about SEO and digital marketing",
+    "All Posts",
+    "Showing of articles in",
+    "Read Article",
+    "Read More",
+    "Try adjusting your search terms",
+    "Previous",
+    "...",
+    "Next",
+    "Check back soon for exciting blog posts!",
+    "Back to Home"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "- Blog - SEODADA"
+    },
+    {
+      "type": "text",
+      "text": "Home"
+    },
+    {
+      "type": "text",
+      "text": "Blog"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Our Blog"
+    },
+    {
+      "type": "text",
+      "text": "Browse articles about Discover insights, tips, and expert knowledge about SEO and digital marketing"
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Filter by Category"
+    },
+    {
+      "type": "text",
+      "text": "All Posts"
+    },
+    {
+      "type": "text",
+      "text": "Showing of articles in"
+    },
+    {
+      "type": "text",
+      "text": "Read Article"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Latest Articles"
+    },
+    {
+      "type": "text",
+      "text": "Read More"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "No articles found"
+    },
+    {
+      "type": "text",
+      "text": "Try adjusting your search terms"
+    },
+    {
+      "type": "text",
+      "text": "Previous"
+    },
+    {
+      "type": "text",
+      "text": "..."
+    },
+    {
+      "type": "text",
+      "text": "Next"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "No Blog Posts Yet"
+    },
+    {
+      "type": "text",
+      "text": "Check back soon for exciting blog posts!"
+    },
+    {
+      "type": "text",
+      "text": "Back to Home"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Home"
+    },
+    {
+      "href": " ",
+      "text": "All Posts"
+    },
+    {
+      "href": " ",
+      "text": "Read Article"
+    },
+    {
+      "href": " ",
+      "text": "Previous"
+    },
+    {
+      "href": " ",
+      "text": "Next"
+    },
+    {
+      "href": " ",
+      "text": "Back to Home"
+    }
+  ],
+  "images": [
+    {
+      "src": " ",
+      "alt": " "
+    },
+    {
+      "src": " ",
+      "alt": " "
+    }
+  ],
+  "counts": {
+    "headings": 5,
+    "text_blocks": 14,
+    "links": 6,
+    "images": 2
+  }
+}

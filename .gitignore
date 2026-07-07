@@ -1,0 +1,44 @@
+# ===== Secrets — never commit =====
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# ===== Python (backend) =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+env/
+
+# Local dev database
+*.db
+*.sqlite
+*.sqlite3
+
+# ===== Node / frontend =====
+node_modules/
+dist/
+.vite/
+
+# ===== Logs =====
+*.log
+**/uvicorn.*.log
+**/vite.*.log
+
+# ===== Docker / Caddy runtime state =====
+caddy_data/
+caddy_config/
+
+# ===== Editor / OS =====
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# generated reports
+*.xlsx

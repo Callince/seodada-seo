@@ -1,0 +1,344 @@
+{
+  "slug": "profile",
+  "source": "D:/SEO RENEW/seo/templates/profile.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h3",
+      "text": "Quick Stats"
+    },
+    {
+      "level": "h3",
+      "text": "Recent Activity"
+    },
+    {
+      "level": "h3",
+      "text": "Quick Actions"
+    },
+    {
+      "level": "h2",
+      "text": "Account Settings"
+    },
+    {
+      "level": "h2",
+      "text": "Subscription Details"
+    },
+    {
+      "level": "h4",
+      "text": "Subscription Period"
+    },
+    {
+      "level": "h4",
+      "text": "Days Remaining"
+    },
+    {
+      "level": "h4",
+      "text": "Daily Limit"
+    },
+    {
+      "level": "h4",
+      "text": "Today's Usage"
+    },
+    {
+      "level": "h2",
+      "text": "Security Settings"
+    }
+  ],
+  "text_blocks": [
+    "Profile -",
+    "Plan",
+    "Member since N/A",
+    "Overview",
+    "Account Settings",
+    "Subscription",
+    "Security",
+    "Daily Usage",
+    "Days Remaining",
+    "days",
+    "Plan Type",
+    "Subscription Status",
+    "No Active Plan",
+    "Account Status",
+    "Active",
+    "Last login:",
+    "Profile updated:",
+    "Password changed:",
+    "Manage Subscription",
+    "Change Password",
+    "Go to Dashboard",
+    "Full Name",
+    "Company Email",
+    "Email address cannot be changed",
+    "Save Changes",
+    "of days",
+    "Subscription expired",
+    "operations",
+    "Unlimited",
+    "of operations",
+    "No daily limit",
+    "View Details",
+    "There is no Active Subscription Found, Subscribe to Access the Tools",
+    "Check out our subscription plans",
+    "Choose a strong password that you don't use for other accounts",
+    "Current Password",
+    "New Password",
+    "Password Requirements:",
+    "At least 8 characters",
+    "At least one uppercase letter",
+    "At least one lowercase letter",
+    "At least one number",
+    "At least one special character",
+    "Confirm New Password",
+    "Update Password"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Profile -"
+    },
+    {
+      "type": "text",
+      "text": "Plan"
+    },
+    {
+      "type": "text",
+      "text": "Member since N/A"
+    },
+    {
+      "type": "text",
+      "text": "Overview"
+    },
+    {
+      "type": "text",
+      "text": "Account Settings"
+    },
+    {
+      "type": "text",
+      "text": "Subscription"
+    },
+    {
+      "type": "text",
+      "text": "Security"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Quick Stats"
+    },
+    {
+      "type": "text",
+      "text": "Daily Usage"
+    },
+    {
+      "type": "text",
+      "text": "Days Remaining"
+    },
+    {
+      "type": "text",
+      "text": "days"
+    },
+    {
+      "type": "text",
+      "text": "Plan Type"
+    },
+    {
+      "type": "text",
+      "text": "Subscription Status"
+    },
+    {
+      "type": "text",
+      "text": "No Active Plan"
+    },
+    {
+      "type": "text",
+      "text": "Account Status"
+    },
+    {
+      "type": "text",
+      "text": "Active"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Recent Activity"
+    },
+    {
+      "type": "text",
+      "text": "Last login:"
+    },
+    {
+      "type": "text",
+      "text": "Profile updated:"
+    },
+    {
+      "type": "text",
+      "text": "Password changed:"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Quick Actions"
+    },
+    {
+      "type": "text",
+      "text": "Manage Subscription"
+    },
+    {
+      "type": "text",
+      "text": "Change Password"
+    },
+    {
+      "type": "text",
+      "text": "Go to Dashboard"
+    },
+    {
+      "type": "text",
+      "text": "Full Name"
+    },
+    {
+      "type": "text",
+      "text": "Company Email"
+    },
+    {
+      "type": "text",
+      "text": "Email address cannot be changed"
+    },
+    {
+      "type": "text",
+      "text": "Save Changes"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Subscription Details"
+    },
+    {
+      "type": "heading",
+      "level": "h4",
+      "text": "Subscription Period"
+    },
+    {
+      "type": "text",
+      "text": "of days"
+    },
+    {
+      "type": "text",
+      "text": "Subscription expired"
+    },
+    {
+      "type": "heading",
+      "level": "h4",
+      "text": "Daily Limit"
+    },
+    {
+      "type": "text",
+      "text": "operations"
+    },
+    {
+      "type": "text",
+      "text": "Unlimited"
+    },
+    {
+      "type": "heading",
+      "level": "h4",
+      "text": "Today's Usage"
+    },
+    {
+      "type": "text",
+      "text": "of operations"
+    },
+    {
+      "type": "text",
+      "text": "No daily limit"
+    },
+    {
+      "type": "text",
+      "text": "View Details"
+    },
+    {
+      "type": "text",
+      "text": "There is no Active Subscription Found, Subscribe to Access the Tools"
+    },
+    {
+      "type": "text",
+      "text": "Check out our subscription plans"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Security Settings"
+    },
+    {
+      "type": "text",
+      "text": "Choose a strong password that you don't use for other accounts"
+    },
+    {
+      "type": "text",
+      "text": "Current Password"
+    },
+    {
+      "type": "text",
+      "text": "New Password"
+    },
+    {
+      "type": "text",
+      "text": "Password Requirements:"
+    },
+    {
+      "type": "text",
+      "text": "At least 8 characters"
+    },
+    {
+      "type": "text",
+      "text": "At least one uppercase letter"
+    },
+    {
+      "type": "text",
+      "text": "At least one lowercase letter"
+    },
+    {
+      "type": "text",
+      "text": "At least one number"
+    },
+    {
+      "type": "text",
+      "text": "At least one special character"
+    },
+    {
+      "type": "text",
+      "text": "Confirm New Password"
+    },
+    {
+      "type": "text",
+      "text": "Update Password"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Manage Subscription"
+    },
+    {
+      "href": " ",
+      "text": "View Details"
+    },
+    {
+      "href": " ",
+      "text": "Check out our subscription plans"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 10,
+    "text_blocks": 45,
+    "links": 3,
+    "images": 0
+  }
+}

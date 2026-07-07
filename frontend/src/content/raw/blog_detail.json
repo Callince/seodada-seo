@@ -1,0 +1,131 @@
+{
+  "slug": "blog_detail",
+  "source": "D:/SEO RENEW/seo/templates/blog_detail.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": " ",
+    "robots": "",
+    "og_image": " ",
+    "og_type": "article"
+  },
+  "headings": [
+    {
+      "level": "h2",
+      "text": "TL;DR"
+    },
+    {
+      "level": "h2",
+      "text": "Key Takeaways"
+    },
+    {
+      "level": "h2",
+      "text": "Table of Contents"
+    },
+    {
+      "level": "h2",
+      "text": "Table of Contents"
+    },
+    {
+      "level": "h3",
+      "text": "Frequently Asked Questions"
+    },
+    {
+      "level": "h5",
+      "text": "Share this article"
+    },
+    {
+      "level": "h3",
+      "text": "Related Articles"
+    }
+  ],
+  "text_blocks": [
+    "- SEODADA",
+    "Home",
+    "Blog",
+    "Back to All Posts",
+    "min read"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "- SEODADA"
+    },
+    {
+      "type": "text",
+      "text": "Home"
+    },
+    {
+      "type": "text",
+      "text": "Blog"
+    },
+    {
+      "type": "text",
+      "text": "Back to All Posts"
+    },
+    {
+      "type": "text",
+      "text": "min read"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "TL;DR"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Key Takeaways"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Table of Contents"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Frequently Asked Questions"
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Share this article"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Related Articles"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Home"
+    },
+    {
+      "href": " ",
+      "text": "Blog"
+    },
+    {
+      "href": " ",
+      "text": "Back to All Posts"
+    }
+  ],
+  "images": [
+    {
+      "src": " ",
+      "alt": " "
+    },
+    {
+      "src": " ",
+      "alt": " "
+    }
+  ],
+  "counts": {
+    "headings": 7,
+    "text_blocks": 5,
+    "links": 3,
+    "images": 2
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "slug": "reset_token",
+  "source": "D:/SEO RENEW/seo/templates/reset_token.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h2",
+      "text": "Set New Password"
+    }
+  ],
+  "text_blocks": [
+    "Set New Password | Fourth Dimension",
+    "New Password",
+    "Confirm Password",
+    "Password must contain:",
+    "At least 8 characters",
+    "Upper and lowercase letters",
+    "At least one number",
+    "At least one special character",
+    "Reset Password",
+    "Back to Login"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Set New Password | Fourth Dimension"
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Set New Password"
+    },
+    {
+      "type": "text",
+      "text": "New Password"
+    },
+    {
+      "type": "text",
+      "text": "Confirm Password"
+    },
+    {
+      "type": "text",
+      "text": "Password must contain:"
+    },
+    {
+      "type": "text",
+      "text": "At least 8 characters"
+    },
+    {
+      "type": "text",
+      "text": "Upper and lowercase letters"
+    },
+    {
+      "type": "text",
+      "text": "At least one number"
+    },
+    {
+      "type": "text",
+      "text": "At least one special character"
+    },
+    {
+      "type": "text",
+      "text": "Reset Password"
+    },
+    {
+      "type": "text",
+      "text": "Back to Login"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Back to Login"
+    }
+  ],
+  "images": [
+    {
+      "src": " ",
+      "alt": "  Logo"
+    }
+  ],
+  "counts": {
+    "headings": 1,
+    "text_blocks": 10,
+    "links": 1,
+    "images": 1
+  }
+}

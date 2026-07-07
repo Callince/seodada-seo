@@ -1,0 +1,131 @@
+{
+  "slug": "keyword_detail",
+  "source": "D:/SEO RENEW/seo/templates/keyword_detail.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h2",
+      "text": "Keyword Analysis Results"
+    },
+    {
+      "level": "h4",
+      "text": "Top 10 Keywords"
+    },
+    {
+      "level": "h6",
+      "text": "Top Keywords ( )"
+    },
+    {
+      "level": "h5",
+      "text": "Manual Keyword Analysis"
+    }
+  ],
+  "text_blocks": [
+    "Analyzing:",
+    "Back to Search",
+    "These 10 keywords are automatically extracted from the \"Extracted Text\" below using TF-IDF algorithm. All keywords are actual phrases found in the displayed text - no artificial combinations.",
+    "Related Links",
+    "Download TXT",
+    "No related links found",
+    "Analyze",
+    "Count:",
+    "Density: %",
+    "Extracted Text",
+    "Source for Top 10 Keywords",
+    "Total Words:"
+  ],
+  "flow": [
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Keyword Analysis Results"
+    },
+    {
+      "type": "text",
+      "text": "Analyzing:"
+    },
+    {
+      "type": "text",
+      "text": "Back to Search"
+    },
+    {
+      "type": "heading",
+      "level": "h4",
+      "text": "Top 10 Keywords"
+    },
+    {
+      "type": "text",
+      "text": "These 10 keywords are automatically extracted from the \"Extracted Text\" below using TF-IDF algorithm. All keywords are actual phrases found in the displayed text - no artificial combinations."
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Top Keywords ( )"
+    },
+    {
+      "type": "text",
+      "text": "Related Links"
+    },
+    {
+      "type": "text",
+      "text": "Download TXT"
+    },
+    {
+      "type": "text",
+      "text": "No related links found"
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Manual Keyword Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Analyze"
+    },
+    {
+      "type": "text",
+      "text": "Count:"
+    },
+    {
+      "type": "text",
+      "text": "Density: %"
+    },
+    {
+      "type": "text",
+      "text": "Extracted Text"
+    },
+    {
+      "type": "text",
+      "text": "Source for Top 10 Keywords"
+    },
+    {
+      "type": "text",
+      "text": "Total Words:"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Back to Search"
+    },
+    {
+      "href": " ",
+      "text": "Download TXT"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 4,
+    "text_blocks": 12,
+    "links": 2,
+    "images": 0
+  }
+}

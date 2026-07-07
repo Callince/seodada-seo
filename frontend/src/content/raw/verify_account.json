@@ -1,0 +1,85 @@
+{
+  "slug": "verify_account",
+  "source": "D:/SEO RENEW/seo/templates/verify_account.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Check Your Email"
+    }
+  ],
+  "text_blocks": [
+    "Verify Your Account | Fourth Dimension",
+    "We've sent a verification link to your email address. Please check your inbox and click the link to verify your account.",
+    "or",
+    "Email Address",
+    "Resend Verification Email",
+    "You can request another email in",
+    "60",
+    "seconds",
+    "Back to Login"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Verify Your Account | Fourth Dimension"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Check Your Email"
+    },
+    {
+      "type": "text",
+      "text": "We've sent a verification link to your email address. Please check your inbox and click the link to verify your account."
+    },
+    {
+      "type": "text",
+      "text": "or"
+    },
+    {
+      "type": "text",
+      "text": "Email Address"
+    },
+    {
+      "type": "text",
+      "text": "Resend Verification Email"
+    },
+    {
+      "type": "text",
+      "text": "You can request another email in"
+    },
+    {
+      "type": "text",
+      "text": "60"
+    },
+    {
+      "type": "text",
+      "text": "seconds"
+    },
+    {
+      "type": "text",
+      "text": "Back to Login"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Back to Login"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 1,
+    "text_blocks": 9,
+    "links": 1,
+    "images": 0
+  }
+}

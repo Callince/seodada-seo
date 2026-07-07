@@ -1,0 +1,452 @@
+[
+  {
+    "slug": "_robots_display",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/_robots_display.html",
+    "headings": 5,
+    "text_blocks": 7,
+    "links": 1,
+    "images": 0
+  },
+  {
+    "slug": "about",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/about.html",
+    "headings": 11,
+    "text_blocks": 18,
+    "links": 2,
+    "images": 0
+  },
+  {
+    "slug": "base",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/base.html",
+    "headings": 0,
+    "text_blocks": 24,
+    "links": 16,
+    "images": 1
+  },
+  {
+    "slug": "base1",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/base1.html",
+    "headings": 0,
+    "text_blocks": 4,
+    "links": 0,
+    "images": 0
+  },
+  {
+    "slug": "base2",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/base2.html",
+    "headings": 3,
+    "text_blocks": 31,
+    "links": 53,
+    "images": 3
+  },
+  {
+    "slug": "blog_detail",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/blog_detail.html",
+    "headings": 7,
+    "text_blocks": 5,
+    "links": 3,
+    "images": 2
+  },
+  {
+    "slug": "blogs",
+    "title": "-  Blog - SEODADA",
+    "source": "D:/SEO RENEW/seo/templates/blogs.html",
+    "headings": 5,
+    "text_blocks": 14,
+    "links": 6,
+    "images": 2
+  },
+  {
+    "slug": "contact",
+    "title": "Contact Us - SEO Dada",
+    "source": "D:/SEO RENEW/seo/templates/contact.html",
+    "headings": 8,
+    "text_blocks": 19,
+    "links": 2,
+    "images": 0
+  },
+  {
+    "slug": "content_checker",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/content_checker.html",
+    "headings": 29,
+    "text_blocks": 119,
+    "links": 17,
+    "images": 2
+  },
+  {
+    "slug": "cookie_policy",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/cookie_policy.html",
+    "headings": 14,
+    "text_blocks": 33,
+    "links": 1,
+    "images": 0
+  },
+  {
+    "slug": "h_detail",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/h_detail.html",
+    "headings": 10,
+    "text_blocks": 33,
+    "links": 2,
+    "images": 0
+  },
+  {
+    "slug": "h_search",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/h_search.html",
+    "headings": 3,
+    "text_blocks": 13,
+    "links": 2,
+    "images": 0
+  },
+  {
+    "slug": "help",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/help.html",
+    "headings": 32,
+    "text_blocks": 70,
+    "links": 1,
+    "images": 0
+  },
+  {
+    "slug": "image_detail",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/image_detail.html",
+    "headings": 6,
+    "text_blocks": 39,
+    "links": 1,
+    "images": 1
+  },
+  {
+    "slug": "image_search",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/image_search.html",
+    "headings": 3,
+    "text_blocks": 14,
+    "links": 2,
+    "images": 0
+  },
+  {
+    "slug": "index",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/index.html",
+    "headings": 10,
+    "text_blocks": 38,
+    "links": 8,
+    "images": 0
+  },
+  {
+    "slug": "keyword_detail",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/keyword_detail.html",
+    "headings": 4,
+    "text_blocks": 12,
+    "links": 2,
+    "images": 0
+  },
+  {
+    "slug": "keyword_search",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/keyword_search.html",
+    "headings": 3,
+    "text_blocks": 13,
+    "links": 2,
+    "images": 0
+  },
+  {
+    "slug": "landing",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/landing.html",
+    "headings": 21,
+    "text_blocks": 104,
+    "links": 58,
+    "images": 36
+  },
+  {
+    "slug": "loading",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/loading.html",
+    "headings": 2,
+    "text_blocks": 13,
+    "links": 1,
+    "images": 0
+  },
+  {
+    "slug": "login",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/login.html",
+    "headings": 2,
+    "text_blocks": 13,
+    "links": 2,
+    "images": 1
+  },
+  {
+    "slug": "meta_detail",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/meta_detail.html",
+    "headings": 17,
+    "text_blocks": 52,
+    "links": 2,
+    "images": 0
+  },
+  {
+    "slug": "meta_search",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/meta_search.html",
+    "headings": 3,
+    "text_blocks": 13,
+    "links": 2,
+    "images": 0
+  },
+  {
+    "slug": "password_reset",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/password_reset.html",
+    "headings": 1,
+    "text_blocks": 5,
+    "links": 1,
+    "images": 0
+  },
+  {
+    "slug": "payment_cancel",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/payment_cancel.html",
+    "headings": 1,
+    "text_blocks": 2,
+    "links": 1,
+    "images": 0
+  },
+  {
+    "slug": "payment_success",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/payment_success.html",
+    "headings": 1,
+    "text_blocks": 3,
+    "links": 1,
+    "images": 0
+  },
+  {
+    "slug": "pillar_technical_seo",
+    "title": "Technical SEO Guide 2026: Improve Website Performance and Rankings",
+    "source": "D:/SEO RENEW/seo/templates/pillar_technical_seo.html",
+    "headings": 28,
+    "text_blocks": 97,
+    "links": 25,
+    "images": 6
+  },
+  {
+    "slug": "pricing",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/pricing.html",
+    "headings": 5,
+    "text_blocks": 18,
+    "links": 2,
+    "images": 0
+  },
+  {
+    "slug": "privacy",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/privacy.html",
+    "headings": 19,
+    "text_blocks": 55,
+    "links": 1,
+    "images": 0
+  },
+  {
+    "slug": "profile",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/profile.html",
+    "headings": 10,
+    "text_blocks": 45,
+    "links": 3,
+    "images": 0
+  },
+  {
+    "slug": "resend_verification",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/resend_verification.html",
+    "headings": 1,
+    "text_blocks": 9,
+    "links": 0,
+    "images": 1
+  },
+  {
+    "slug": "reset_request",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/reset_request.html",
+    "headings": 1,
+    "text_blocks": 6,
+    "links": 1,
+    "images": 1
+  },
+  {
+    "slug": "reset_token",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/reset_token.html",
+    "headings": 1,
+    "text_blocks": 10,
+    "links": 1,
+    "images": 1
+  },
+  {
+    "slug": "search_history",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/search_history.html",
+    "headings": 2,
+    "text_blocks": 11,
+    "links": 1,
+    "images": 0
+  },
+  {
+    "slug": "signup",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/signup.html",
+    "headings": 2,
+    "text_blocks": 31,
+    "links": 3,
+    "images": 1
+  },
+  {
+    "slug": "site_structure",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/site_structure.html",
+    "headings": 4,
+    "text_blocks": 4,
+    "links": 0,
+    "images": 0
+  },
+  {
+    "slug": "sitemap_analysis",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/sitemap_analysis.html",
+    "headings": 19,
+    "text_blocks": 63,
+    "links": 8,
+    "images": 0
+  },
+  {
+    "slug": "sitemap_blogs",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/sitemap_blogs.html",
+    "headings": 2,
+    "text_blocks": 19,
+    "links": 7,
+    "images": 2
+  },
+  {
+    "slug": "sitemap_index",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/sitemap_index.html",
+    "headings": 5,
+    "text_blocks": 17,
+    "links": 5,
+    "images": 2
+  },
+  {
+    "slug": "sitemap_pages",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/sitemap_pages.html",
+    "headings": 4,
+    "text_blocks": 40,
+    "links": 18,
+    "images": 2
+  },
+  {
+    "slug": "sitemap_webstories",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/sitemap_webstories.html",
+    "headings": 2,
+    "text_blocks": 18,
+    "links": 7,
+    "images": 2
+  },
+  {
+    "slug": "terms",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/terms.html",
+    "headings": 19,
+    "text_blocks": 61,
+    "links": 1,
+    "images": 0
+  },
+  {
+    "slug": "time_date",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/time_date.html",
+    "headings": 1,
+    "text_blocks": 3,
+    "links": 0,
+    "images": 0
+  },
+  {
+    "slug": "url_search",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/url_search.html",
+    "headings": 3,
+    "text_blocks": 10,
+    "links": 2,
+    "images": 0
+  },
+  {
+    "slug": "url_search_results",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/url_search_results.html",
+    "headings": 10,
+    "text_blocks": 15,
+    "links": 2,
+    "images": 0
+  },
+  {
+    "slug": "verify_account",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/verify_account.html",
+    "headings": 1,
+    "text_blocks": 9,
+    "links": 1,
+    "images": 0
+  },
+  {
+    "slug": "visualize",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/visualize.html",
+    "headings": 1,
+    "text_blocks": 20,
+    "links": 1,
+    "images": 0
+  },
+  {
+    "slug": "webstories",
+    "title": "Web Stories - SEODADA",
+    "source": "D:/SEO RENEW/seo/templates/webstories.html",
+    "headings": 3,
+    "text_blocks": 10,
+    "links": 4,
+    "images": 1
+  },
+  {
+    "slug": "webstory_detail",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/webstory_detail.html",
+    "headings": 0,
+    "text_blocks": 3,
+    "links": 1,
+    "images": 0
+  },
+  {
+    "slug": "token_purchase_confirmation",
+    "title": "",
+    "source": "D:/SEO RENEW/seo/templates/emails/token_purchase_confirmation.html",
+    "headings": 4,
+    "text_blocks": 26,
+    "links": 2,
+    "images": 0
+  }
+]

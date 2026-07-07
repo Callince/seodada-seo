@@ -1,0 +1,75 @@
+{
+  "slug": "reset_request",
+  "source": "D:/SEO RENEW/seo/templates/reset_request.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Reset Password"
+    }
+  ],
+  "text_blocks": [
+    "Reset Password | Fourth Dimension",
+    "Enter your email to receive a password reset link",
+    "We'll send you an email with instructions to reset your password. Make sure to check your spam folder if you don't see it in your inbox.",
+    "Email Address",
+    "Send Reset Link",
+    "Back to Login"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Reset Password | Fourth Dimension"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Reset Password"
+    },
+    {
+      "type": "text",
+      "text": "Enter your email to receive a password reset link"
+    },
+    {
+      "type": "text",
+      "text": "We'll send you an email with instructions to reset your password. Make sure to check your spam folder if you don't see it in your inbox."
+    },
+    {
+      "type": "text",
+      "text": "Email Address"
+    },
+    {
+      "type": "text",
+      "text": "Send Reset Link"
+    },
+    {
+      "type": "text",
+      "text": "Back to Login"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Back to Login"
+    }
+  ],
+  "images": [
+    {
+      "src": " ",
+      "alt": "  Logo"
+    }
+  ],
+  "counts": {
+    "headings": 1,
+    "text_blocks": 6,
+    "links": 1,
+    "images": 1
+  }
+}

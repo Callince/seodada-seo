@@ -1,0 +1,77 @@
+{
+  "slug": "site_structure",
+  "source": "D:/SEO RENEW/seo/templates/site_structure.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Website Crawler"
+    },
+    {
+      "level": "h5",
+      "text": "Analyze and visualize web page structure"
+    },
+    {
+      "level": "h5",
+      "text": "Features"
+    },
+    {
+      "level": "h6",
+      "text": "Link Analysis"
+    }
+  ],
+  "text_blocks": [
+    "Website Crawler",
+    "Enter Website URL:",
+    "Start Crawling",
+    "Map all internal and external links"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Website Crawler"
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Analyze and visualize web page structure"
+    },
+    {
+      "type": "text",
+      "text": "Enter Website URL:"
+    },
+    {
+      "type": "text",
+      "text": "Start Crawling"
+    },
+    {
+      "type": "heading",
+      "level": "h5",
+      "text": "Features"
+    },
+    {
+      "type": "heading",
+      "level": "h6",
+      "text": "Link Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Map all internal and external links"
+    }
+  ],
+  "links": [],
+  "images": [],
+  "counts": {
+    "headings": 4,
+    "text_blocks": 4,
+    "links": 0,
+    "images": 0
+  }
+}

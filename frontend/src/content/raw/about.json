@@ -1,0 +1,224 @@
+{
+  "slug": "about",
+  "source": "D:/SEO RENEW/seo/templates/about.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "About SEO Dada"
+    },
+    {
+      "level": "h2",
+      "text": "Our Vision"
+    },
+    {
+      "level": "h2",
+      "text": "What We Do"
+    },
+    {
+      "level": "h2",
+      "text": "Our Features"
+    },
+    {
+      "level": "h3",
+      "text": "Fast Analysis"
+    },
+    {
+      "level": "h3",
+      "text": "Detailed Insights"
+    },
+    {
+      "level": "h3",
+      "text": "Powerful Toolset"
+    },
+    {
+      "level": "h3",
+      "text": "Privacy Focused"
+    },
+    {
+      "level": "h2",
+      "text": "Our Mission"
+    },
+    {
+      "level": "h3",
+      "text": "Why Choose SEO Dada?"
+    },
+    {
+      "level": "h3",
+      "text": "Get Started Today"
+    }
+  ],
+  "text_blocks": [
+    "About Us | SEO Dada",
+    "SEO Dada was built to empower developers, marketers, and analysts with fast, insightful tools for website analysis. From heading structure to image audits and keyword density checks, our tools help optimize your web presence effortlessly.",
+    "We believe that website performance and optimization should be accessible to everyone. Our platform provides comprehensive SEO analysis tools that help you understand, optimize, and improve your website's search engine visibility and user experience.",
+    "SEO Dada offers a complete suite of website analysis tools designed to help you optimize every aspect of your online presence. Whether you're a developer, marketer, or SEO professional, our platform provides the insights you need to succeed.",
+    "Get comprehensive results in seconds with our highly optimized tools. No more waiting hours for analysis reports.",
+    "Uncover hidden opportunities with our in-depth analytical reports. Understand exactly what needs improvement.",
+    "Access specialized tools for headings, keywords, images, meta tags, and more. Everything you need in one place.",
+    "Your data is always secure and we never share it with third parties. Your privacy is our priority.",
+    "We believe that website performance and optimization should be accessible to everyone. Our mission is to provide tools that simplify complex web analysis tasks and empower users to make data-driven decisions. We're committed to delivering accurate, actionable insights that help businesses of all sizes improve their online presence.",
+    "Comprehensive analysis tools covering all aspects of SEO",
+    "Token-based system that's flexible and cost-effective",
+    "Easy-to-understand reports with actionable recommendations",
+    "Export data in multiple formats for further analysis",
+    "Dedicated support team ready to help you succeed",
+    "Ready to optimize your website? Try our tools and see the difference professional SEO analysis can make.",
+    "Try Our Tools",
+    "Contact Us",
+    "Fourth Dimension SEO Dada - Empowering Your SEO Journey"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "About Us | SEO Dada"
+    },
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "About SEO Dada"
+    },
+    {
+      "type": "text",
+      "text": "SEO Dada was built to empower developers, marketers, and analysts with fast, insightful tools for website analysis. From heading structure to image audits and keyword density checks, our tools help optimize your web presence effortlessly."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Our Vision"
+    },
+    {
+      "type": "text",
+      "text": "We believe that website performance and optimization should be accessible to everyone. Our platform provides comprehensive SEO analysis tools that help you understand, optimize, and improve your website's search engine visibility and user experience."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "What We Do"
+    },
+    {
+      "type": "text",
+      "text": "SEO Dada offers a complete suite of website analysis tools designed to help you optimize every aspect of your online presence. Whether you're a developer, marketer, or SEO professional, our platform provides the insights you need to succeed."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Our Features"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Fast Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Get comprehensive results in seconds with our highly optimized tools. No more waiting hours for analysis reports."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Detailed Insights"
+    },
+    {
+      "type": "text",
+      "text": "Uncover hidden opportunities with our in-depth analytical reports. Understand exactly what needs improvement."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Powerful Toolset"
+    },
+    {
+      "type": "text",
+      "text": "Access specialized tools for headings, keywords, images, meta tags, and more. Everything you need in one place."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Privacy Focused"
+    },
+    {
+      "type": "text",
+      "text": "Your data is always secure and we never share it with third parties. Your privacy is our priority."
+    },
+    {
+      "type": "heading",
+      "level": "h2",
+      "text": "Our Mission"
+    },
+    {
+      "type": "text",
+      "text": "We believe that website performance and optimization should be accessible to everyone. Our mission is to provide tools that simplify complex web analysis tasks and empower users to make data-driven decisions. We're committed to delivering accurate, actionable insights that help businesses of all sizes improve their online presence."
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Why Choose SEO Dada?"
+    },
+    {
+      "type": "text",
+      "text": "Comprehensive analysis tools covering all aspects of SEO"
+    },
+    {
+      "type": "text",
+      "text": "Token-based system that's flexible and cost-effective"
+    },
+    {
+      "type": "text",
+      "text": "Easy-to-understand reports with actionable recommendations"
+    },
+    {
+      "type": "text",
+      "text": "Export data in multiple formats for further analysis"
+    },
+    {
+      "type": "text",
+      "text": "Dedicated support team ready to help you succeed"
+    },
+    {
+      "type": "heading",
+      "level": "h3",
+      "text": "Get Started Today"
+    },
+    {
+      "type": "text",
+      "text": "Ready to optimize your website? Try our tools and see the difference professional SEO analysis can make."
+    },
+    {
+      "type": "text",
+      "text": "Try Our Tools"
+    },
+    {
+      "type": "text",
+      "text": "Contact Us"
+    },
+    {
+      "type": "text",
+      "text": "Fourth Dimension SEO Dada - Empowering Your SEO Journey"
+    }
+  ],
+  "links": [
+    {
+      "href": "/signup",
+      "text": "Try Our Tools"
+    },
+    {
+      "href": "/contact",
+      "text": "Contact Us"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 11,
+    "text_blocks": 18,
+    "links": 2,
+    "images": 0
+  }
+}

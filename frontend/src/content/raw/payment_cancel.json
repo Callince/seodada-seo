@@ -1,0 +1,50 @@
+{
+  "slug": "payment_cancel",
+  "source": "D:/SEO RENEW/seo/templates/payment_cancel.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [
+    {
+      "level": "h1",
+      "text": "Payment Canceled"
+    }
+  ],
+  "text_blocks": [
+    "Your payment has been canceled. If you have any questions, please contact support.",
+    "Return to Subscription Plans"
+  ],
+  "flow": [
+    {
+      "type": "heading",
+      "level": "h1",
+      "text": "Payment Canceled"
+    },
+    {
+      "type": "text",
+      "text": "Your payment has been canceled. If you have any questions, please contact support."
+    },
+    {
+      "type": "text",
+      "text": "Return to Subscription Plans"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Return to Subscription Plans"
+    }
+  ],
+  "images": [],
+  "counts": {
+    "headings": 1,
+    "text_blocks": 2,
+    "links": 1,
+    "images": 0
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "slug": "base",
+  "source": "D:/SEO RENEW/seo/templates/base.html",
+  "seo": {
+    "title": "",
+    "description": "",
+    "canonical": "",
+    "robots": "",
+    "og_image": "",
+    "og_type": ""
+  },
+  "headings": [],
+  "text_blocks": [
+    "Dashboard",
+    "URL Analysis",
+    "Heading Analysis",
+    "Keyword Analysis",
+    "Image Analysis",
+    "Meta Analysis",
+    "Sitemap Analysis",
+    "Profile",
+    "Subscriptions",
+    "Logout",
+    "Login",
+    "Overview",
+    "Analysis",
+    "Site Structure",
+    "Help & Docs",
+    "SEO Dada",
+    "v1.0",
+    "Loading...",
+    "SEO Dada. All rights reserved. |",
+    "Privacy Policy",
+    "Terms of Service",
+    "Cookie Policy",
+    "Cancel",
+    "Confirm"
+  ],
+  "flow": [
+    {
+      "type": "text",
+      "text": "Dashboard"
+    },
+    {
+      "type": "text",
+      "text": "URL Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Heading Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Keyword Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Image Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Meta Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Sitemap Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Profile"
+    },
+    {
+      "type": "text",
+      "text": "Subscriptions"
+    },
+    {
+      "type": "text",
+      "text": "Logout"
+    },
+    {
+      "type": "text",
+      "text": "Login"
+    },
+    {
+      "type": "text",
+      "text": "Overview"
+    },
+    {
+      "type": "text",
+      "text": "Analysis"
+    },
+    {
+      "type": "text",
+      "text": "Site Structure"
+    },
+    {
+      "type": "text",
+      "text": "Help & Docs"
+    },
+    {
+      "type": "text",
+      "text": "SEO Dada"
+    },
+    {
+      "type": "text",
+      "text": "v1.0"
+    },
+    {
+      "type": "text",
+      "text": "Loading..."
+    },
+    {
+      "type": "text",
+      "text": "SEO Dada. All rights reserved. |"
+    },
+    {
+      "type": "text",
+      "text": "Privacy Policy"
+    },
+    {
+      "type": "text",
+      "text": "Terms of Service"
+    },
+    {
+      "type": "text",
+      "text": "Cookie Policy"
+    },
+    {
+      "type": "text",
+      "text": "Cancel"
+    },
+    {
+      "type": "text",
+      "text": "Confirm"
+    }
+  ],
+  "links": [
+    {
+      "href": " ",
+      "text": "Dashboard"
+    },
+    {
+      "href": " ",
+      "text": "URL Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Heading Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Keyword Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Image Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Meta Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Sitemap Analysis"
+    },
+    {
+      "href": " ",
+      "text": "Dashboard"
+    },
+    {
+      "href": " ",
+      "text": "Profile"
+    },
+    {
+      "href": " ",
+      "text": "Subscriptions"
+    },
+    {
+      "href": " ",
+      "text": "Logout"
+    },
+    {
+      "href": " ",
+      "text": "Login"
+    },
+    {
+      "href": " ",
+      "text": "Subscriptions"
+    },
+    {
+      "href": " ",
+      "text": "Privacy Policy"
+    },
+    {
+      "href": " ",
+      "text": "Terms of Service"
+    },
+    {
+      "href": " ",
+      "text": "Cookie Policy"
+    }
+  ],
+  "images": [
+    {
+      "src": " ",
+      "alt": " "
+    }
+  ],
+  "counts": {
+    "headings": 0,
+    "text_blocks": 24,
+    "links": 16,
+    "images": 1
+  }
+}
