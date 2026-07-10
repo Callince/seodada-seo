@@ -1,8 +1,8 @@
-import { Menu } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 
 import { Sidebar } from "@/components/layout/Sidebar";
+import { TopBar } from "@/components/layout/TopBar";
 import { CommandPalette } from "@/components/shared/CommandPalette";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/toaster";
@@ -40,18 +40,10 @@ export function AppShell() {
         onClose={() => setNavOpen(false)}
         collapsed={collapsed}
         onToggleCollapse={toggleCollapsed}
-        onCommand={() => setPaletteOpen(true)}
       />
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* No top bar — a floating button opens the nav drawer on mobile. */}
-        <button
-          onClick={() => setNavOpen(true)}
-          aria-label="Open menu"
-          className="glass-card lp-shadow fixed left-3 top-3 z-30 grid h-10 w-10 place-items-center rounded-xl lg:hidden"
-        >
-          <Menu size={18} />
-        </button>
-        <main className="flex-1 overflow-y-auto px-4 pb-6 pt-16 sm:px-6 lg:pt-6">
+        <TopBar onMenu={() => setNavOpen(true)} onCommand={() => setPaletteOpen(true)} />
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
           {/* --section accent is bound to the active route's workflow group, so
               every shared component below inherits its color automatically. */}
           <div className="mx-auto max-w-[1440px]" style={sectionVars(sectionIdForPath(location.pathname))}>

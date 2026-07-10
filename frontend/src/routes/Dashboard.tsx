@@ -26,11 +26,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { useProjects } from "@/api/hooks/useProjects";
 import { useDashboardStats } from "@/api/hooks/useUsage";
 import { AreaChart, ScoreRing, TONES, type Tone } from "@/components/public/landingKit";
+import { LocationLanguagePicker } from "@/components/shared/LocationLanguagePicker";
 import { PageHeader } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { fmtInt } from "@/lib/format";
+import { usePersistedState } from "@/lib/persist";
 import { sectionVars, type SectionId } from "@/lib/sections";
 import { useAuth } from "@/store/auth";
 
@@ -57,13 +59,6 @@ const TOOL_LABELS: Record<string, string> = Object.fromEntries(
   TOOLS.map((t) => [t.to.split("/").pop() as string, t.label]),
 );
 
-const QUICK_SUGGESTIONS = [
-  "best ai writing tools",
-  "seo analytics dashboard",
-  "competitor gap analysis",
-  "how to rank higher on google",
-];
-
 function chipStyle(tone: Tone) {
   const [light, deep] = TONES[tone];
   return { background: `linear-gradient(135deg, ${deep}, ${light})` };
@@ -83,6 +78,8 @@ export default function Dashboard() {
   const { data: projects } = useProjects();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
+  // Shares the SERP page's persisted location so the chosen country carries over.
+  const [loc, setLoc] = usePersistedState("serp.loc", { location_code: 2840, language_code: "en" });
 
   const recent = (projects ?? []).slice(0, 6);
   const used = stats?.today_used ?? 0;
@@ -147,7 +144,7 @@ export default function Dashboard() {
       </Card>
 
       {/* ===== Stat cards ===== */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {/* Usage ring */}
         <Card className="min-h-[148px]">
           <CardBody className="flex h-full items-center gap-4">
@@ -239,7 +236,7 @@ export default function Dashboard() {
             </p>
           </div>
           
-          <div className="flex-1 flex flex-col gap-3">
+          <div className="flex-1">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -254,38 +251,29 @@ export default function Dashboard() {
                   onChange={(e) => setQ(e.target.value)}
                   aria-label="Quick SERP search"
                   placeholder="Enter a keyword or domain (e.g. best ai tools)…"
-                  className="pl-11 pr-4 border-white/20 bg-white/95 text-text placeholder-text-muted/60 focus:bg-white focus:ring-2 focus:ring-primary h-11 rounded-xl shadow-inner"
+                  className="h-11 rounded-xl border-white/20 bg-white/95 pl-11 pr-4 text-text placeholder-text-muted/60 shadow-inner focus:bg-white"
                 />
               </div>
-              <Button 
-                type="submit" 
-                disabled={!q.trim()} 
-                className="bg-white text-primary hover:bg-white/90 shadow-md h-11 px-6 font-bold transition-all text-xs uppercase tracking-wider shimmer shrink-0"
+              <LocationLanguagePicker
+                value={loc}
+                onChange={setLoc}
+                className="h-11 shrink-0 rounded-xl border-white/20 bg-white/95 text-text sm:w-56"
+              />
+              <Button
+                type="submit"
+                variant="secondary"
+                disabled={!q.trim()}
+                className="shimmer h-11 shrink-0 bg-white px-6 text-xs font-bold uppercase tracking-wider text-primary shadow-md transition-all hover:bg-white/90"
               >
                 Search SERP
               </Button>
             </form>
-            
-            {/* Quick click suggestions */}
-            <div className="flex flex-wrap items-center gap-2 mt-1">
-              <span className="text-xs text-white/70 font-medium">Try searching:</span>
-              {QUICK_SUGGESTIONS.map((suggestion) => (
-                <button
-                  key={suggestion}
-                  onClick={() => setQ(suggestion)}
-                  type="button"
-                  className="text-xs px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/10 transition-all duration-200"
-                >
-                  {suggestion}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       </div>
 
       {/* ===== Instant SEO tools ===== */}
-      <div className="mt-2">
+      <div>
         <div className="flex flex-col">
           <h2 className="text-xl font-extrabold tracking-tight text-text">Instant SEO Tools</h2>
           <p className="text-sm text-text-muted">Run localized, immediate audits on any URL with no configuration.</p>

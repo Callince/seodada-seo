@@ -20,7 +20,7 @@ def upgrade() -> None:
     # nobody is locked out; new accounts set the flag explicitly in the app.
     op.add_column(
         "users",
-        sa.Column("is_verified", sa.Boolean(), nullable=False, server_default=sa.text("1")),
+        sa.Column("is_verified", sa.Boolean(), nullable=False, server_default=sa.text("true")),
     )
 
 
