@@ -30,10 +30,11 @@ export default {
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       borderRadius: {
-        md: "10px",
-        lg: "16px",
-        xl: "22px",
-        "2xl": "28px",
+        // Partly-rounded, modern SaaS scale — calm corners, not pill-like.
+        md: "8px",
+        lg: "12px",
+        xl: "14px",
+        "2xl": "16px",
       },
       boxShadow: {
         // Soft, neutral elevation (kept gentle for the rounded soft-UI feel).

@@ -31,7 +31,7 @@ const pageCols: Column<AuditPageRow>[] = [
     key: "url", header: "Page", sortValue: (r) => r.url,
     render: (r) => (
       <div className="min-w-0">
-        <a href={r.url ?? "#"} target="_blank" rel="noreferrer" className="block truncate font-medium text-text hover:text-primary hover:underline">
+        <a href={r.url ?? "#"} target="_blank" rel="noreferrer" className="block truncate font-medium text-text hover:text-[color:var(--section)] hover:underline">
           {r.url}
         </a>
         {r.failed_checks.length > 0 && (
@@ -132,7 +132,7 @@ export default function SiteAudit() {
       {crawling && taskId && (
         <Card>
           <CardBody className="flex flex-col items-center gap-3 py-10 text-center">
-            <Radar size={32} className="animate-pulse text-primary" />
+            <Radar size={32} className="animate-pulse text-[color:var(--section)]" />
             <p className="text-sm font-medium text-text">Crawling {domain.trim()}…</p>
             <p className="text-sm text-text-muted">
               {s?.pages_crawled != null
@@ -141,7 +141,7 @@ export default function SiteAudit() {
             </p>
             <div className="h-2 w-64 overflow-hidden rounded-full bg-surface-2">
               <div
-                className="h-full rounded-full bg-primary transition-all duration-700"
+                className="section-gradient h-full rounded-full transition-all duration-700"
                 style={{
                   width: s?.pages_crawled && s.max_crawl_pages
                     ? `${Math.min(100, (s.pages_crawled / s.max_crawl_pages) * 100)}%`
@@ -157,7 +157,7 @@ export default function SiteAudit() {
         <div className="animate-fade-rise space-y-5">
           {/* Bento header: health gauge + severity tiles */}
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-6">
-            <Card className="col-span-2 row-span-2 bg-gradient-to-br from-primary-soft/70 to-surface">
+            <Card className="col-span-2 row-span-2 bg-gradient-to-br from-[color:var(--section-soft)] to-surface">
               <CardBody className="flex h-full items-center justify-center py-6">
                 <ScoreGauge score={s.onpage_score == null ? null : Math.round(s.onpage_score)} label="site health" size={190} />
               </CardBody>

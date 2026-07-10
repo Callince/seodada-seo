@@ -1,189 +1,172 @@
-"""Self-hosted Site Audit crawler — scoping, per-page checks, aggregation."""
+"""Site Audit — record→check mapping, scoring, and aggregation.
+
+The crawl itself is the ported TieredCrawler (`app.integrations.scraper`);
+these tests cover the audit glue in `app.services.crawler` that maps a
+CrawlRecord (+ its extractor extras) to the DataForSEO-compatible checks and
+rolls them up. They run fully offline against synthetic records.
+"""
 from __future__ import annotations
 
-import pytest
+from types import SimpleNamespace
 
+from app.integrations.scraper import CrawlRecord
 from app.services import crawler
+
+
+def _rec(
+    *,
+    status: int = 200,
+    url: str = "https://site.test/p",
+    title: str | None = "A Good Long Title",
+    desc: str | None = "a fine description",
+    h1: bool = True,
+    words: int = 300,
+    img_no_alt: bool = False,
+    internal: int = 1,
+    external: int = 0,
+    canonical: str | None = "https://site.test/p",
+    viewport: str | None = "width=device-width",
+    body: str = "word " * 300,
+    error: str | None = None,
+) -> CrawlRecord:
+    """Build a CrawlRecord with the extractor extras `_checks_for` reads."""
+    meta = SimpleNamespace(title=title, description=desc, canonical=canonical, viewport=viewport)
+    headings = [SimpleNamespace(level=1, text="H")] if h1 else [SimpleNamespace(level=2, text="H2")]
+    images = [SimpleNamespace(alt="" if img_no_alt else "alt text")]
+    link_refs = [SimpleNamespace(is_internal=True)] * internal + [SimpleNamespace(is_internal=False)] * external
+    text = SimpleNamespace(full_text=body, main_text=body, word_count=words)
+    rec = CrawlRecord(
+        url=url, final_url=url, status=status, depth=0, fetched_with_js=False,
+        from_cache=False, word_count=words, title=title, description=desc,
+        links_count=len(link_refs), images_count=len(images),
+        headings_count=len(headings), schema_count=0, error=error,
+    )
+    rec.extras = {
+        "_meta": meta, "_headings": headings, "_images": images,
+        "_link_refs": link_refs, "_links": [], "_text": text,
+    }
+    return rec
 
 
 # ------------------------------------------------------------------ scoping
 
-def test_in_scope_same_host_and_www_variant():
-    assert crawler._in_scope("https://site.test/a", "site.test")
-    assert crawler._in_scope("https://www.site.test/a", "site.test")
-    assert not crawler._in_scope("https://other.test/a", "site.test")
-    assert not crawler._in_scope("https://blog.site.test/a", "site.test")  # subdomain off-scope
-
-
-def test_in_scope_skips_assets_and_non_http():
-    assert not crawler._in_scope("https://site.test/photo.JPG", "site.test")
-    assert not crawler._in_scope("https://site.test/app.js", "site.test")
-    assert not crawler._in_scope("https://site.test/doc.pdf", "site.test")
-    assert not crawler._in_scope("mailto:a@site.test", "site.test")
-
-
-def test_clean_url_strips_fragment():
-    assert crawler._clean_url("https://site.test/a#section") == "https://site.test/a"
+def test_normalize_host_strips_www():
+    assert crawler._normalize_host("www.site.test") == "site.test"
+    assert crawler._normalize_host("site.test") == "site.test"
 
 
 # ------------------------------------------------------------- per-page checks
 
-def _html(title=None, desc=None, h1=True, body="word " * 300, img_no_alt=False):
-    head = "<html><head>"
-    if title is not None:
-        head += f"<title>{title}</title>"
-    if desc is not None:
-        head += f"<meta name='description' content='{desc}'>"
-    head += "</head><body>"
-    if h1:
-        head += "<h1>Heading</h1>"
-    if img_no_alt:
-        head += "<img src='/x.png'>"
-    head += f"<p>{body}</p></body></html>"
-    return head
+def test_checks_flag_missing_title_and_thin_content():
+    checks = crawler._checks_for(_rec(title=None, desc="d", words=10, body="only a few words"))
+    assert checks.get("no_title") is True
+    assert checks.get("low_content_rate") is True
 
 
-def test_analyze_flags_missing_title_and_thin_content():
-    rec, _ = crawler._analyze(_html(title=None, desc="d", body="only a few words"),
-                              "https://site.test/p", 200, 100.0)
-    assert rec["checks"].get("no_title") is True
-    assert rec["checks"].get("low_content_rate") is True
+def test_checks_flag_missing_alt_on_otherwise_clean_page():
+    checks = crawler._checks_for(_rec(img_no_alt=True))
+    assert checks.get("no_image_alt") is True
+    assert "no_title" not in checks
+    assert "low_content_rate" not in checks
 
 
-def test_analyze_flags_missing_alt_and_clean_page():
-    rec, _ = crawler._analyze(_html(title="A Good Long Title", desc="d", img_no_alt=True),
-                              "https://site.test/p", 200, 100.0)
-    assert rec["checks"].get("no_image_alt") is True
-    assert "no_title" not in rec["checks"]
-    assert "low_content_rate" not in rec["checks"]
-
-
-def test_analyze_4xx_marks_error_only():
-    rec, links = crawler._analyze("", "https://site.test/missing", 404, 50.0)
-    assert rec["checks"].get("is_4xx_code") is True
-    assert links == []  # don't crawl onward from an error page
-
-
-def test_analyze_extracts_in_scope_links_only():
-    html = _html(title="Home Title Here", desc="d") + (
-        "<a href='/about'>a</a><a href='https://other.test/x'>b</a><a href='/f.pdf'>c</a>"
+def test_checks_flag_http_missing_canonical_and_viewport():
+    checks = crawler._checks_for(
+        _rec(url="http://site.test/p", canonical=None, viewport=None)
     )
-    rec, links = crawler._analyze(html, "https://site.test/", 200, 90.0)
-    # _analyze returns all absolute links; scope filtering happens in the crawl loop.
-    assert "https://site.test/about" in links
+    assert checks.get("is_http") is True
+    assert checks.get("no_canonical") is True
+    assert checks.get("no_viewport") is True
 
+
+def test_checks_title_length_bounds():
+    assert crawler._checks_for(_rec(title="short"))["title_too_short"] is True
+    assert crawler._checks_for(_rec(title="x" * 80))["title_too_long"] is True
+
+
+def test_checks_4xx_marks_error_only():
+    checks = crawler._checks_for(_rec(status=404, title=None))
+    assert checks == {"is_4xx_code": True}  # no content checks on an error page
+
+
+def test_checks_5xx_and_broken():
+    assert crawler._checks_for(_rec(status=500)) == {"is_5xx_code": True}
+    assert crawler._checks_for(_rec(status=0, error="conn reset")) == {"is_broken": True}
+
+
+def test_checks_dynamic_url():
+    assert crawler._checks_for(_rec(url="https://site.test/p?ref=x")).get(
+        "seo_friendly_url_dynamic_check"
+    ) is True
+
+
+# ------------------------------------------------------- record → audit dict
+
+def test_audit_record_maps_links_and_alt_and_fingerprint():
+    rec = _rec(internal=3, external=2, img_no_alt=True, body="unique body text here")
+    out = crawler._audit_record(rec)
+    assert out["internal_links"] == 3
+    assert out["external_links"] == 2
+    assert out["images_missing_alt"] == 1
+    assert out["fingerprint"]  # non-empty content hash for a 200 page
+    assert out["status_code"] == 200
+
+
+def test_audit_record_no_fingerprint_for_error_page():
+    out = crawler._audit_record(_rec(status=404, body=""))
+    assert out["fingerprint"] == ""
+
+
+# ----------------------------------------------------------------- scoring
 
 def test_score_penalizes_by_severity():
     assert crawler._score({}) == 100.0
-    assert crawler._score({"no_title": True}) == 88.0          # one error (-12)
-    assert crawler._score({"no_description": True}) == 95.0    # one warning (-5)
-    assert crawler._score({"no_canonical": True}) == 99.0      # one notice (-1)
+    assert crawler._score({"no_title": True}) == 88.0        # one error (-12)
+    assert crawler._score({"no_description": True}) == 95.0   # one warning (-5)
+    assert crawler._score({"no_canonical": True}) == 99.0     # one notice (-1)
 
 
 # --------------------------------------------------------------- aggregation
 
 def test_aggregate_detects_cross_page_duplicates():
+    base = {
+        "word_count": 300, "internal_links": 1, "external_links": 0,
+        "load_time_ms": 10.0, "images_missing_alt": 0, "checks": {},
+    }
     records = [
-        {"url": "https://s/1", "status_code": 200, "title": "Same", "meta_description": "Same",
-         "word_count": 300, "internal_links": 1, "external_links": 0, "load_time_ms": 10.0,
-         "checks": {}, "fingerprint": "abc"},
-        {"url": "https://s/2", "status_code": 200, "title": "Same", "meta_description": "Same",
-         "word_count": 300, "internal_links": 1, "external_links": 0, "load_time_ms": 10.0,
-         "checks": {}, "fingerprint": "abc"},
-        {"url": "https://s/3", "status_code": 200, "title": "Unique", "meta_description": "Other",
-         "word_count": 300, "internal_links": 1, "external_links": 0, "load_time_ms": 10.0,
-         "checks": {}, "fingerprint": "zzz"},
+        {"url": "https://s/1", "status_code": 200, "title": "Same", "meta_description": "Same", "fingerprint": "abc", **base},
+        {"url": "https://s/2", "status_code": 200, "title": "Same", "meta_description": "Same", "fingerprint": "abc", **base},
+        {"url": "https://s/3", "status_code": 200, "title": "Unique", "meta_description": "Other", "fingerprint": "zzz", **base},
     ]
     out = crawler._aggregate(records, seed_https=True, server=None, domain="s")
-    checks = {i["check"]: i["count"] for i in out["issues"]}
-    assert checks.get("duplicate_title") == 2
-    assert checks.get("duplicate_description") == 2
-    assert checks.get("duplicate_content") == 2
+    counts = {i["check"]: i["count"] for i in out["issues"]}
+    assert counts.get("duplicate_title") == 2
+    assert counts.get("duplicate_description") == 2
+    assert counts.get("duplicate_content") == 2
     assert out["total_pages"] == 3
     assert out["ssl"] is True
 
 
-# --------------------------------------------------------------- full crawl
+def test_aggregate_end_to_end_from_records():
+    """The post-crawl path: CrawlRecords → _audit_record → _aggregate."""
+    recs = [
+        _rec(url="https://site.test/", title="Home Page Title"),
+        _rec(url="https://site.test/contact", title=None),          # no_title
+        _rec(url="https://site.test/dup1", title="Repeated", body="shared duplicate body"),
+        _rec(url="https://site.test/dup2", title="Repeated", body="shared duplicate body"),
+    ]
+    out = crawler._aggregate([crawler._audit_record(r) for r in recs], True, None, "site.test")
+    counts = {i["check"]: i["count"] for i in out["issues"]}
+    assert out["total_pages"] == 4
+    assert counts.get("no_title") == 1
+    assert counts.get("duplicate_title") == 2
+    assert out["onpage_score"] is not None
 
-def test_is_challenge_detects_cloudflare():
-    cf = "<html><head><title>Just a moment...</title></head><body>challenges.cloudflare.com</body></html>"
-    assert crawler._is_challenge(403, cf) is True
-    assert crawler._is_challenge(503, cf) is True
-    assert crawler._is_challenge(200, cf) is False  # 200 is never a challenge
-    assert crawler._is_challenge(403, "<html><body>plain forbidden</body></html>") is False
 
+# ----------------------------------------------------------------- challenge
 
-def test_challenge_message_names_the_allowlist_tag():
+def test_challenge_message_explains_the_block():
     msg = crawler._challenge_message("komaki.in")
     assert "komaki.in" in msg
-    assert crawler.settings.crawl_user_agent_tag in msg
-
-
-@pytest.mark.asyncio
-async def test_crawl_aborts_with_guidance_when_seed_challenged(monkeypatch):
-    async def fake_fetch(url):
-        return (403, url, "<title>Just a moment...</title>challenges.cloudflare.com", 40.0)
-
-    async def fake_public(host):
-        return True
-
-    async def fake_robots(scheme, host):
-        from urllib.robotparser import RobotFileParser
-        rp = RobotFileParser(); rp.allow_all = True
-        return rp, []
-
-    monkeypatch.setattr(crawler, "_fetch", fake_fetch)
-    monkeypatch.setattr(crawler.density, "_is_public_host", fake_public)
-    monkeypatch.setattr(crawler, "_robots", fake_robots)
-
-    job = crawler.CrawlJob(id="blk", domain="komaki.in", max_pages=20)
-    await crawler._run(job)
-    assert job.progress == "error"
-    assert crawler.settings.crawl_user_agent_tag in (job.error or "")
-
-
-@pytest.mark.asyncio
-async def test_full_crawl_integration(monkeypatch):
-    pages = {
-        "https://site.test/": _html(title="Home Page Title", desc="home")
-        + "<a href='/about'>a</a><a href='/contact'>c</a>"
-          "<a href='/dup1'>d</a><a href='/dup2'>e</a>"
-          "<a href='/file.pdf'>f</a><a href='https://other.test/'>x</a>",
-        "https://site.test/about": _html(title="About Our Company", desc="about", body="about page words " * 80),
-        "https://site.test/contact": _html(title=None, desc="contact", body="contact words " * 80),
-        "https://site.test/dup1": _html(title="Repeated Title", desc="dupe", body="shared duplicate body " * 80),
-        "https://site.test/dup2": _html(title="Repeated Title", desc="dupe", body="shared duplicate body " * 80),
-    }
-
-    async def fake_fetch(url):
-        html = pages.get(url) or pages.get(url.rstrip("/")) or pages.get(url + "/")
-        return (200, url, html or "<html></html>", 80.0)
-
-    async def fake_public(host):
-        return True
-
-    async def fake_robots(scheme, host):
-        from urllib.robotparser import RobotFileParser
-        rp = RobotFileParser()
-        rp.allow_all = True
-        return rp, []
-
-    monkeypatch.setattr(crawler, "_fetch", fake_fetch)
-    monkeypatch.setattr(crawler.density, "_is_public_host", fake_public)
-    monkeypatch.setattr(crawler, "_robots", fake_robots)
-
-    job = crawler.CrawlJob(id="t1", domain="site.test", max_pages=50)
-    await crawler._run(job)
-
-    assert job.progress == "finished"
-    assert job.result is not None
-    # 5 HTML pages crawled; the .pdf and the external link are out of scope.
-    assert job.result["total_pages"] == 5
-    urls = {p["url"] for p in job.result["pages"]}
-    assert "https://site.test/about" in urls
-    assert not any("file.pdf" in u for u in urls)
-    assert not any("other.test" in u for u in urls)
-    checks = {i["check"]: i["count"] for i in job.result["issues"]}
-    assert checks.get("no_title") == 1            # /contact
-    assert checks.get("duplicate_title") == 2     # /dup1 + /dup2
-    assert job.result["onpage_score"] is not None
+    # Names the culprit and points to the real fix (Cloudflare / lower protection).
+    assert "Cloudflare" in msg and ("Bot Fight Mode" in msg or "WAF" in msg)

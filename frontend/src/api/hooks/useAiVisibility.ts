@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "@/api/client";
-import type { AiVisibilityStartResponse, AiVisibilityStatusResponse } from "@/types";
+import type { AiVisibilityStartResponse, AiVisibilityStatusResponse, AiVolumeResponse, AskResponse, MentionsResponse } from "@/types";
 
 export interface AiVisibilityInput {
   domain: string;
@@ -37,5 +37,41 @@ export function useAiVisibilityStatus(taskId: string | null) {
       const p = query.state.data?.progress;
       return p === "finished" || p === "error" || p === "unknown" ? false : 2500;
     },
+  });
+}
+
+/** LLM mentions of a domain (AI Optimization API). */
+export function useLlmMentions() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { domain: string; force_live?: boolean }) => {
+      const { data } = await api.post<MentionsResponse>("/ai-visibility/mentions", input);
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["usage", "summary"] }),
+  });
+}
+
+/** AI (LLM prompt) search volume for keywords. */
+export function useAiVolume() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { keywords: string[]; location_name?: string; force_live?: boolean }) => {
+      const { data } = await api.post<AiVolumeResponse>("/ai-visibility/ai-volume", input);
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["usage", "summary"] }),
+  });
+}
+
+/** Ask a live LLM and see the raw answer. */
+export function useAskLlm() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { prompt: string; model_name?: string; force_live?: boolean }) => {
+      const { data } = await api.post<AskResponse>("/ai-visibility/ask", input);
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["usage", "summary"] }),
   });
 }

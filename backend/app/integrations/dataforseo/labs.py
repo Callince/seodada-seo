@@ -213,3 +213,69 @@ def parse_intersection(result: list[dict[str, Any]]) -> list[dict]:
             }
         )
     return [r for r in out if r.get("keyword")]
+
+
+# ---- Keyword overview + history (intent, difficulty, volume in one call) ---
+
+PATH_KEYWORD_OVERVIEW = "/v3/dataforseo_labs/google/keyword_overview/live"
+PATH_HISTORICAL_RANK = "/v3/dataforseo_labs/google/historical_rank_overview/live"
+
+
+async def keyword_overview(
+    keyword: str, location_code: int, language_code: str
+) -> DfsResult:
+    payload = {
+        "keywords": [keyword],
+        "location_code": location_code,
+        "language_code": language_code,
+        "include_serp_info": False,
+    }
+    return await dfs_client.post(PATH_KEYWORD_OVERVIEW, payload)
+
+
+def parse_keyword_overview(result: list[dict[str, Any]]) -> dict:
+    items = (result[0].get("items") if result else None) or []
+    it = items[0] if items else {}
+    info = it.get("keyword_info") or {}
+    props = it.get("keyword_properties") or {}
+    intent = it.get("search_intent_info") or {}
+    return {
+        "keyword": it.get("keyword"),
+        "search_volume": info.get("search_volume"),
+        "cpc": info.get("cpc"),
+        "competition": info.get("competition"),
+        "difficulty": props.get("keyword_difficulty"),
+        "intent": intent.get("main_intent"),
+        "monthly_searches": [
+            {"year": m.get("year"), "month": m.get("month"), "volume": m.get("search_volume")}
+            for m in (info.get("monthly_searches") or [])
+        ],
+    }
+
+
+async def historical_rank(
+    target: str, location_code: int, language_code: str
+) -> DfsResult:
+    payload = {
+        "target": target,
+        "location_code": location_code,
+        "language_code": language_code,
+    }
+    return await dfs_client.post(PATH_HISTORICAL_RANK, payload)
+
+
+def parse_historical_rank(result: list[dict[str, Any]]) -> list[dict]:
+    items = (result[0].get("items") if result else None) or []
+    out = []
+    for it in items:
+        m = (it.get("metrics") or {}).get("organic") or {}
+        out.append(
+            {
+                "year": it.get("year"),
+                "month": it.get("month"),
+                "keywords": m.get("count"),
+                "etv": m.get("etv"),
+                "top3": (int(m.get("pos_1") or 0) + int(m.get("pos_2_3") or 0)) or None,
+            }
+        )
+    return out

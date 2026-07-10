@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+
+# Authenticated app — no public content to index.
+Disallow: /dashboard
+Disallow: /workspace
+Disallow: /serp
+Disallow: /keywords
+Disallow: /domains
+Disallow: /competitors
+Disallow: /onpage
+Disallow: /content
+Disallow: /rank
+Disallow: /report
+Disallow: /audit
+Disallow: /ai-visibility
+Disallow: /schedules
+Disallow: /projects
+Disallow: /admin
+Disallow: /login
+Disallow: /register
+Disallow: /oauth
+
+Sitemap: https://seodada.com/sitemap.xml

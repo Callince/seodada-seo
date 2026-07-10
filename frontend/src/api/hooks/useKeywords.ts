@@ -1,6 +1,7 @@
 import { useMeteredMutation } from "@/api/hooks/metered";
 import type {
   KeywordListResponse,
+  KeywordOverviewResponse,
   TrendsResponse,
   VolumeResponse,
 } from "@/types";
@@ -8,6 +9,7 @@ import type {
 interface Loc {
   location_code: number;
   language_code: string;
+  force_live?: boolean; // bypass cache and fetch fresh
 }
 
 export const useVolume = () =>
@@ -33,3 +35,7 @@ export const useIdeas = () =>
   useMeteredMutation<{ keywords: string[]; limit?: number } & Loc, KeywordListResponse>(
     "/keywords/ideas",
   );
+
+/** Intent, difficulty, CPC and 12-month volume for a single keyword. */
+export const useKeywordOverview = () =>
+  useMeteredMutation<{ keyword: string } & Loc, KeywordOverviewResponse>("/keywords/overview");

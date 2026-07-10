@@ -5,14 +5,17 @@ import { cn } from "@/lib/cn";
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("rounded-lg border border-border bg-surface shadow-sm", className)}
+      className={cn(
+        "glass-card rounded-2xl lp-shadow transition-shadow duration-300",
+        className,
+      )}
       {...props}
     />
   );
 }
 
 export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("border-b border-border px-5 py-3.5", className)} {...props} />;
+  return <div className={cn("border-b border-border/70 px-5 py-3.5", className)} {...props} />;
 }
 
 export function CardTitle({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {

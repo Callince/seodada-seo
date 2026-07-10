@@ -22,6 +22,20 @@ dependencies = [
     "email-validator>=2.2",
     "python-multipart>=0.0.12",
     "vadersentiment>=3.3.2",
+    # Advanced Site-Audit scraper (App B port): TLS-spoofing async fetch,
+    # fast HTML parsing, URL canonical/dedup, boilerplate-stripped text.
+    # Playwright JS rendering is opt-in (scraper_render_js) and additionally
+    # needs `playwright install chromium`.
+    "curl_cffi>=0.7",
+    "selectolax>=0.3.21",
+    "rbloom>=1.5",
+    "w3lib>=2.1",
+    "trafilatura>=1.12",
+    "prometheus-client>=0.21",
+    "playwright>=1.47",
+    # Billing: GST tax-invoice PDF generation.
+    "reportlab>=4.0",
+    "num2words>=0.5",
 ]
 
 [project.optional-dependencies]

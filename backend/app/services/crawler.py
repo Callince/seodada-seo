@@ -1,83 +1,44 @@
-"""Self-hosted site crawler — the engine behind the Site Audit.
+"""Site Audit crawl engine — delegates to the advanced TieredCrawler.
 
-Replaces the billed DataForSEO OnPage task-crawl with an in-process async
-crawler that costs $0 and returns live data. Design goals, in priority order:
+Replaces the previous in-process httpx BFS with App B's next-gen async crawler
+(`app.integrations.scraper`): curl_cffi TLS spoofing (JA3/JA4) so bot-walls like
+Cloudflare don't serve us a challenge, selectolax parsing, robots.txt + AIMD
+per-host politeness with a circuit breaker, ETag conditional-GET caching, and an
+optional Playwright JS-render tier for SPA sites (`settings.scraper_render_js`).
 
-* **Works on every page** — BFS over same-site links discovered from each page,
-  seeded from the homepage and the URLs in robots.txt `Sitemap:` lines.
-* **Doesn't get blocked** — a real browser User-Agent + full header set,
-  robots.txt obeyed, bounded politeness, and exponential backoff that honours
-  `Retry-After` on 429/503.
-* **Fast and server-friendly** — level-batched BFS so at most `concurrency`
-  requests are ever in flight (one shared HTTP/2 keep-alive pool), the stdlib
-  HTML parser (no lxml/bs4 — low memory), response bodies capped and discarded
-  after parsing, and a hard wall-clock budget. Tuned to stay well within the
-  droplet's 2 GB / 1 vCPU envelope.
-
-A crawl runs as a background asyncio task; the API hands back a job id and the
-client polls status. Job state lives in-memory (the API runs a single uvicorn
-worker, so the same process serves start + poll).
+The public surface is unchanged — a crawl runs as a background asyncio task,
+`start_crawl` hands back a job id, and the client polls `get_job`. The per-page
+SEO checks and the issue roll-up still flow through the DataForSEO-compatible
+`build_issues` so the Site Audit UI is untouched; only the crawl underneath is
+far stronger. Job state lives in-memory (single uvicorn worker serves start+poll).
 """
 from __future__ import annotations
 
 import asyncio
+import glob
 import hashlib
+import os
+import tempfile
 import time
 from dataclasses import dataclass, field
-from urllib.parse import urldefrag, urljoin, urlparse
-from urllib.robotparser import RobotFileParser
-
-import httpx
+from urllib.parse import urlparse
 
 from app.core.config import settings
 from app.core.logging import log
 from app.integrations.dataforseo.audit import build_issues, label_for, severity_for
-from app.integrations.free.local_onpage import _MetaParser, _classify_links  # noqa: SLF001
+from app.integrations.scraper import CrawlerConfig, Persona, TieredCrawler
 from app.services import density
-
-# Asset / non-HTML extensions we never enqueue as crawlable pages.
-_SKIP_EXT = (
-    ".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg", ".ico", ".bmp", ".tiff",
-    ".css", ".js", ".mjs", ".json", ".xml", ".rss", ".pdf", ".zip", ".gz", ".tar",
-    ".rar", ".7z", ".mp3", ".mp4", ".avi", ".mov", ".webm", ".woff", ".woff2",
-    ".ttf", ".eot", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".csv",
-)
 
 _PENALTY = {"error": 12, "warning": 5, "notice": 1}
 
 # Limit how many crawls run at once across the whole process (memory guard).
 _job_gate: asyncio.Semaphore | None = None
 
-# Dedicated crawl client — browser-like so sites don't serve us a bot wall.
-_client: httpx.AsyncClient | None = None
-
-
-def _crawl_client() -> httpx.AsyncClient:
-    global _client
-    if _client is None:
-        _client = httpx.AsyncClient(
-            follow_redirects=True,
-            http2=True,
-            timeout=httpx.Timeout(settings.crawl_timeout_seconds_per_page, connect=8.0),
-            headers={
-                "User-Agent": settings.crawl_user_agent,
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                "Accept-Language": "en-US,en;q=0.9",
-                # NB: do NOT set Accept-Encoding manually — httpx advertises only
-                # the codecs it can actually decode (gzip/deflate, + brotli/zstd
-                # when installed). Forcing "br" yields undecodable bytes.
-                "Upgrade-Insecure-Requests": "1",
-            },
-            limits=httpx.Limits(max_connections=24, max_keepalive_connections=12),
-        )
-    return _client
-
 
 async def close() -> None:
-    global _client
-    if _client is not None:
-        await _client.aclose()
-        _client = None
+    """Lifecycle hook (main.py shutdown). The TieredCrawler is per-crawl and
+    closed inside `_run`, so there's no long-lived client to tear down."""
+    return None
 
 
 # ----------------------------------------------------------------- job store
@@ -116,174 +77,91 @@ def _normalize_host(host: str) -> str:
     return host[4:] if host.startswith("www.") else host
 
 
-def _in_scope(url: str, base_host: str) -> bool:
-    p = urlparse(url)
-    if p.scheme not in ("http", "https") or not p.hostname:
-        return False
-    if _normalize_host(p.hostname.lower()) != base_host:
-        return False
-    path = p.path.lower()
-    return not path.endswith(_SKIP_EXT)
-
-
-def _clean_url(url: str) -> str:
-    """Drop the fragment and trailing slash noise so /a and /a#x dedupe."""
-    url, _ = urldefrag(url)
-    return url
-
-
-# --------------------------------------------------------------- per page
-
-def _analyze(raw: str, final_url: str, status: int, load_ms: float) -> tuple[dict, list[str]]:
-    """Parse one page into a compact record + the in-scope links it points to."""
-    parser = _MetaParser()
-    try:
-        parser.feed(raw)
-    except Exception:  # malformed HTML — keep whatever parsed
-        pass
-
-    text = density.extract_text(raw)
-    words = density.word_count(text)
-    internal, external = _classify_links(parser.hrefs, final_url)
-    title = parser.title
-    desc = parser.meta_description
-    images_missing_alt = sum(1 for im in parser.images if not im["alt"])
-
-    checks: dict[str, bool] = {}
-    if status >= 500:
-        checks["is_5xx_code"] = True
-    elif status >= 400:
-        checks["is_4xx_code"] = True
-    else:
-        if not title:
-            checks["no_title"] = True
-        elif len(title) > 60:
-            checks["title_too_long"] = True
-        elif len(title) < 10:
-            checks["title_too_short"] = True
-        if not desc:
-            checks["no_description"] = True
-        if not parser.h1:
-            checks["no_h1_tag"] = True
-        if words < 250:
-            checks["low_content_rate"] = True
-        if images_missing_alt:
-            checks["no_image_alt"] = True
-        if urlparse(final_url).scheme == "http":
-            checks["is_http"] = True
-        if load_ms > 3000:
-            checks["high_loading_time"] = True
-        if not parser.canonical:
-            checks["no_canonical"] = True
-        if not parser.has_viewport:
-            checks["no_viewport"] = True
-        if urlparse(final_url).query:
-            checks["seo_friendly_url_dynamic_check"] = True
-
-    # Content fingerprint for cross-page duplicate detection.
-    fp = hashlib.sha1(" ".join(text.split())[:5000].encode("utf-8", "ignore")).hexdigest()
-
-    record = {
-        "url": final_url,
-        "status_code": status,
-        "title": title,
-        "meta_description": desc,
-        "word_count": words,
-        "internal_links": internal,
-        "external_links": external,
-        "load_time_ms": round(load_ms, 1),
-        "images_missing_alt": images_missing_alt,
-        "checks": checks,
-        "fingerprint": fp,
-    }
-    links = []
-    if status < 400:
-        for href in parser.hrefs:
-            absu = _clean_url(urljoin(final_url, href.strip()))
-            if absu:
-                links.append(absu)
-    return record, links
-
+# --------------------------------------------------------- record → audit
 
 def _score(checks: dict) -> float:
     penalty = sum(_PENALTY[severity_for(c)] for c in checks)
     return float(max(0, 100 - penalty))
 
 
-# Markers of a JS bot-challenge interstitial (Cloudflare / similar). No plain
-# HTTP crawler can pass these — they need a real browser + challenge solve.
-_CHALLENGE_MARKERS = (
-    "just a moment", "challenges.cloudflare.com", "cf-mitigated",
-    "__cf_chl", "cf_chl_opt", "_cf_chl", "attention required",
-    "checking your browser", "ddos-guard", "ray id",
-)
+def _checks_for(rec) -> dict[str, bool]:
+    """Map one CrawlRecord (+ its extractor extras) to the audit check flags —
+    the same flag names the DataForSEO issue-builder expects."""
+    checks: dict[str, bool] = {}
+    status = rec.status
+    if status >= 500:
+        checks["is_5xx_code"] = True
+        return checks
+    if status >= 400:
+        checks["is_4xx_code"] = True
+        return checks
+    if status <= 0 or rec.error:
+        checks["is_broken"] = True
+        return checks
+
+    meta = rec.extras.get("_meta")
+    headings = rec.extras.get("_headings", [])
+    images = rec.extras.get("_images", [])
+    title = meta.title if meta else None
+    desc = meta.description if meta else None
+
+    if not title:
+        checks["no_title"] = True
+    elif len(title) > 60:
+        checks["title_too_long"] = True
+    elif len(title) < 10:
+        checks["title_too_short"] = True
+    if not desc:
+        checks["no_description"] = True
+    if not any(getattr(h, "level", 0) == 1 for h in headings):
+        checks["no_h1_tag"] = True
+    if rec.word_count < 250:
+        checks["low_content_rate"] = True
+    if any(not getattr(im, "alt", "") for im in images):
+        checks["no_image_alt"] = True
+    if urlparse(rec.final_url).scheme == "http":
+        checks["is_http"] = True
+    if meta and not meta.canonical:
+        checks["no_canonical"] = True
+    if meta and not meta.viewport:
+        checks["no_viewport"] = True
+    if urlparse(rec.final_url).query:
+        checks["seo_friendly_url_dynamic_check"] = True
+    return checks
 
 
-def _is_challenge(status: int, raw: str) -> bool:
-    if status not in (403, 429, 503):
-        return False
-    low = raw[:6000].lower()
-    return any(m in low for m in _CHALLENGE_MARKERS)
-
-
-def _challenge_message(domain: str) -> str:
-    return (
-        f"{domain} is behind a bot-protection challenge (e.g. Cloudflare), which blocks "
-        "every automated crawler. Because it's your own site, the fix is free and one-time: "
-        f"allowlist this auditor's User-Agent — it contains \"{settings.crawl_user_agent_tag}\". "
-        "In Cloudflare go to Security → WAF → Custom rules → Create rule: "
-        f"if User-Agent contains \"{settings.crawl_user_agent_tag}\" → Skip (all remaining "
-        "managed rules / Bot Fight Mode), Deploy, then run the audit again."
+def _audit_record(rec) -> dict:
+    """Compact per-page record in the shape `_aggregate` consumes."""
+    link_refs = rec.extras.get("_link_refs", [])
+    internal = sum(1 for l in link_refs if getattr(l, "is_internal", False))
+    external = len(link_refs) - internal
+    meta = rec.extras.get("_meta")
+    text = rec.extras.get("_text")
+    body = (getattr(text, "full_text", "") or getattr(text, "main_text", "")) if text else ""
+    fp = (
+        hashlib.sha1(" ".join(body.split())[:5000].encode("utf-8", "ignore")).hexdigest()
+        if rec.status and rec.status < 400 and body
+        else ""
     )
-
-
-# --------------------------------------------------------------- the crawl
-
-async def _fetch(url: str) -> tuple[int, str, str, float]:
-    """Return (status, final_url, html, load_ms). Retries 429/503 with backoff."""
-    client = _crawl_client()
-    for attempt in range(3):
-        t0 = time.monotonic()
-        try:
-            resp = await client.get(url)
-        except httpx.HTTPError as exc:
-            raise density.FetchError(str(exc)) from exc
-        load_ms = (time.monotonic() - t0) * 1000
-        if resp.status_code in (429, 503) and attempt < 2:
-            delay = float(resp.headers.get("Retry-After") or (1.5 * (attempt + 1)))
-            await asyncio.sleep(min(delay, 8.0))
-            continue
-        ctype = resp.headers.get("content-type", "")
-        if "html" not in ctype.lower() and resp.status_code < 400:
-            return resp.status_code, str(resp.url), "", load_ms
-        raw = resp.content[: density._MAX_BYTES]  # noqa: SLF001 — shared cap
-        return resp.status_code, str(resp.url), raw.decode(resp.encoding or "utf-8", "ignore"), load_ms
-    return 0, url, "", 0.0
-
-
-async def _robots(scheme: str, host: str) -> tuple[RobotFileParser, list[str]]:
-    """Fetch robots.txt; return (parser, sitemap_urls). Allow-all on failure."""
-    rp = RobotFileParser()
-    sitemaps: list[str] = []
-    try:
-        resp = await _crawl_client().get(f"{scheme}://{host}/robots.txt")
-        if resp.status_code < 400 and resp.text:
-            rp.parse(resp.text.splitlines())
-            sitemaps = [
-                ln.split(":", 1)[1].strip()
-                for ln in resp.text.splitlines()
-                if ln.lower().startswith("sitemap:")
-            ]
-        else:
-            rp.allow_all = True
-    except (httpx.HTTPError, Exception):
-        rp.allow_all = True
-    return rp, sitemaps
+    return {
+        "url": rec.final_url or rec.url,
+        "status_code": rec.status,
+        "title": meta.title if meta else None,
+        "meta_description": meta.description if meta else None,
+        "word_count": rec.word_count,
+        "internal_links": internal,
+        "external_links": external,
+        # Per-request latency isn't carried on CrawlRecord (JS render / cache
+        # muddy a single number), so the high-loading-time check is not raised.
+        "load_time_ms": 0.0,
+        "images_missing_alt": sum(1 for im in rec.extras.get("_images", []) if not getattr(im, "alt", "")),
+        "checks": _checks_for(rec),
+        "fingerprint": fp,
+    }
 
 
 def _aggregate(records: list[dict], seed_https: bool, server: str | None, domain: str) -> dict:
     """Roll per-page records into the summary the API/UI expect."""
-    # Cross-page duplicate detection.
     def _dups(key: str) -> set:
         counts: dict[str, int] = {}
         for r in records:
@@ -301,7 +179,7 @@ def _aggregate(records: list[dict], seed_https: bool, server: str | None, domain
     score_sum = 0.0
     for r in records:
         checks = dict(r["checks"])
-        if r.get("status_code", 0) < 400:
+        if r.get("status_code", 0) < 400 and r.get("status_code", 0) > 0:
             if r["title"] in dup_titles:
                 checks["duplicate_title"] = True
             if r["meta_description"] in dup_descs:
@@ -312,9 +190,7 @@ def _aggregate(records: list[dict], seed_https: bool, server: str | None, domain
             check_counts[c] = check_counts.get(c, 0) + 1
         sc = _score(checks)
         score_sum += sc
-        failed = [
-            label_for(c) for c in checks if severity_for(c) in ("error", "warning")
-        ]
+        failed = [label_for(c) for c in checks if severity_for(c) in ("error", "warning")]
         page_rows.append({
             "url": r["url"],
             "status_code": r["status_code"],
@@ -347,6 +223,51 @@ def _aggregate(records: list[dict], seed_https: bool, server: str | None, domain
     }
 
 
+# --------------------------------------------------------------- challenge
+
+def _challenge_message(domain: str) -> str:
+    return (
+        f"{domain} is behind a bot-protection challenge (e.g. Cloudflare) that blocked every "
+        "request even with browser-grade TLS — so no pages could be read. If it's your own "
+        "site, lower the protection for the crawl: in Cloudflare turn off Bot Fight Mode "
+        "(Security → Bots) and 'Under Attack' mode, or add a WAF Skip / IP allow-rule for the "
+        "machine running this audit, then re-run. Enabling JS rendering can get past a "
+        "lightweight challenge. If it isn't your site, it does not permit automated crawling."
+    )
+
+
+# --------------------------------------------------------------- the crawl
+
+def _job_db_path(job_id: str) -> str:
+    """Per-audit SQLite path. The frontier persists seen-URLs and the ETag cache
+    persists bodies, both keyed to this file — so each audit gets its own fresh,
+    isolated DB (a re-audit must re-crawl, not dedupe against a prior run)."""
+    return os.path.join(tempfile.gettempdir(), f"fourdm_audit_{job_id}.sqlite")
+
+
+def _cleanup_job_db(job_id: str) -> None:
+    base = _job_db_path(job_id)
+    stem = base[:-7] if base.endswith(".sqlite") else base
+    # Remove the cache DB, the derived frontier DB, and their WAL/SHM sidecars.
+    for path in glob.glob(stem + "*"):
+        try:
+            os.remove(path)
+        except OSError:
+            pass
+
+
+def _build_config(job_id: str) -> CrawlerConfig:
+    """A CrawlerConfig tuned from the app settings (small-box friendly)."""
+    return CrawlerConfig(
+        request_timeout_sec=settings.crawl_timeout_seconds_per_page,
+        connect_timeout_sec=8.0,
+        per_host_concurrency_cap=max(2, settings.crawl_concurrency),
+        global_concurrency_cap=max(4, settings.crawl_concurrency),
+        respect_robots_txt=True,
+        cache_db_path=_job_db_path(job_id),
+    )
+
+
 async def _run(job: CrawlJob) -> None:
     global _job_gate
     if _job_gate is None:
@@ -357,86 +278,78 @@ async def _run(job: CrawlJob) -> None:
         seed_host = _normalize_host(job.domain.lower())
         # Verify the host is real & public before crawling (SSRF guard).
         if not await density._is_public_host(seed_host):  # noqa: SLF001
-            # www. variant may resolve when the bare host doesn't.
             if not await density._is_public_host("www." + seed_host):  # noqa: SLF001
                 job.progress = "error"
                 job.error = "That domain could not be resolved. Check the spelling."
                 return
 
-        seed = _clean_url(f"https://{job.domain}/")
-        rp, sitemaps = await _robots("https", job.domain)
+        seed = f"https://{job.domain}/"
+        cfg = _build_config(job.id)
+        persona = Persona.random(cfg)
 
-        # Fetch the homepage first: it reveals a site-wide bot wall immediately,
-        # so we can return actionable guidance instead of grinding through 403s.
+        renderer = None
+        if settings.scraper_render_js:
+            try:
+                from app.integrations.scraper.renderer import PlaywrightRenderer
+
+                renderer = PlaywrightRenderer(persona, config=cfg)
+                await renderer.open()
+            except Exception as exc:  # Playwright missing/unopenable — HTTP-only.
+                log.info("site_crawl_no_renderer", domain=job.domain, error=repr(exc))
+                renderer = None
+
+        def _on_page(_doc, _rec) -> None:
+            job.pages_crawled += 1
+
         try:
-            s_status, s_url, s_raw, s_ms = await _fetch(seed)
-        except density.FetchError as exc:
+            async with TieredCrawler(
+                config=cfg, persona=persona, renderer=renderer, on_page=_on_page
+            ) as crawler:
+                report = await crawler.crawl(
+                    [seed],
+                    max_pages=job.max_pages,
+                    max_depth=settings.crawl_max_depth,
+                    workers=max(1, settings.crawl_concurrency),
+                    allowed_hosts={seed_host},  # stay on the audited domain
+                    use_cache=False,            # every audit fetches fresh content
+                )
+        except Exception as exc:
             job.progress = "error"
             job.error = f"Could not reach {job.domain}: {exc}"
+            log.error("site_crawl_failed", domain=job.domain, error=repr(exc))
             return
-        if _is_challenge(s_status, s_raw):
+
+        # Bot-wall detection: if nothing came back as a real (2xx/3xx) page and the
+        # responses we did get are challenge statuses, the site is blocking us — a
+        # Cloudflare "Just a moment…" page is served as a 403, so it can arrive as a
+        # page rather than an error. Either way, report it clearly.
+        all_records = list(report.pages) + list(report.errors)
+        successful = [r for r in all_records if r.status and 200 <= r.status < 400]
+        blocked = [r for r in all_records if r.status in (401, 403, 429, 503)]
+        if not successful and blocked:
             job.progress = "error"
             job.error = _challenge_message(job.domain)
-            log.info("site_crawl_blocked", domain=job.domain, status=s_status)
+            log.info("site_crawl_blocked", domain=job.domain, status=blocked[0].status)
             return
 
-        seen: set[str] = {seed}
-        frontier: list[str] = []
-        records: list[dict] = []
-        seed_https = not s_url.startswith("http://")
+        if not all_records:
+            job.progress = "error"
+            job.error = f"No pages could be crawled on {job.domain}."
+            return
 
-        seed_rec, seed_links = _analyze(s_raw, s_url, s_status, s_ms)
-        records.append(seed_rec)
-        for l in seed_links:
-            cl = _clean_url(l)
-            if cl not in seen and _in_scope(cl, seed_host):
-                seen.add(cl)
-                frontier.append(cl)
-        for sm in sitemaps[:5]:  # add sitemap URLs if present
-            cl = _clean_url(sm)
-            if _in_scope(cl, seed_host) and cl not in seen:
-                seen.add(cl)
-                frontier.append(cl)
-
-        deadline = time.monotonic() + settings.crawl_total_timeout_seconds
-        ua = settings.crawl_user_agent
-        batch = max(1, settings.crawl_concurrency)
-        job.pages_crawled = len(records)
-        job.pages_in_queue = len(frontier)
-
-        while frontier and len(records) < job.max_pages and time.monotonic() < deadline:
-            take = frontier[:batch][: job.max_pages - len(records)]
-            frontier = frontier[len(take):]
-            take = [u for u in take if rp.can_fetch(ua, u)]
-            if not take:
-                continue
-            results = await asyncio.gather(*(_fetch(u) for u in take), return_exceptions=True)
-            for url, res in zip(take, results):
-                if isinstance(res, Exception):
-                    records.append({
-                        "url": url, "status_code": 0, "title": None,
-                        "meta_description": None, "word_count": 0, "internal_links": 0,
-                        "external_links": 0, "load_time_ms": 0.0, "images_missing_alt": 0,
-                        "checks": {"is_broken": True}, "fingerprint": "",
-                    })
-                    continue
-                status, final_url, raw, load_ms = res
-                record, links = _analyze(raw, final_url, status, load_ms)
-                records.append(record)
-                for l in links:
-                    cl = _clean_url(l)
-                    if cl not in seen and _in_scope(cl, seed_host):
-                        seen.add(cl)
-                        frontier.append(cl)
-            job.pages_crawled = len(records)
-            job.pages_in_queue = len(frontier)
-
-        job.result = _aggregate(records, seed_https, None, job.domain)
-        job.pages_crawled = len(records)
+        audit_records = [_audit_record(r) for r in all_records]
+        job.result = _aggregate(audit_records, True, None, job.domain)
+        job.pages_crawled = len(all_records)
         job.pages_in_queue = 0
         job.progress = "finished"
-        log.info("site_crawl_done", domain=job.domain, pages=len(records),
-                 score=job.result["onpage_score"])
+        log.info(
+            "site_crawl_done",
+            domain=job.domain,
+            pages=len(all_records),
+            js_renders=report.total_js_renders,
+            cached=report.total_cached,
+            score=job.result["onpage_score"],
+        )
 
 
 def start_crawl(job_id: str, domain: str, max_pages: int) -> CrawlJob:
@@ -451,6 +364,10 @@ def start_crawl(job_id: str, domain: str, max_pages: int) -> CrawlJob:
             job.progress = "error"
             job.error = str(exc)
             log.error("site_crawl_failed", domain=domain, error=repr(exc))
+        finally:
+            # The TieredCrawler has closed its SQLite connections by now, so the
+            # per-audit cache/frontier files can be removed.
+            _cleanup_job_db(job.id)
 
     asyncio.create_task(_runner())
     return job

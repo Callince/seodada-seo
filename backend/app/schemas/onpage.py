@@ -10,6 +10,7 @@ class OnPageRequest(BaseModel):
     target_keyword: str | None = Field(default=None, max_length=300)
     location_code: int = 2840  # used for SERP benchmarking when a keyword is set
     language_code: str = "en"
+    force_live: bool = False
 
 
 class Readability(BaseModel):
@@ -130,4 +131,18 @@ class OnPageResponse(BaseModel):
     indexability: Indexability | None = None
     links: LinkAudit | None = None
     benchmark: Benchmark | None = None
+    meta: Meta
+
+
+# ---- Lighthouse / Core Web Vitals ----
+class VitalMetric(BaseModel):
+    display: str | None = None
+    value: float | None = None
+    score: int | None = None
+
+
+class LighthouseResponse(BaseModel):
+    url: str
+    categories: dict[str, int] = Field(default_factory=dict)
+    vitals: dict[str, VitalMetric] = Field(default_factory=dict)
     meta: Meta

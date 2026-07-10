@@ -103,22 +103,64 @@ async def _send_gmail_api(to: str, subject: str, html: str) -> bool:
         return False
 
 
-async def send_email(to: str, subject: str, html: str) -> bool:
+async def _record_email(
+    to: str, subject: str, html: str, *, status: str, error: str,
+    email_type: str, to_name: str, user_id: str | None,
+) -> None:
+    """Best-effort audit trail — write one EmailLog row. Never raises. The body is
+    kept in `meta.html` so a failed email can be retried from the admin viewer."""
+    try:
+        from app.db.models import EmailLog
+        from app.db.session import SessionLocal
+
+        async with SessionLocal() as db:
+            db.add(EmailLog(
+                to_email=to, to_name=to_name, email_type=email_type, subject=subject,
+                status=status, error=error, user_id=user_id, meta={"html": html},
+            ))
+            await db.commit()
+    except Exception as exc:  # logging must never break the send path
+        log.error("email_log_failed", to=to, error=str(exc))
+
+
+async def send_email(
+    to: str,
+    subject: str,
+    html: str,
+    *,
+    email_type: str = "generic",
+    to_name: str = "",
+    user_id: str | None = None,
+    log_send: bool = True,
+) -> bool:
     """Send an email; no-op (False) when no transport is configured.
 
     Prefers the Gmail API (HTTPS) since DigitalOcean blocks SMTP ports; falls
-    back to SMTP if only that is configured.
+    back to SMTP if only that is configured. Every send attempt with a transport
+    is recorded to EmailLog (sent/failed) for the admin email-logs viewer.
     """
     if not (to or "").strip():
         return False
+
+    transport_ready = bool(settings.google_gmail_refresh_token.strip() or settings.smtp_host.strip())
+    if not transport_ready:
+        return False  # no transport → not an attempt, don't log
+
     if settings.google_gmail_refresh_token.strip():
-        return await _send_gmail_api(to, subject, html)
-    if not settings.smtp_host.strip():
-        return False
-    try:
-        await asyncio.to_thread(_send_sync, to, subject, html)
-        log.info("email_sent", to=to, via="smtp")
-        return True
-    except Exception as exc:  # never break the scheduler over a mail failure
-        log.error("email_send_failed", to=to, via="smtp", error=str(exc))
-        return False
+        ok = await _send_gmail_api(to, subject, html)
+        err = "" if ok else "Gmail API send failed (see server logs)."
+    else:
+        try:
+            await asyncio.to_thread(_send_sync, to, subject, html)
+            log.info("email_sent", to=to, via="smtp")
+            ok, err = True, ""
+        except Exception as exc:  # never break the scheduler over a mail failure
+            log.error("email_send_failed", to=to, via="smtp", error=str(exc))
+            ok, err = False, str(exc)
+
+    if log_send:
+        await _record_email(
+            to, subject, html, status="sent" if ok else "failed", error=err,
+            email_type=email_type, to_name=to_name, user_id=user_id,
+        )
+    return ok

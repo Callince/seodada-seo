@@ -8,7 +8,7 @@ from app.core.logging import log
 from app.db.models import User
 from app.integrations.dataforseo import onpage as onpage_api
 from app.integrations.free import local_onpage
-from app.schemas.onpage import OnPageResponse, OnPageRequest
+from app.schemas.onpage import LighthouseResponse, OnPageResponse, OnPageRequest
 from app.services import competitive, density, engine, providers, scoring, usage
 
 router = APIRouter()
@@ -62,6 +62,7 @@ async def analyze(
             {"url": url, "target_keyword": body.target_keyword},
             engine.TTL["on_page"],
             lambda: local_onpage.analyze(url, body.target_keyword),
+            force_live=body.force_live,
         )
         p = resolved.data[0] if resolved.data else {}
         benchmark = await _maybe_benchmark(
@@ -99,6 +100,7 @@ async def analyze(
         {"url": url},
         engine.TTL["on_page"],
         lambda: onpage_api.instant_pages(url),
+        force_live=body.force_live,
     )
     parsed = onpage_api.parse_instant_pages(resolved.data)
 
@@ -170,4 +172,24 @@ async def analyze(
         links=links,
         benchmark=benchmark,
         meta=resolved.meta(),
+    )
+
+
+@router.post("/lighthouse", response_model=LighthouseResponse)
+async def lighthouse(
+    body: OnPageRequest,
+    db: AsyncSession = Depends(get_db_session),
+    user: User = Depends(current_user),
+) -> LighthouseResponse:
+    """Google Lighthouse category scores + Core Web Vitals (mobile)."""
+    resolved = await usage.metered(
+        db, user, "onpage.lighthouse",
+        {"url": body.url},
+        engine.TTL["on_page"],
+        lambda: onpage_api.lighthouse(body.url),
+        force_live=body.force_live,
+    )
+    parsed = onpage_api.parse_lighthouse(resolved.data)
+    return LighthouseResponse(
+        url=body.url, categories=parsed["categories"], vitals=parsed["vitals"], meta=resolved.meta()
     )

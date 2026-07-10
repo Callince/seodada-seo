@@ -1,14 +1,22 @@
-import { Globe, Search, Swords } from "lucide-react";
+import { Globe, RefreshCw, Search, Swords } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import { apiErrorMessage } from "@/api/client";
-import { useDomainOverview, useRankedKeywords } from "@/api/hooks/useDomains";
+import {
+  useDomainHistory,
+  useDomainOverview,
+  useRankedKeywords,
+  useTechnologies,
+  useWhois,
+} from "@/api/hooks/useDomains";
 import { useBacklinksSummary } from "@/api/hooks/useBacklinks";
+import { AreaChart } from "@/components/public/landingKit";
 import { AuthorityBadge } from "@/components/shared/AuthorityBadge";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
 import { LocationLanguagePicker } from "@/components/shared/LocationLanguagePicker";
+import { usePersistedState } from "@/lib/persist";
 import { SaveToProject } from "@/components/shared/SaveToProject";
 import { StatCard } from "@/components/shared/StatCard";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
@@ -19,23 +27,34 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fmtInt } from "@/lib/format";
 import type {
+  DomainHistoryResponse,
+  HistoryRankPoint,
   Meta,
   OverviewResponse,
   RankedKeywordRow,
   RankedKeywordsResponse,
+  TechnologiesResponse,
+  TechRow,
+  WhoisResponse,
 } from "@/types";
 
 // Competitors and keyword-gap analysis live on the dedicated /competitors page.
-type TabKey = "overview" | "ranked";
+type TabKey = "overview" | "ranked" | "history" | "tech" | "whois";
 const TAB_LABELS: Record<TabKey, string> = {
   overview: "Overview",
   ranked: "Ranked Keywords",
+  history: "History",
+  tech: "Tech stack",
+  whois: "WHOIS",
 };
-type Loc = { location_code: number; language_code: string };
+type Loc = { location_code: number; language_code: string; force_live?: boolean };
 
 const TAB_MODULES: Record<TabKey, string> = {
   overview: "domains.overview",
   ranked: "domains.ranked",
+  history: "domains.history",
+  tech: "domains.technologies",
+  whois: "domains.whois",
 };
 
 const dollars = (v: number | null | undefined) =>
@@ -58,6 +77,105 @@ const rankedCols: Column<RankedKeywordRow>[] = [
     csvValue: (r) => r.url,
   },
 ];
+
+const fmtMonth = (r: HistoryRankPoint) =>
+  r.year == null || r.month == null ? "—" : `${r.year}-${String(r.month).padStart(2, "0")}`;
+
+const historyCols: Column<HistoryRankPoint>[] = [
+  {
+    key: "month", header: "Month", mono: true,
+    sortValue: (r) => (r.year ?? 0) * 100 + (r.month ?? 0),
+    render: (r) => fmtMonth(r), csvValue: (r) => fmtMonth(r),
+  },
+  {
+    key: "keywords", header: "Keywords", align: "right", mono: true,
+    sortValue: (r) => r.keywords, render: (r) => fmtInt(r.keywords), csvValue: (r) => r.keywords,
+  },
+  {
+    key: "etv", header: "Est. traffic", align: "right", mono: true,
+    sortValue: (r) => r.etv, render: (r) => fmtInt(r.etv == null ? null : Math.round(r.etv)), csvValue: (r) => r.etv,
+  },
+  {
+    key: "top3", header: "Top 3 positions", align: "right", mono: true,
+    sortValue: (r) => r.top3, render: (r) => fmtInt(r.top3), csvValue: (r) => r.top3,
+  },
+];
+
+const techCols: Column<TechRow>[] = [
+  { key: "group", header: "Group", sortValue: (r) => r.group, render: (r) => r.group ?? "—" },
+  { key: "category", header: "Category", sortValue: (r) => r.category, render: (r) => r.category ?? "—" },
+  { key: "name", header: "Technology", sortValue: (r) => r.name, render: (r) => r.name ?? "—" },
+];
+
+function HistoryPane({ data, target }: { data: DomainHistoryResponse; target: string }) {
+  // Rows arrive newest-first; the chart wants oldest → newest.
+  const series = [...data.rows].reverse().map((r) => r.keywords ?? 0);
+  return (
+    <div className="space-y-4">
+      {series.length > 1 && (
+        <Card>
+          <CardBody>
+            <p className="mb-2 text-sm font-medium text-text">Ranked keywords (monthly)</p>
+            <div className="h-32">
+              <AreaChart values={series} id="dom-history" height={128} tone="blue" />
+            </div>
+          </CardBody>
+        </Card>
+      )}
+      <DataTable columns={historyCols} rows={data.rows} csvName={`history-${target}`} />
+    </div>
+  );
+}
+
+function TechPane({ data, target }: { data: TechnologiesResponse; target: string }) {
+  const p = data.profile;
+  const metaLine = [p.country, p.language, p.last_visited].filter(Boolean).join(" · ");
+  const chips = [...p.emails, ...p.phones];
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardBody>
+          <p className="text-sm font-medium text-text">{p.title ?? p.domain ?? "—"}</p>
+          {metaLine && <p className="mt-0.5 text-xs text-text-muted">{metaLine}</p>}
+          {chips.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {chips.map((c) => (
+                <span key={c} className="rounded-full bg-surface-2 px-2 py-0.5 text-xs text-text-muted">
+                  {c}
+                </span>
+              ))}
+            </div>
+          )}
+        </CardBody>
+      </Card>
+      <DataTable columns={techCols} rows={p.rows} csvName={`tech-${target}`} />
+    </div>
+  );
+}
+
+function WhoisPane({ data }: { data: WhoisResponse }) {
+  const w = data.whois;
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <StatCard label="Registrar" value={w.registrar ?? "—"} mono={false} sub={w.domain ?? undefined} accent />
+        <StatCard label="Created" value={w.created ?? "—"} />
+        <StatCard label="Expires" value={w.expires ?? "—"} />
+        <StatCard label="Last updated" value={w.updated ?? "—"} />
+        <StatCard label="First seen" value={w.first_seen ?? "—"} />
+      </div>
+      {w.epp_status_codes.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {w.epp_status_codes.map((c) => (
+            <span key={c} className="rounded-full bg-surface-2 px-2 py-0.5 text-xs text-text-muted">
+              {c}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function OverviewPane({ data }: { data: OverviewResponse }) {
   return (
@@ -83,11 +201,12 @@ function OverviewPane({ data }: { data: OverviewResponse }) {
 }
 
 export default function DomainAnalytics({ embedded }: { embedded?: boolean }) {
-  const [target, setTarget] = useState("");
-  const [loc, setLoc] = useState<Loc>({ location_code: 2840, language_code: "en" });
-  const [tab, setTab] = useState<TabKey>("overview");
-  const [submitted, setSubmitted] = useState("");
-  const [results, setResults] = useState<Partial<Record<TabKey, unknown>>>({});
+  // Persisted so the domain, tab and loaded results survive navigating away and back.
+  const [target, setTarget] = usePersistedState("domains.target", "");
+  const [loc, setLoc] = usePersistedState<Loc>("domains.loc", { location_code: 2840, language_code: "en" });
+  const [tab, setTab] = usePersistedState<TabKey>("domains.tab", "overview");
+  const [submitted, setSubmitted] = usePersistedState("domains.submitted", "");
+  const [results, setResults] = usePersistedState<Partial<Record<TabKey, unknown>>>("domains.results", {});
   const [pendingTab, setPendingTab] = useState<TabKey | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -96,6 +215,9 @@ export default function DomainAnalytics({ embedded }: { embedded?: boolean }) {
   const muts = {
     overview: useDomainOverview(),
     ranked: useRankedKeywords(),
+    history: useDomainHistory(),
+    tech: useTechnologies(),
+    whois: useWhois(),
   };
 
   const load = async (t: TabKey, dom: string, l: Loc, force = false) => {
@@ -148,6 +270,12 @@ export default function DomainAnalytics({ embedded }: { embedded?: boolean }) {
             <Button type="submit" disabled={isPending || !target.trim()}>
               <Search size={16} /> Analyze
             </Button>
+            {submitted && (
+              <Button type="button" variant="secondary" title="Bypass the cache and fetch live"
+                disabled={isPending} onClick={() => load(tab, submitted, { ...loc, force_live: true }, true)}>
+                <RefreshCw size={15} className={isPending ? "animate-spin" : ""} /> Refresh
+              </Button>
+            )}
           </form>
           <p className="mt-2.5 text-xs text-text-muted">
             Looking for competitor comparison or the keyword gap?{" "}
@@ -219,6 +347,9 @@ export default function DomainAnalytics({ embedded }: { embedded?: boolean }) {
               {tab === "ranked" && (
                 <DataTable columns={rankedCols} rows={(current as RankedKeywordsResponse).rows} csvName={`ranked-${submitted}`} />
               )}
+              {tab === "history" && <HistoryPane data={current as DomainHistoryResponse} target={submitted} />}
+              {tab === "tech" && <TechPane data={current as TechnologiesResponse} target={submitted} />}
+              {tab === "whois" && <WhoisPane data={current as WhoisResponse} />}
             </>
           )}
         </div>

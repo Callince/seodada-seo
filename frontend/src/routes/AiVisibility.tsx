@@ -2,16 +2,35 @@ import { Bot, Check, Minus, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { apiErrorMessage } from "@/api/client";
-import { useAiVisibilityStatus, useStartAiVisibility } from "@/api/hooks/useAiVisibility";
+import { useAiVisibilityStatus, useAiVolume, useAskLlm, useLlmMentions, useStartAiVisibility } from "@/api/hooks/useAiVisibility";
 import { LocationLanguagePicker } from "@/components/shared/LocationLanguagePicker";
+import { CacheBadge } from "@/components/shared/CacheBadge";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
+import { AreaChart } from "@/components/public/landingKit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fmtInt } from "@/lib/format";
-import type { AiCitation, AiKeywordRow } from "@/types";
+import type { AiCitation, AiKeywordRow, AiVolumeRow } from "@/types";
+
+/** DataForSEO location codes we can name; anything else falls back to the raw code. */
+const LOCATION_NAMES: Record<string, string> = { "2356": "India", "2840": "United States" };
+
+function locationLabel(key: number | string | null): string {
+  if (key === null || key === undefined) return "—";
+  return LOCATION_NAMES[String(key)] ?? String(key);
+}
+
+/** Last 6 monthly volumes, oldest first, for the tiny trend sparkline. */
+function trendValues(row: AiVolumeRow): number[] {
+  return [...row.monthly]
+    .sort((a, b) => (a.year ?? 0) * 100 + (a.month ?? 0) - ((b.year ?? 0) * 100 + (b.month ?? 0)))
+    .slice(-6)
+    .map((p) => p.volume ?? 0);
+}
 
 function Tile({ label, value, accent }: { label: string; value: number; accent?: "primary" | "default" }) {
   return (
@@ -56,6 +75,30 @@ export default function AiVisibility() {
   const start = useStartAiVisibility();
   const status = useAiVisibilityStatus(taskId);
 
+  // AI Optimization API (GEO/AEO) sections
+  const mentions = useLlmMentions();
+  const aiVolume = useAiVolume();
+  const ask = useAskLlm();
+  const [prompt, setPrompt] = useState("");
+  const [model, setModel] = useState("gpt-4o-mini");
+
+  const runMentions = () => {
+    const d = domain.trim();
+    if (!d || mentions.isPending) return;
+    mentions.mutate({ domain: d, force_live: live });
+  };
+
+  const runAiVolume = () => {
+    if (keywords.length === 0 || aiVolume.isPending) return;
+    aiVolume.mutate({ keywords, force_live: live });
+  };
+
+  const runAsk = () => {
+    const p = prompt.trim();
+    if (!p || ask.isPending) return;
+    ask.mutate({ prompt: p, model_name: model, force_live: live });
+  };
+
   const keywords = useMemo(
     () => Array.from(new Set(raw.split(/[\n,]+/).map((k) => k.trim().toLowerCase()).filter(Boolean))).slice(0, 20),
     [raw],
@@ -69,6 +112,8 @@ export default function AiVisibility() {
       { domain: d, keywords, ...loc, device, include_ai_mode: aiMode, force_live: live },
       { onSuccess: (r) => setTaskId(r.task_id) },
     );
+    // Piggyback the LLM-mentions lookup on the main check — same domain, no extra click.
+    if (!mentions.isPending) mentions.mutate({ domain: d, force_live: live });
   };
 
   const s = status.data;
@@ -211,6 +256,197 @@ export default function AiVisibility() {
           </Card>
         </div>
       )}
+
+      <div className="mt-5 space-y-5">
+        {/* 1 — LLM mentions of the domain across AI answers */}
+        <Card>
+          <CardHeader className="flex items-center justify-between gap-3">
+            <CardTitle>LLM mentions</CardTitle>
+            <div className="flex items-center gap-2">
+              {mentions.data && <CacheBadge meta={mentions.data.meta} />}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={runMentions}
+                loading={mentions.isPending}
+                disabled={!domain.trim()}
+              >
+                Run
+              </Button>
+            </div>
+          </CardHeader>
+          <CardBody className="space-y-4">
+            <p className="text-sm text-text-muted">
+              How often LLMs mention {domain.trim() || "your domain"} in their answers, and the AI search volume behind those prompts.
+            </p>
+            {mentions.isPending && (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-4">
+                  <Skeleton className="h-16" />
+                  <Skeleton className="h-16" />
+                </div>
+                <Skeleton className="h-24" />
+              </div>
+            )}
+            {mentions.isError && <p className="text-sm text-danger">{apiErrorMessage(mentions.error)}</p>}
+            {!mentions.isPending && mentions.data && (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="rounded-md bg-surface-2 p-4">
+                    <p className="text-xs font-medium uppercase tracking-wide text-text-muted">Mentions</p>
+                    <p className="mt-1 font-mono text-2xl text-primary">{fmtInt(mentions.data.mentions)}</p>
+                  </div>
+                  <div className="rounded-md bg-surface-2 p-4">
+                    <p className="text-xs font-medium uppercase tracking-wide text-text-muted">AI search volume</p>
+                    <p className="mt-1 font-mono text-2xl text-text">{fmtInt(mentions.data.ai_search_volume)}</p>
+                  </div>
+                </div>
+                {(mentions.data.dimensions.location ?? []).length > 0 && (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-text-muted">
+                        <tr>
+                          <th className="px-3 py-2 font-medium">Location</th>
+                          <th className="px-3 py-2 font-medium">Mentions</th>
+                          <th className="px-3 py-2 font-medium">AI volume</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border">
+                        {(mentions.data.dimensions.location ?? []).map((row) => (
+                          <tr key={String(row.key)} className="hover:bg-surface-2">
+                            <td className="px-3 py-2 font-medium text-text">{locationLabel(row.key)}</td>
+                            <td className="px-3 py-2 font-mono text-text">{fmtInt(row.mentions)}</td>
+                            <td className="px-3 py-2 font-mono text-text">{fmtInt(row.ai_search_volume)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
+            )}
+          </CardBody>
+        </Card>
+
+        {/* 2 — AI (LLM prompt) search volume for the entered keywords */}
+        <Card>
+          <CardHeader className="flex items-center justify-between gap-3">
+            <CardTitle>AI search volume</CardTitle>
+            <div className="flex items-center gap-2">
+              {aiVolume.data && <CacheBadge meta={aiVolume.data.meta} />}
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={runAiVolume}
+                loading={aiVolume.isPending}
+                disabled={keywords.length === 0}
+              >
+                Run
+              </Button>
+            </div>
+          </CardHeader>
+          <CardBody className="space-y-4">
+            <p className="text-sm text-text-muted">
+              How often your keywords are asked to LLMs each month — the AI-era counterpart to Google search volume.
+            </p>
+            {aiVolume.isPending && (
+              <div className="space-y-2">
+                <Skeleton className="h-8" />
+                <Skeleton className="h-8" />
+                <Skeleton className="h-8" />
+              </div>
+            )}
+            {aiVolume.isError && <p className="text-sm text-danger">{apiErrorMessage(aiVolume.error)}</p>}
+            {!aiVolume.isPending && aiVolume.data && (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-text-muted">
+                    <tr>
+                      <th className="px-3 py-2 font-medium">Keyword</th>
+                      <th className="px-3 py-2 font-medium">AI volume/mo</th>
+                      <th className="px-3 py-2 font-medium">Trend</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {aiVolume.data.rows.map((row, i) => (
+                      <tr key={row.keyword ?? i} className="hover:bg-surface-2">
+                        <td className="px-3 py-2 font-medium text-text">{row.keyword ?? "—"}</td>
+                        <td className="px-3 py-2 font-mono text-text">
+                          {row.ai_search_volume === null ? "—" : fmtInt(row.ai_search_volume)}
+                        </td>
+                        <td className="px-3 py-2">
+                          <div className="h-6 w-24">
+                            {row.monthly.length > 1 && (
+                              <AreaChart values={trendValues(row)} tone="violet" height={24} id={`aivol-${i}`} />
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardBody>
+        </Card>
+
+        {/* 3 — Ask a live LLM and see whether the domain shows up in the answer */}
+        <Card>
+          <CardHeader className="flex items-center justify-between gap-3">
+            <CardTitle>Ask an LLM</CardTitle>
+            {ask.data && (
+              <div className="flex items-center gap-2">
+                {ask.data.model && <Badge tone="neutral">{ask.data.model}</Badge>}
+                <CacheBadge meta={ask.data.meta} />
+              </div>
+            )}
+          </CardHeader>
+          <CardBody className="space-y-3">
+            <p className="text-sm text-text-muted">
+              Send a real prompt to an LLM and read the raw answer — the fastest way to see if your brand comes up.
+            </p>
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              rows={3}
+              placeholder="e.g. best electric scooter brands in India"
+              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            />
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              <Select value={model} onChange={(e) => setModel(e.target.value)} aria-label="Model">
+                <option value="gpt-4o-mini">gpt-4o-mini</option>
+                <option value="gpt-4o">gpt-4o</option>
+              </Select>
+              <Button onClick={runAsk} loading={ask.isPending} disabled={!prompt.trim()}>
+                {!ask.isPending && <Bot size={16} />} Ask
+              </Button>
+            </div>
+            {ask.isPending && (
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-5/6" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
+            )}
+            {ask.isError && <p className="text-sm text-danger">{apiErrorMessage(ask.error)}</p>}
+            {!ask.isPending && ask.data && (
+              <div className="space-y-2">
+                {domain.trim() &&
+                  (ask.data.answer.toLowerCase().includes(domain.trim().toLowerCase()) ? (
+                    <Badge tone="success">
+                      <Check size={12} /> your domain is mentioned
+                    </Badge>
+                  ) : (
+                    <Badge tone="neutral">not mentioned in this answer</Badge>
+                  ))}
+                <div className="whitespace-pre-wrap rounded-md bg-surface-2 p-4 text-sm text-text">
+                  {ask.data.answer}
+                </div>
+              </div>
+            )}
+          </CardBody>
+        </Card>
+      </div>
     </div>
   );
 }

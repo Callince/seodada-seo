@@ -38,6 +38,10 @@ class ProjectOut(BaseModel):
     created_at: datetime
     updated_at: datetime
     run_count: int = 0
+    # Derived from saved runs (no extra storage):
+    target: str | None = None          # most recent run's target/keyword
+    last_run_at: datetime | None = None
+    runs_series: list[int] = Field(default_factory=list)  # weekly run counts, oldest→newest
 
 
 class ProjectDetail(ProjectOut):

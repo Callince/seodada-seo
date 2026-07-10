@@ -87,22 +87,33 @@ export function DataTable<T>({ columns, rows, csvName = "export" }: DataTablePro
               {columns.map((c) => (
                 <th
                   key={c.key}
-                  onClick={() => c.sortValue && toggleSort(c.key)}
+                  scope="col"
+                  aria-sort={
+                    c.sortValue
+                      ? sort?.key === c.key
+                        ? sort.dir === "asc"
+                          ? "ascending"
+                          : "descending"
+                        : "none"
+                      : undefined
+                  }
                   className={cn(
                     "px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-text-muted",
                     c.align === "right" ? "text-right" : "text-left",
-                    c.sortValue && "cursor-pointer select-none hover:text-text",
                   )}
                 >
-                  <span
-                    className={cn(
-                      "inline-flex items-center gap-1",
-                      c.align === "right" && "flex-row-reverse",
-                    )}
-                  >
-                    {c.header}
-                    {c.sortValue &&
-                      (sort?.key === c.key ? (
+                  {c.sortValue ? (
+                    <button
+                      type="button"
+                      onClick={() => toggleSort(c.key)}
+                      className={cn(
+                        "inline-flex items-center gap-1 rounded uppercase tracking-wide hover:text-text",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--section)]",
+                        c.align === "right" && "flex-row-reverse",
+                      )}
+                    >
+                      {c.header}
+                      {sort?.key === c.key ? (
                         sort.dir === "asc" ? (
                           <ArrowUp size={12} />
                         ) : (
@@ -110,15 +121,29 @@ export function DataTable<T>({ columns, rows, csvName = "export" }: DataTablePro
                         )
                       ) : (
                         <ArrowUpDown size={12} className="opacity-40" />
-                      ))}
-                  </span>
+                      )}
+                    </button>
+                  ) : (
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1",
+                        c.align === "right" && "flex-row-reverse",
+                      )}
+                    >
+                      {c.header}
+                    </span>
+                  )}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {sorted.map((row, i) => (
-              <tr key={i} className="border-t border-border hover:bg-primary-soft">
+            {sorted.map((row, i) => {
+              const rowKey =
+                columns.map((c) => String(c.sortValue?.(row) ?? c.csvValue?.(row) ?? "")).join("¦") ||
+                String(i);
+              return (
+              <tr key={rowKey} className="border-t border-border hover:bg-[color:var(--section-soft)]">
                 {columns.map((c) => (
                   <td
                     key={c.key}
@@ -132,7 +157,8 @@ export function DataTable<T>({ columns, rows, csvName = "export" }: DataTablePro
                   </td>
                 ))}
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

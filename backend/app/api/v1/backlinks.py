@@ -22,11 +22,25 @@ from app.schemas.backlinks import (
     BacklinksRequest,
     BacklinksSummary,
     BacklinksSummaryResponse,
+    BLCompetitorsResponse,
+    HistoryResponse,
+    LinkGapRequest,
+    LinkGapResponse,
+    NewLostResponse,
     ReferringDomainsResponse,
+    SpamScoreResponse,
 )
 from app.services import engine, usage
 
 router = APIRouter()
+
+# Timeseries endpoints cover the trailing 12 months, snapped to the month so
+# the cache key is stable for the whole day.
+def _year_range() -> tuple[str, str]:
+    from datetime import date
+
+    today = date.today()
+    return (today.replace(year=today.year - 1).isoformat(), today.isoformat())
 
 
 def _target(body: BacklinksRequest) -> str:
@@ -132,3 +146,95 @@ async def anchors(
     return AnchorsResponse(
         target=target, rows=bl.parse_anchors(resolved.data), meta=resolved.meta()
     )
+
+
+@router.post("/history", response_model=HistoryResponse)
+async def history(
+    body: BacklinksRequest,
+    db: AsyncSession = Depends(get_db_session),
+    user: User = Depends(current_user),
+) -> HistoryResponse:
+    target = _target(body)
+    d_from, d_to = _year_range()
+    resolved = await usage.metered(
+        db, user, "backlinks.history",
+        {"target": target, "from": d_from, "to": d_to},
+        engine.TTL["backlinks"],
+        lambda: bl.timeseries(target, d_from, d_to),
+        force_live=body.force_live,
+    )
+    return HistoryResponse(target=target, rows=bl.parse_timeseries(resolved.data), meta=resolved.meta())
+
+
+@router.post("/new-lost", response_model=NewLostResponse)
+async def new_lost(
+    body: BacklinksRequest,
+    db: AsyncSession = Depends(get_db_session),
+    user: User = Depends(current_user),
+) -> NewLostResponse:
+    target = _target(body)
+    d_from, d_to = _year_range()
+    resolved = await usage.metered(
+        db, user, "backlinks.new_lost",
+        {"target": target, "from": d_from, "to": d_to},
+        engine.TTL["backlinks"],
+        lambda: bl.new_lost(target, d_from, d_to),
+        force_live=body.force_live,
+    )
+    return NewLostResponse(target=target, rows=bl.parse_new_lost(resolved.data), meta=resolved.meta())
+
+
+@router.post("/competitors", response_model=BLCompetitorsResponse)
+async def bl_competitors(
+    body: BacklinksRequest,
+    db: AsyncSession = Depends(get_db_session),
+    user: User = Depends(current_user),
+) -> BLCompetitorsResponse:
+    target = _target(body)
+    resolved = await usage.metered(
+        db, user, "backlinks.competitors",
+        {"target": target, "limit": body.limit},
+        engine.TTL["backlinks"],
+        lambda: bl.competitors(target, min(body.limit, 50)),
+        force_live=body.force_live,
+    )
+    return BLCompetitorsResponse(
+        target=target, rows=bl.parse_competitors(resolved.data), meta=resolved.meta()
+    )
+
+
+@router.post("/spam-score", response_model=SpamScoreResponse)
+async def spam_score(
+    body: BacklinksRequest,
+    db: AsyncSession = Depends(get_db_session),
+    user: User = Depends(current_user),
+) -> SpamScoreResponse:
+    target = _target(body)
+    resolved = await usage.metered(
+        db, user, "backlinks.spam_score",
+        {"target": target},
+        engine.TTL["backlinks"],
+        lambda: bl.spam_score(target),
+        force_live=body.force_live,
+    )
+    return SpamScoreResponse(
+        target=target, spam_score=bl.parse_spam_score(resolved.data), meta=resolved.meta()
+    )
+
+
+@router.post("/link-gap", response_model=LinkGapResponse)
+async def link_gap(
+    body: LinkGapRequest,
+    db: AsyncSession = Depends(get_db_session),
+    user: User = Depends(current_user),
+) -> LinkGapResponse:
+    target = bl._clean(body.target)  # noqa: SLF001
+    comps = sorted(bl._clean(c) for c in body.competitors)  # noqa: SLF001 — stable cache key
+    resolved = await usage.metered(
+        db, user, "backlinks.link_gap",
+        {"target": target, "competitors": comps, "limit": body.limit},
+        engine.TTL["backlinks"],
+        lambda: bl.link_gap(target, comps, body.limit),
+        force_live=body.force_live,
+    )
+    return LinkGapResponse(target=target, rows=bl.parse_link_gap(resolved.data), meta=resolved.meta())

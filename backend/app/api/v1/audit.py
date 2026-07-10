@@ -27,6 +27,7 @@ async def start(
     db: AsyncSession = Depends(get_db_session),
     user: User = Depends(current_user),
 ) -> AuditStartResponse:
+    await usage.assert_within_quota(db, user)
     task_id = uuid.uuid4().hex
     crawler.start_crawl(task_id, clean_domain(body.domain), body.max_crawl_pages)
     # The crawl is free; record a $0 usage row so it still shows in history.

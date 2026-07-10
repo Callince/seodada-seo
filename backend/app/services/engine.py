@@ -22,18 +22,30 @@ from app.db.models import ApiCache
 from app.integrations.dataforseo.client import DfsResult
 from app.services.cache_backend import cache_backend
 
-# TTLs (seconds) by data volatility.
+# TTLs (seconds) by data volatility — kept short so pages stay fresh; the SWR
+# window below means an expired entry is still served instantly while it refreshes.
 TTL = {
-    "serp": 24 * 3600,
-    "search_volume": 14 * 24 * 3600,
-    "labs": 7 * 24 * 3600,
-    "trends": 24 * 3600,
-    "on_page": 3600,
-    "content": 24 * 3600,
-    "backlinks": 7 * 24 * 3600,
+    "serp": 6 * 3600,
+    "search_volume": 3 * 24 * 3600,
+    "labs": 2 * 24 * 3600,
+    "trends": 12 * 3600,
+    "on_page": 30 * 60,
+    "content": 6 * 3600,
+    "backlinks": 3 * 24 * 3600,
+    "domain_meta": 7 * 24 * 3600,  # whois / tech stack — slow-changing
+    "ai_mentions": 24 * 3600,      # LLM mentions + AI keyword volume
+    "local": 24 * 3600,            # business listings
 }
-# Window past expiry during which we serve stale and refresh in the background.
-STALE_WINDOW = timedelta(days=2)
+# Stale-while-revalidate: past hard expiry (but within this window) we serve the
+# cached copy immediately and flag it for a background refresh, so the page is
+# instant AND self-updates. `metered()` owns the refresh (so cost is attributed).
+SWR_WINDOW = timedelta(days=7)
+# How long a served-stale copy is primed into L1 (avoids re-hitting Postgres on
+# every request while the background refresh is in flight).
+SWR_L1_TTL = 60
+# Hard fallback window (must exceed SWR_WINDOW): past the SWR window we fetch
+# synchronously, and only fall back to this old copy if the upstream fetch fails.
+STALE_WINDOW = timedelta(days=30)
 
 
 def _now() -> datetime:
@@ -117,9 +129,14 @@ async def resolve(
                 if expires_at > now:
                     await cache_backend.set(key, payload, _remaining(expires_at, now))
                     return _hit(payload, "postgres", start)
+                if expires_at + SWR_WINDOW > now:
+                    # Stale-while-revalidate: serve the cached copy now, briefly prime
+                    # L1 so we don't hammer Postgres, and flag it so `metered()` kicks
+                    # off a background refresh. The page is instant and self-updates.
+                    await cache_backend.set(key, payload, SWR_L1_TTL)
+                    return _hit(payload, "revalidating", start)
                 if expires_at + STALE_WINDOW > now:
-                    # Expired data is never served as the primary answer — it is
-                    # kept only as a fallback in case the upstream fetch fails.
+                    # Past the SWR window — kept only as a fallback if upstream fails.
                     stale_payload = payload
 
         # Miss / expired / forced live -> hit upstream for fresh data.
@@ -145,6 +162,22 @@ async def resolve(
             latency_ms=latency,
             fetched_at=now.isoformat(),
         )
+
+
+async def revalidate(endpoint: str, params: dict, ttl_seconds: int, fetch_fn: FetchFn) -> int:
+    """Background SWR refresh: force-fetch fresh, persist to Postgres, and prime the
+    hot tier. Opens its own DB session (the request's session is long gone). Returns
+    the cost in cents so the caller can attribute the spend."""
+    from app.db.session import SessionLocal
+
+    key = params_hash(endpoint, params)
+    now = _now()
+    fetched: DfsResult = await fetch_fn()
+    payload = {"data": fetched.result, "cost_cents": fetched.cost_cents, "fetched_at": now.isoformat()}
+    async with SessionLocal() as db:
+        await _persist(db, key, endpoint, fetched, ttl_seconds, now)
+    await cache_backend.set(key, payload, ttl_seconds)
+    return fetched.cost_cents
 
 
 def _hit(payload: dict, source: str, start: float) -> Resolved:

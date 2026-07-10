@@ -15,15 +15,15 @@ interface StatCardProps {
 /** The metric tile reused across Dashboard, On-Page, Site Report, etc. */
 export function StatCard({ label, value, accent, mono = true, sub, className }: StatCardProps) {
   return (
-    <Card className={cn("h-full transition-shadow hover:shadow-md", className)}>
+    <Card className={cn("h-full transition-all duration-300 hover:-translate-y-0.5 hover:lp-shadow-lg", className)}>
       <CardBody className="flex h-full flex-col justify-center">
-        <p className="text-xs font-medium uppercase tracking-wide text-text-muted">{label}</p>
+        <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-text-muted">
+          <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: "var(--section)" }} />
+          {label}
+        </p>
         <p
-          className={cn(
-            "mt-1 text-2xl",
-            mono && "font-mono",
-            accent ? "text-primary" : "text-text",
-          )}
+          className={cn("mt-1 text-2xl font-extrabold tracking-tight", mono && "font-mono", !accent && "text-text")}
+          style={accent ? { color: "var(--section)" } : undefined}
         >
           {value}
         </p>

@@ -10,6 +10,7 @@ class VolumeRequest(BaseModel):
     keywords: list[str] = Field(min_length=1, max_length=1000)
     location_code: int = 2840
     language_code: str = "en"
+    force_live: bool = False
 
 
 class TrendsRequest(BaseModel):
@@ -20,6 +21,7 @@ class TrendsRequest(BaseModel):
     # Optional custom window (YYYY-MM-DD); when both set, overrides time_range.
     date_from: str | None = Field(default=None, max_length=10)
     date_to: str | None = Field(default=None, max_length=10)
+    force_live: bool = False
 
 
 class SeedRequest(BaseModel):
@@ -27,6 +29,7 @@ class SeedRequest(BaseModel):
     location_code: int = 2840
     language_code: str = "en"
     limit: int = Field(default=100, ge=1, le=1000)
+    force_live: bool = False
 
 
 class IdeasRequest(BaseModel):
@@ -34,12 +37,14 @@ class IdeasRequest(BaseModel):
     location_code: int = 2840
     language_code: str = "en"
     limit: int = Field(default=100, ge=1, le=1000)
+    force_live: bool = False
 
 
 class PaaRequest(BaseModel):
     keyword: str = Field(min_length=1, max_length=300)
     location_code: int = 2840
     language_code: str = "en"
+    force_live: bool = False
 
 
 # ---- Response models ----
@@ -97,4 +102,26 @@ class PaaItem(BaseModel):
 class PaaResponse(BaseModel):
     keyword: str
     paa: list[PaaItem]
+    meta: Meta
+
+
+class OverviewRequest(BaseModel):
+    keyword: str = Field(min_length=1, max_length=300)
+    location_code: int = 2840
+    language_code: str = "en"
+    force_live: bool = False
+
+
+class KeywordOverview(BaseModel):
+    keyword: str | None = None
+    search_volume: int | None = None
+    cpc: float | None = None
+    competition: float | None = None
+    difficulty: int | None = None
+    intent: str | None = None
+    monthly_searches: list[MonthlyPoint] = Field(default_factory=list)
+
+
+class KeywordOverviewResponse(BaseModel):
+    overview: KeywordOverview
     meta: Meta

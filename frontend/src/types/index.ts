@@ -354,6 +354,10 @@ export interface Project {
   created_at: string;
   updated_at: string;
   run_count: number;
+  /** Derived from saved runs on the backend (no extra storage). */
+  target: string | null;
+  last_run_at: string | null;
+  runs_series: number[];
 }
 
 export interface ProjectRun {
@@ -633,4 +637,231 @@ export interface AiVisibilityStatusResponse {
   include_ai_mode: boolean;
   rows: AiKeywordRow[];
   summary: AiVisibilitySummary;
+}
+
+// ---- Backlinks: history / new-lost / competitors / spam / link gap ----
+
+export interface BacklinkHistoryPoint {
+  date: string;
+  rank: number | null;
+  authority: number | null;
+  backlinks: number | null;
+  referring_domains: number | null;
+}
+
+export interface BacklinkHistoryResponse {
+  target: string;
+  rows: BacklinkHistoryPoint[];
+  meta: Meta;
+}
+
+export interface NewLostPoint {
+  date: string;
+  new_backlinks: number | null;
+  lost_backlinks: number | null;
+  new_referring_domains: number | null;
+  lost_referring_domains: number | null;
+}
+
+export interface NewLostResponse {
+  target: string;
+  rows: NewLostPoint[];
+  meta: Meta;
+}
+
+export interface BLCompetitorRow {
+  domain: string | null;
+  rank: number | null;
+  intersections: number | null;
+}
+
+export interface BLCompetitorsResponse {
+  target: string;
+  rows: BLCompetitorRow[];
+  meta: Meta;
+}
+
+export interface SpamScoreResponse {
+  target: string;
+  spam_score: number | null;
+  meta: Meta;
+}
+
+export interface LinkGapRow {
+  domain: string | null;
+  rank: number | null;
+  authority: number | null;
+  links_to_competitors: number | null;
+  competitors_linked: number | null;
+}
+
+export interface LinkGapResponse {
+  target: string;
+  rows: LinkGapRow[];
+  meta: Meta;
+}
+
+// ---- Keyword overview (intent / difficulty) ----
+
+export interface KeywordOverview {
+  keyword: string | null;
+  search_volume: number | null;
+  cpc: number | null;
+  competition: number | null;
+  difficulty: number | null;
+  intent: string | null;
+  monthly_searches: { year: number | null; month: number | null; volume: number | null }[];
+}
+
+export interface KeywordOverviewResponse {
+  overview: KeywordOverview;
+  meta: Meta;
+}
+
+// ---- Domain history / whois / technologies ----
+
+export interface HistoryRankPoint {
+  year: number | null;
+  month: number | null;
+  keywords: number | null;
+  etv: number | null;
+  top3: number | null;
+}
+
+export interface DomainHistoryResponse {
+  target: string;
+  rows: HistoryRankPoint[];
+  meta: Meta;
+}
+
+export interface WhoisInfo {
+  domain: string | null;
+  created: string | null;
+  expires: string | null;
+  updated: string | null;
+  registrar: string | null;
+  first_seen: string | null;
+  epp_status_codes: string[];
+}
+
+export interface WhoisResponse {
+  target: string;
+  whois: WhoisInfo;
+  meta: Meta;
+}
+
+export interface TechRow {
+  group: string | null;
+  category: string | null;
+  name: string | null;
+}
+
+export interface TechProfile {
+  domain: string | null;
+  title: string | null;
+  country: string | null;
+  language: string | null;
+  last_visited: string | null;
+  emails: string[];
+  phones: string[];
+  rows: TechRow[];
+}
+
+export interface TechnologiesResponse {
+  target: string;
+  profile: TechProfile;
+  meta: Meta;
+}
+
+// ---- Lighthouse / Core Web Vitals ----
+
+export interface VitalMetric {
+  display: string | null;
+  value: number | null;
+  score: number | null;
+}
+
+export interface LighthouseResponse {
+  url: string;
+  categories: Record<string, number>;
+  vitals: Record<string, VitalMetric>;
+  meta: Meta;
+}
+
+// ---- Content sentiment + phrase trends ----
+
+export interface SentimentResponse {
+  keyword: string;
+  total_citations: number | null;
+  connotations: Record<string, number>;
+  types: Record<string, number>;
+  meta: Meta;
+}
+
+export interface PhraseTrendPoint {
+  date: string;
+  citations: number | null;
+}
+
+export interface PhraseTrendsResponse {
+  keyword: string;
+  rows: PhraseTrendPoint[];
+  meta: Meta;
+}
+
+// ---- LLM mentions / AI volume / ask ----
+
+export interface MentionDimensionRow {
+  key: number | string | null;
+  mentions: number;
+  ai_search_volume: number;
+}
+
+export interface MentionsResponse {
+  domain: string;
+  mentions: number;
+  ai_search_volume: number;
+  dimensions: Record<string, MentionDimensionRow[]>;
+  meta: Meta;
+}
+
+export interface AiVolumeRow {
+  keyword: string | null;
+  ai_search_volume: number | null;
+  monthly: { year: number | null; month: number | null; volume: number | null }[];
+}
+
+export interface AiVolumeResponse {
+  rows: AiVolumeRow[];
+  meta: Meta;
+}
+
+export interface AskResponse {
+  model: string | null;
+  answer: string;
+  input_tokens: number | null;
+  output_tokens: number | null;
+  meta: Meta;
+}
+
+// ---- Local SEO listings ----
+
+export interface ListingRow {
+  title: string | null;
+  category: string | null;
+  address: string | null;
+  phone: string | null;
+  url: string | null;
+  domain: string | null;
+  rating: number | null;
+  reviews: number | null;
+  lat: number | null;
+  lng: number | null;
+  is_claimed: boolean | null;
+}
+
+export interface ListingsResponse {
+  what: string;
+  rows: ListingRow[];
+  meta: Meta;
 }

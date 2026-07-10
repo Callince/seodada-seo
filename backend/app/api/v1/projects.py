@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import and_, delete, func, or_, select
+from sqlalchemy import and_, delete, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import current_user, get_db_session
@@ -45,18 +45,50 @@ async def _owned_project(db: AsyncSession, project_id: str, user: User) -> Proje
     return project
 
 
-async def _run_counts(db: AsyncSession, project_ids: list[str]) -> dict[str, int]:
+_SERIES_WEEKS = 8
+
+
+class _RunStats:
+    __slots__ = ("count", "target", "last_run_at", "series")
+
+    def __init__(self) -> None:
+        self.count = 0
+        self.target: str | None = None
+        self.last_run_at = None
+        self.series = [0] * _SERIES_WEEKS
+
+
+async def _run_stats(db: AsyncSession, project_ids: list[str]) -> dict[str, _RunStats]:
+    """Derive run_count, latest target, last_run_at and a weekly activity series
+    per project from its saved runs — one query, no extra storage.
+    ponytail: loads all runs for the page's projects; aggregate in SQL if orgs
+    ever save thousands of runs per project."""
     if not project_ids:
         return {}
     rows = await db.execute(
-        select(ProjectRun.project_id, func.count(ProjectRun.id))
+        select(ProjectRun.project_id, ProjectRun.params, ProjectRun.created_at)
         .where(ProjectRun.project_id.in_(project_ids))
-        .group_by(ProjectRun.project_id)
+        .order_by(ProjectRun.created_at.desc())
     )
-    return {pid: int(c) for pid, c in rows.all()}
+    now = engine._now()
+    out: dict[str, _RunStats] = {}
+    for pid, params, created_at in rows.all():
+        s = out.setdefault(pid, _RunStats())
+        s.count += 1
+        if s.last_run_at is None:  # rows are newest-first
+            s.last_run_at = created_at
+        if s.target is None and isinstance(params, dict):
+            s.target = params.get("target") or params.get("keyword") or params.get("url")
+        if created_at.tzinfo is None:  # SQLite returns naive datetimes
+            created_at = created_at.replace(tzinfo=now.tzinfo)
+        weeks_ago = int((now - created_at).days // 7)
+        if 0 <= weeks_ago < _SERIES_WEEKS:
+            s.series[_SERIES_WEEKS - 1 - weeks_ago] += 1
+    return out
 
 
-def _project_out(project: Project, run_count: int) -> ProjectOut:
+def _project_out(project: Project, stats: _RunStats | None) -> ProjectOut:
+    s = stats or _RunStats()
     return ProjectOut(
         id=project.id,
         name=project.name,
@@ -64,7 +96,10 @@ def _project_out(project: Project, run_count: int) -> ProjectOut:
         config=project.config or {},
         created_at=project.created_at,
         updated_at=project.updated_at,
-        run_count=run_count,
+        run_count=s.count,
+        target=s.target,
+        last_run_at=s.last_run_at,
+        runs_series=s.series if s.count else [],
     )
 
 
@@ -86,8 +121,8 @@ async def list_projects(
     rows = (await db.scalars(q.limit(limit + 1))).all()
     has_more = len(rows) > limit
     rows = rows[:limit]
-    counts = await _run_counts(db, [p.id for p in rows])
-    data = [_project_out(p, counts.get(p.id, 0)) for p in rows]
+    stats = await _run_stats(db, [p.id for p in rows])
+    data = [_project_out(p, stats.get(p.id)) for p in rows]
     next_cursor = encode_cursor(rows[-1].updated_at, rows[-1].id) if has_more and rows else None
     return Page(data=data, pagination=CursorPage(next_cursor=next_cursor, has_more=has_more))
 
@@ -102,7 +137,7 @@ async def create_project(
     db.add(project)
     await db.commit()
     await db.refresh(project)
-    return _project_out(project, 0)
+    return _project_out(project, None)
 
 
 @router.get("/{project_id}", response_model=ProjectDetail)
@@ -148,8 +183,8 @@ async def update_project(
         project.config = body.config
     await db.commit()
     await db.refresh(project)
-    counts = await _run_counts(db, [project.id])
-    return _project_out(project, counts.get(project.id, 0))
+    stats = await _run_stats(db, [project.id])
+    return _project_out(project, stats.get(project.id))
 
 
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)

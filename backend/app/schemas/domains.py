@@ -11,6 +11,7 @@ class TargetRequest(BaseModel):
     location_code: int = 2840
     language_code: str = "en"
     limit: int = Field(default=100, ge=1, le=1000)
+    force_live: bool = False
 
 
 class IntersectionRequest(BaseModel):
@@ -19,6 +20,7 @@ class IntersectionRequest(BaseModel):
     location_code: int = 2840
     language_code: str = "en"
     limit: int = Field(default=100, ge=1, le=1000)
+    force_live: bool = False
 
 
 # ---- Responses ----
@@ -74,4 +76,58 @@ class IntersectionResponse(BaseModel):
     target1: str
     target2: str
     rows: list[IntersectionRow]
+    meta: Meta
+
+
+# ---- History / WHOIS / Technologies ----
+class HistoryRankPoint(BaseModel):
+    year: int | None = None
+    month: int | None = None
+    keywords: int | None = None
+    etv: float | None = None
+    top3: int | None = None
+
+
+class DomainHistoryResponse(BaseModel):
+    target: str
+    rows: list[HistoryRankPoint]
+    meta: Meta
+
+
+class WhoisInfo(BaseModel):
+    domain: str | None = None
+    created: str | None = None
+    expires: str | None = None
+    updated: str | None = None
+    registrar: str | None = None
+    first_seen: str | None = None
+    epp_status_codes: list[str] = Field(default_factory=list)
+
+
+class WhoisResponse(BaseModel):
+    target: str
+    whois: WhoisInfo
+    meta: Meta
+
+
+class TechRow(BaseModel):
+    group: str | None = None
+    category: str | None = None
+    name: str | None = None
+
+
+class TechProfile(BaseModel):
+    domain: str | None = None
+    title: str | None = None
+    country: str | None = None
+    language: str | None = None
+    last_visited: str | None = None
+    emails: list[str] = Field(default_factory=list)
+    phones: list[str] = Field(default_factory=list)
+    rows: list[TechRow] = Field(default_factory=list)
+
+
+class TechnologiesResponse(BaseModel):
+    target: str
+    profile: TechProfile
     meta: Meta

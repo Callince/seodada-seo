@@ -13,3 +13,12 @@ async def summary(
     user: User = Depends(current_user), db: AsyncSession = Depends(get_db_session)
 ):
     return await usage_service.summary(db, user.org_id)
+
+
+@router.get("/dashboard")
+async def dashboard(
+    user: User = Depends(current_user), db: AsyncSession = Depends(get_db_session)
+):
+    return await usage_service.dashboard_stats(
+        db, user.org_id, unlimited=usage_service._is_platform_admin(user)
+    )

@@ -1,19 +1,25 @@
 import {
   CalendarClock,
+  MapPin,
   FileBarChart,
   FileSearch,
   Folder,
+  CreditCard,
   Globe,
+  Heading,
+  Image,
+  Link2,
   LayoutDashboard,
   LayoutGrid,
   LineChart,
   ListTree,
   MessageSquareText,
+  Network,
   Radar,
   Search,
-  ShieldCheck,
   Sparkles,
   Swords,
+  Tags,
   type LucideIcon,
 } from "lucide-react";
 
@@ -24,28 +30,56 @@ export interface NavItem {
   end?: boolean;
   /** Only shown to platform admins (user.is_admin). */
   adminOnly?: boolean;
-  /** Sidebar section header this item belongs to. */
+  /** Sidebar section header this item belongs to. Numbered sections
+   *  ("1 · Research") render as connected workflow steps. */
   section?: string;
 }
 
-/** Single source of truth for primary navigation — used by the Sidebar and
- *  the ⌘K command palette so they never drift. */
+/**
+ * Single source of truth for primary navigation — used by the Sidebar and the
+ * ⌘K command palette so they never drift.
+ *
+ * Ordered as the real SEO workflow so the sidebar reads as a process, each step
+ * feeding the next: Research → Audit → Optimize → Track → Manage.
+ */
 export const NAV_ITEMS: NavItem[] = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/workspace", label: "All-in-One", icon: LayoutGrid },
-  { to: "/serp", label: "SERP Ranking", icon: Search, section: "Research" },
-  { to: "/keywords", label: "Keyword Research", icon: ListTree, section: "Research" },
-  { to: "/domains", label: "Domain Analytics", icon: Globe, section: "Research" },
-  { to: "/competitors", label: "Competitors", icon: Swords, section: "Research" },
-  { to: "/ai-visibility", label: "AI Visibility", icon: Sparkles, section: "Research" },
-  { to: "/onpage", label: "On-Page", icon: FileSearch, section: "Site health" },
-  { to: "/content", label: "Content Analysis", icon: MessageSquareText, section: "Site health" },
-  { to: "/rank", label: "Rank Tracking", icon: LineChart, section: "Site health" },
-  { to: "/report", label: "Site Report", icon: FileBarChart, section: "Site health" },
-  { to: "/audit", label: "Site Audit", icon: Radar, section: "Site health" },
-  { to: "/schedules", label: "Schedules", icon: CalendarClock, section: "Workspace" },
-  { to: "/projects", label: "Projects", icon: Folder, section: "Workspace" },
-  { to: "/admin", label: "Admin", icon: ShieldCheck, adminOnly: true, section: "Workspace" },
+  // ---- Overview ----
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, end: true, section: "Overview" },
+  { to: "/workspace", label: "All-in-One", icon: LayoutGrid, section: "Overview" },
+
+  // ---- Step 1 · Research — understand the landscape before you build ----
+  { to: "/keywords", label: "Keyword Research", icon: ListTree, section: "1 · Research" },
+  { to: "/serp", label: "SERP Ranking", icon: Search, section: "1 · Research" },
+  { to: "/domains", label: "Domain Analytics", icon: Globe, section: "1 · Research" },
+  { to: "/competitors", label: "Competitors", icon: Swords, section: "1 · Research" },
+  { to: "/local", label: "Local SEO", icon: MapPin, section: "1 · Research" },
+
+  // ---- Step 2 · Audit — scan the site & every page ----
+  { to: "/audit", label: "Site Audit", icon: Radar, section: "2 · Audit" },
+  { to: "/onpage", label: "On-Page", icon: FileSearch, section: "2 · Audit" },
+
+  // ---- Step 3 · Optimize — fix, write, and improve ----
+  { to: "/content", label: "Content Analysis", icon: MessageSquareText, section: "3 · Optimize" },
+  { to: "/report", label: "Site Report", icon: FileBarChart, section: "3 · Optimize" },
+
+  // ---- Step 4 · Track — monitor rankings & visibility over time ----
+  { to: "/rank", label: "Rank Tracking", icon: LineChart, section: "4 · Track" },
+  { to: "/backlinks", label: "Backlinks", icon: Link2, section: "4 · Track" },
+  { to: "/ai-visibility", label: "AI Visibility", icon: Sparkles, section: "4 · Track" },
+  { to: "/schedules", label: "Schedules", icon: CalendarClock, section: "4 · Track" },
+
+  // ---- Step 5 · Manage ----
+  { to: "/projects", label: "Projects", icon: Folder, section: "5 · Manage" },
+  { to: "/billing", label: "Billing", icon: CreditCard, section: "5 · Manage" },
+
+  // ---- Free instant tools (utilities, available any time) ----
+  { to: "/tools", label: "All Tools", icon: LayoutGrid, end: true, section: "Free tools" },
+  { to: "/tools/url", label: "URL Analysis", icon: Link2, section: "Free tools" },
+  { to: "/tools/keyword", label: "Keyword Analysis", icon: Search, section: "Free tools" },
+  { to: "/tools/heading", label: "Heading Analysis", icon: Heading, section: "Free tools" },
+  { to: "/tools/image", label: "Image Analysis", icon: Image, section: "Free tools" },
+  { to: "/tools/meta", label: "Meta Analysis", icon: Tags, section: "Free tools" },
+  { to: "/tools/sitemap", label: "Sitemap Analysis", icon: Network, section: "Free tools" },
 ];
 
 /** Nav items visible to the given user (admin entries filtered out otherwise). */

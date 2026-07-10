@@ -57,3 +57,44 @@ def parse_citations(result: list[dict[str, Any]]) -> list[dict]:
             }
         )
     return [c for c in out if c.get("url")]
+
+
+# ---- Sentiment + phrase trends ----------------------------------------------
+
+PATH_SENTIMENT = "/v3/content_analysis/sentiment_analysis/live"
+PATH_PHRASE_TRENDS = "/v3/content_analysis/phrase_trends/live"
+
+
+async def sentiment(keyword: str) -> DfsResult:
+    return await dfs_client.post(PATH_SENTIMENT, {"keyword": keyword})
+
+
+def parse_sentiment(result: list[dict[str, Any]]) -> dict:
+    items = (result[0].get("items") if result else None) or []
+    it = items[0] if items else {}
+    conn = it.get("sentiment_connotations") or {}
+    types = it.get("connotation_types") or {}
+    return {
+        "total_citations": it.get("total_count"),
+        "connotations": {k: v for k, v in conn.items()},
+        "types": {k: v for k, v in types.items()},
+    }
+
+
+async def phrase_trends(keyword: str, date_from: str, date_to: str) -> DfsResult:
+    payload = {
+        "keyword": keyword,
+        "date_from": date_from,
+        "date_to": date_to,
+        "date_group": "month",
+    }
+    return await dfs_client.post(PATH_PHRASE_TRENDS, payload)
+
+
+def parse_phrase_trends(result: list[dict[str, Any]]) -> list[dict]:
+    items = (result[0].get("items") if result else None) or []
+    return [
+        {"date": (i.get("date_from") or i.get("date") or "")[:10], "citations": i.get("total_count") or i.get("count")}
+        for i in items
+        if i.get("date_from") or i.get("date")
+    ]

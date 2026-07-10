@@ -1,5 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap");
-
+/* Fonts are loaded via <link rel="preconnect"> + stylesheet in index.html
+   (faster than a render-blocking CSS @import). */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -17,19 +17,49 @@
   --border: #e2e8f2;
   --text: #131a30;
   --text-muted: #5b6b8c;
-  --primary: #273879;      /* seodada navy */
-  --primary-soft: #eaeffb;
-  --accent: #0ea5e9;       /* sky */
+  --primary: #1d7dbd;      /* seodada primary blue (from the logo) */
+  --primary-soft: #e7f2fb;
+  --accent: #2e3f87;       /* deep brand blue */
   --success: #16a34a;
   --warning: #f59e0b;
   --danger: #ef476f;       /* seodada danger */
-  --info: #4895ef;
-  --ring: 39 56 121;
+  --info: #1d7dbd;
+  --ring: 29 125 189;
 
-  /* Brand gradient: navy -> ocean -> sky */
-  --grad-a: #273879;
-  --grad-b: #0f74b2;
-  --grad-c: #22c3ee;
+  /* Brand gradient: deep blue -> primary blue (matches the logo) */
+  --grad-a: #2e3f87;
+  --grad-b: #245aa0;
+  --grad-c: #1d7dbd;
+
+  /* Marketing footer — deep brand navy on both themes (seodada). */
+  --footer: #0b1229;
+  --footer-text: #94a4c8;
+
+  /* ---- Workflow section accents (light). Each sidebar group / module family
+     carries its own hue: Research → blue, Audit → violet, Optimize → emerald,
+     Track → amber, Manage → rose, Tools → teal. Overview stays brand primary.
+     `-soft` derives from the base via color-mix, so overriding the base in
+     .dark auto-updates the tint. -------------------------------------------- */
+  --sec-overview: var(--primary);
+  --sec-research: #6d28d9;
+  --sec-audit: #a21caf;
+  --sec-optimize: #b45309;
+  --sec-track: #047857;
+  --sec-manage: #3730a3;
+  --sec-tools: #475569;
+
+  --sec-overview-soft: var(--primary-soft);
+  --sec-research-soft: color-mix(in srgb, var(--sec-research) 12%, transparent);
+  --sec-audit-soft: color-mix(in srgb, var(--sec-audit) 12%, transparent);
+  --sec-optimize-soft: color-mix(in srgb, var(--sec-optimize) 12%, transparent);
+  --sec-track-soft: color-mix(in srgb, var(--sec-track) 12%, transparent);
+  --sec-manage-soft: color-mix(in srgb, var(--sec-manage) 12%, transparent);
+  --sec-tools-soft: color-mix(in srgb, var(--sec-tools) 12%, transparent);
+
+  /* Active section accent — overridden per route by AppShell; every shared
+     component (page header, stat cards, inputs, sidebar) reads these. */
+  --section: var(--primary);
+  --section-soft: var(--primary-soft);
 }
 
 .dark {
@@ -52,6 +82,18 @@
   --grad-a: #3a56b8;
   --grad-b: #0f74b2;
   --grad-c: #22d3ee;
+
+  --footer: #05091a;
+  --footer-text: #8493b8;
+
+  /* Workflow section accents (dark) — brighter for contrast on navy. `-soft`
+     tints and `--section` inherit automatically from these + --primary. */
+  --sec-research: #a78bfa;
+  --sec-audit: #e879f9;
+  --sec-optimize: #fbbf24;
+  --sec-track: #34d399;
+  --sec-manage: #818cf8;
+  --sec-tools: #94a3b8;
 }
 
 * {
@@ -84,6 +126,18 @@ body {
 /* Brand gradient fill — primary CTAs, accent chips. */
 .gradient-fill {
   background-image: linear-gradient(120deg, var(--grad-a), var(--grad-b) 55%, var(--grad-c));
+}
+
+/* Per-section gradient — a light→deep sheen built from the active --section
+   accent (icon chips, primary buttons). Follows the page's section color, and
+   falls back to the brand primary outside the app shell. */
+.section-gradient {
+  background-image: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--section) 78%, #ffffff),
+    var(--section) 46%,
+    color-mix(in srgb, var(--section) 82%, #000000)
+  );
 }
 
 /* Animated gradient — motion on hover (not perpetual, keeps it calm & cheap). */
@@ -169,6 +223,347 @@ body {
   background-size: 22px 22px;
 }
 
+/* ============ React-Bits-inspired hero motion (all pure CSS) ============ */
+
+/* Perpetually flowing gradient text (Gradient Text). */
+.gradient-text-anim {
+  background-image: linear-gradient(100deg, var(--grad-a), var(--grad-c), #a5f3fc, var(--grad-c), var(--grad-a));
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: grad-flow 7s linear infinite;
+}
+@keyframes grad-flow { to { background-position: 220% center; } }
+
+/* Light sweep across white text (Shiny Text). */
+.shiny-text {
+  background: linear-gradient(110deg, rgba(255,255,255,0.6) 40%, #fff 50%, rgba(255,255,255,0.6) 60%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shine 5s linear infinite;
+}
+@keyframes shine { to { background-position: -220% 0; } }
+
+/* Slow-drifting aurora blobs (Aurora). */
+.aurora-drift { animation: aurora-move 20s ease-in-out infinite alternate; }
+@keyframes aurora-move {
+  0%   { transform: translate3d(0,0,0) scale(1); }
+  50%  { transform: translate3d(2.5%, -2%, 0) scale(1.1); }
+  100% { transform: translate3d(-2%, 1.5%, 0) scale(1.05); }
+}
+.float-slow   { animation: float-a 13s ease-in-out infinite; }
+.float-slower { animation: float-b 17s ease-in-out infinite; }
+@keyframes float-a { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-28px); } }
+@keyframes float-b { 0%,100% { transform: translate(0,0); } 50% { transform: translate(20px, 22px); } }
+
+/* Drifting perspective grid (Grid Motion). */
+.grid-drift::after { animation: grid-pan 26s linear infinite; }
+@keyframes grid-pan { to { background-position: 46px 46px; } }
+
+/* Cursor spotlight card (Spotlight Card) — JS sets --mx/--my. */
+.spotlight { position: relative; }
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, -20%), rgba(34,211,238,0.22), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.spotlight:hover::before { opacity: 1; }
+
+/* Shimmer sweep across a button (premium CTA). */
+.shimmer { position: relative; overflow: hidden; }
+.shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  height: 100%;
+  width: 45%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.55), transparent);
+  transform: skewX(-18deg);
+  animation: shimmer 3.2s ease-in-out infinite;
+}
+@keyframes shimmer { 0% { left: -60%; } 55%, 100% { left: 130%; } }
+
+/* Blur-in entrance (Blur Text / Split Text) — stagger with inline animation-delay. */
+.blur-in { opacity: 0; animation: blur-in 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) forwards; }
+@keyframes blur-in {
+  from { opacity: 0; filter: blur(12px); transform: translateY(16px); }
+  to   { opacity: 1; filter: blur(0);    transform: translateY(0); }
+}
+
+/* ============================================================================
+   Premium landing system — scoped under .lp. Overriding the brand CSS vars
+   re-themes every existing utility (gradient-fill, text-primary, buttons,
+   shadow-glow) to the seodada blue palette ON THE LANDING ONLY. The palette
+   and the pill/gradient language are derived from the seodada logo:
+   dark-blue #2E3F87 → primary-blue #1D7DBD.
+   ========================================================================== */
+.lp {
+  --primary: #1d7dbd;
+  --primary-soft: #e7f2fb;
+  --accent: #2e3f87;
+
+  /* Brand gradient, derived from the logo and enriched with a cyan tip so it
+     reads as motion (deep indigo → azure → cyan) instead of a flat blue. */
+  --grad-a: #2e3f87;
+  --grad-b: #1d7dbd;
+  --grad-c: #22c3ee;
+  --ring: 29 125 189;
+
+  /* Extra accent palette — all analogous to the logo blues, used to add
+     hierarchy/variety without clashing (cyan/sky are cooler siblings; violet
+     bridges toward the deep indigo). */
+  --lp-indigo: #2e3f87;
+  --lp-blue: #1d7dbd;
+  --lp-cyan: #06b6d4;
+  --lp-sky: #38bdf8;
+  --lp-violet: #6366f1;
+  --lp-emerald: #10b981;
+
+  /* Blue-tinted neutrals + reusable alpha fills. Tailwind's `/opacity`
+     modifier can't work on these var-based hex tokens, so anything that needs
+     translucency uses these explicit color-mix vars instead. */
+  --border: #e4ecf6;
+  --lp-tint: #eef4fb;
+  --lp-panel: #f3f7fc;
+  --lp-glass: color-mix(in srgb, #ffffff 85%, transparent);
+  --lp-primary-border: color-mix(in srgb, #1d7dbd 22%, transparent);
+}
+.lp .gradient-text-anim {
+  background-image: linear-gradient(100deg, #2e3f87, #1d7dbd, #22c3ee, #1d7dbd, #2e3f87);
+}
+
+/* Colourised icon tiles — break the single-blue monotony across the feature
+   bento while staying inside the analogous brand family. Text shades meet the
+   3:1 large-glyph contrast bar on white. */
+.lp-tone-blue { background: color-mix(in srgb, #1d7dbd 13%, transparent); color: #1a6fa6; }
+.lp-tone-cyan { background: color-mix(in srgb, #06b6d4 15%, transparent); color: #0e7490; }
+.lp-tone-violet { background: color-mix(in srgb, #6366f1 14%, transparent); color: #4f46e5; }
+.lp-tone-emerald { background: color-mix(in srgb, #10b981 15%, transparent); color: #047857; }
+
+/* Animated soft mesh-gradient / aurora hero backdrop (light). */
+.lp-mesh {
+  background:
+    radial-gradient(38% 48% at 14% 18%, rgba(46, 63, 135, 0.20), transparent 70%),
+    radial-gradient(36% 44% at 86% 12%, rgba(29, 125, 189, 0.20), transparent 70%),
+    radial-gradient(44% 52% at 80% 84%, rgba(74, 168, 224, 0.16), transparent 70%),
+    radial-gradient(40% 50% at 20% 88%, rgba(46, 63, 135, 0.14), transparent 70%);
+  animation: lp-mesh 22s ease-in-out infinite alternate;
+}
+@keyframes lp-mesh {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(0, -2%, 0) scale(1.08); }
+}
+
+/* Fine noise texture over the hero (self-contained data URI). */
+.lp-noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Faint SVG dot-grid for light sections. */
+.lp-grid {
+  background-image: radial-gradient(color-mix(in srgb, var(--accent) 12%, transparent) 1px, transparent 1px);
+  background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(70% 60% at 50% 40%, #000, transparent 78%);
+  mask-image: radial-gradient(70% 60% at 50% 40%, #000, transparent 78%);
+}
+
+/* Frosted glass card surface (translucent + blur), used across the landing so
+   every card shares one glassmorphism language. Keeps the element's own border. */
+.lp-glass {
+  background-color: color-mix(in srgb, var(--surface) 62%, transparent);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+/* Cursor spotlight — JS sets --mx/--my on the hero. */
+.lp-cursor {
+  background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 30%), rgba(29, 125, 189, 0.10), transparent 60%);
+  transition: background 0.1s linear;
+}
+
+/* Infinite grayscale logo marquee (pauses on hover). */
+.marquee { display: flex; width: max-content; animation: marquee 34s linear infinite; }
+.marquee-wrap:hover .marquee { animation-play-state: paused; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* Animated gradient border (hero card, feature/pricing cards). */
+.lp-ring { position: relative; }
+.lp-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  z-index: 0;
+  background: linear-gradient(130deg, #2e3f87, #1d7dbd, #4aa8e0, #2e3f87);
+  background-size: 300% 300%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: lp-ringmove 7s linear infinite;
+  pointer-events: none;
+}
+@keyframes lp-ringmove { to { background-position: 300% 0; } }
+
+/* ============================================================================
+   App design system — glassmorphism surfaces on a soft brand-tinted canvas.
+   Theme-aware: everything derives from the CSS tokens (light + dark both work).
+   ========================================================================== */
+
+/* Frosted glass surface — used by Card and the sidebar. Falls back to the
+   solid surface color where backdrop-filter is unsupported. */
+.glass-card {
+  background-color: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+}
+@supports (backdrop-filter: blur(1px)) {
+  .glass-card {
+    background-color: color-mix(in srgb, var(--surface) 72%, transparent);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+}
+
+/* Soft brand wash behind the app so the glass frost actually reads. */
+.app-canvas {
+  background-color: var(--app-bg);
+  background-image:
+    radial-gradient(42% 50% at 8% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 70%),
+    radial-gradient(40% 44% at 96% 12%, color-mix(in srgb, var(--primary) 8%, transparent), transparent 70%),
+    radial-gradient(52% 56% at 82% 96%, color-mix(in srgb, var(--primary) 6%, transparent), transparent 72%);
+  background-attachment: fixed;
+}
+
+/* Soft, layered shadows for a friendly premium depth (light surfaces). */
+.lp-shadow {
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 6px 14px -6px rgba(16, 24, 40, 0.08);
+}
+.lp-shadow-lg {
+  box-shadow:
+    0 2px 6px rgba(16, 24, 40, 0.05),
+    0 10px 24px -8px rgba(16, 24, 40, 0.08),
+    0 30px 60px -20px rgba(29, 125, 189, 0.16);
+}
+
+/* Premium card — lift + layered brand glow on hover. */
+.lp-card {
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.lp-card:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 2px 6px rgba(16, 24, 40, 0.05),
+    0 26px 55px -20px rgba(29, 125, 189, 0.35);
+  border-color: color-mix(in srgb, #1d7dbd 45%, transparent);
+}
+
+/* Gentle float for hero shapes / floating UI. */
+.lp-float { animation: lp-float 6s ease-in-out infinite; }
+.lp-float-2 { animation: lp-float 8.5s ease-in-out infinite; }
+@keyframes lp-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+
+/* Draw-on chart line (dashboard sparklines/areas). */
+.lp-draw { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: lp-draw 1.8s ease forwards; }
+@keyframes lp-draw { to { stroke-dashoffset: 0; } }
+
+/* Grow-up bars. */
+.lp-bar { transform-origin: bottom; animation: lp-bar 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@keyframes lp-bar { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+/* Floating particles (positions/scale set inline). */
+.lp-particle { animation: lp-particle 14s ease-in-out infinite; }
+@keyframes lp-particle {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.5; }
+  50% { transform: translateY(-30px) translateX(12px); opacity: 1; }
+}
+
+/* ---- Long-form article (pillar guide) typography, token-driven ----------- */
+.pillar-prose {
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+.pillar-prose > section { padding: 0; }
+.pillar-prose h2 {
+  color: var(--text);
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 2.6rem 0 1rem;
+  padding-left: 0.9rem;
+  border-left: 4px solid var(--primary);
+  scroll-margin-top: 6rem;
+}
+.pillar-prose h3 { color: var(--text); font-size: 1.2rem; font-weight: 700; margin: 1.8rem 0 0.6rem; }
+.pillar-prose h4 { color: var(--text); font-size: 1.02rem; font-weight: 600; margin: 1.2rem 0 0.4rem; }
+.pillar-prose p { margin: 0.9rem 0; }
+.pillar-prose a { color: var(--primary); font-weight: 500; text-decoration: underline; text-underline-offset: 2px; }
+.pillar-prose strong { color: var(--text); font-weight: 600; }
+.pillar-prose ul, .pillar-prose ol { margin: 1rem 0; padding-left: 1.4rem; }
+.pillar-prose ul { list-style: disc; }
+.pillar-prose ol { list-style: decimal; }
+.pillar-prose li { margin: 0.4rem 0; }
+.pillar-prose img { border-radius: 1rem; border: 1px solid var(--border); margin: 1.5rem 0; }
+/* FontAwesome glyphs aren't loaded in the SPA — hide the empty icon slots. */
+.pillar-prose i[class*="fa-"] { display: none; }
+
+/* Callout cards from the seodada article markup. */
+.pillar-prose .pillar-insight-card,
+.pillar-prose .pillar-dyk-card {
+  margin: 1.4rem 0;
+  padding: 1.1rem 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  background-color: var(--primary-soft);
+  color: var(--text);
+}
+.pillar-prose .pillar-quote-card {
+  margin: 1.6rem 0;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--text);
+}
+.pillar-prose .pillar-toc-card,
+.pillar-prose .pillar-depth-card,
+.pillar-prose .pillar-img-card {
+  margin: 1.4rem 0;
+  padding: 1.1rem 1.25rem;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+}
+.pillar-prose .pillar-faq-item {
+  margin: 0.7rem 0;
+  padding: 1rem 1.25rem;
+  border-radius: 0.9rem;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+}
+.pillar-prose .pillar-faq-question { color: var(--text); font-weight: 600; }
+.pillar-prose .pillar-faq-answer { margin-top: 0.4rem; }
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -177,3 +572,15 @@ body {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* CKEditor — give the editable a usable height and map its chrome to tokens. */
+.rich-editor .ck-editor__editable { min-height: 260px; }
+.rich-editor .ck.ck-editor__main > .ck-editor__editable {
+  background: var(--surface);
+  border-color: var(--border);
+}
+.rich-editor .ck.ck-toolbar {
+  background: var(--app-bg);
+  border-color: var(--border);
+}
+.rich-editor .ck-content { color: var(--text); }

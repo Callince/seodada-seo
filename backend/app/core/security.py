@@ -7,6 +7,7 @@ from app.core.config import settings
 
 ACCESS = "access"
 REFRESH = "refresh"
+RESET = "reset"
 
 # bcrypt operates on at most 72 bytes; longer inputs are truncated by the algorithm.
 _MAX_BYTES = 72
@@ -40,6 +41,11 @@ def create_access_token(subject: str) -> str:
 
 def create_refresh_token(subject: str) -> str:
     return _create_token(subject, REFRESH, timedelta(days=settings.refresh_token_days))
+
+
+def create_reset_token(subject: str) -> str:
+    """Short-lived, stateless password-reset token (emailed to the user)."""
+    return _create_token(subject, RESET, timedelta(minutes=settings.reset_token_minutes))
 
 
 def decode_token(token: str, expected_type: str) -> str | None:

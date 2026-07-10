@@ -3,8 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import current_user, get_db_session
 from app.db.models import User
-from app.integrations.dataforseo import labs
+from app.integrations.dataforseo import domain_meta, labs
 from app.schemas.domains import (
+    DomainHistoryResponse,
+    TechnologiesResponse,
+    WhoisResponse,
     CompetitorsResponse,
     IntersectionRequest,
     IntersectionResponse,
@@ -38,6 +41,7 @@ async def ranked_keywords(
          "language_code": body.language_code, "limit": body.limit},
         engine.TTL["labs"],
         lambda: labs.ranked_keywords(target, body.location_code, body.language_code, body.limit),
+        force_live=body.force_live,
     )
     return RankedKeywordsResponse(
         target=target, rows=labs.parse_ranked_keywords(resolved.data), meta=resolved.meta()
@@ -57,6 +61,7 @@ async def competitors(
          "language_code": body.language_code, "limit": body.limit},
         engine.TTL["labs"],
         lambda: labs.competitors_domain(target, body.location_code, body.language_code, body.limit),
+        force_live=body.force_live,
     )
     return CompetitorsResponse(
         target=target, rows=labs.parse_competitors(resolved.data), meta=resolved.meta()
@@ -75,6 +80,7 @@ async def overview(
         {"target": target, "location_code": body.location_code, "language_code": body.language_code},
         engine.TTL["labs"],
         lambda: labs.domain_rank_overview(target, body.location_code, body.language_code),
+        force_live=body.force_live,
     )
     parsed = labs.parse_domain_overview(resolved.data)
     return OverviewResponse(
@@ -95,7 +101,63 @@ async def intersection(
          "language_code": body.language_code, "limit": body.limit},
         engine.TTL["labs"],
         lambda: labs.domain_intersection(t1, t2, body.location_code, body.language_code, body.limit),
+        force_live=body.force_live,
     )
     return IntersectionResponse(
         target1=t1, target2=t2, rows=labs.parse_intersection(resolved.data), meta=resolved.meta()
+    )
+
+
+@router.post("/history", response_model=DomainHistoryResponse)
+async def history(
+    body: TargetRequest,
+    db: AsyncSession = Depends(get_db_session),
+    user: User = Depends(current_user),
+) -> DomainHistoryResponse:
+    """Monthly ranked-keyword & traffic history (Labs historical rank overview)."""
+    resolved = await usage.metered(
+        db, user, "domains.history",
+        {"target": body.target, "loc": body.location_code, "lang": body.language_code},
+        engine.TTL["labs"],
+        lambda: labs.historical_rank(body.target, body.location_code, body.language_code),
+        force_live=body.force_live,
+    )
+    return DomainHistoryResponse(
+        target=body.target, rows=labs.parse_historical_rank(resolved.data), meta=resolved.meta()
+    )
+
+
+@router.post("/whois", response_model=WhoisResponse)
+async def whois(
+    body: TargetRequest,
+    db: AsyncSession = Depends(get_db_session),
+    user: User = Depends(current_user),
+) -> WhoisResponse:
+    resolved = await usage.metered(
+        db, user, "domains.whois",
+        {"target": body.target},
+        engine.TTL["domain_meta"],
+        lambda: domain_meta.whois(body.target),
+        force_live=body.force_live,
+    )
+    return WhoisResponse(
+        target=body.target, whois=domain_meta.parse_whois(resolved.data), meta=resolved.meta()
+    )
+
+
+@router.post("/technologies", response_model=TechnologiesResponse)
+async def technologies(
+    body: TargetRequest,
+    db: AsyncSession = Depends(get_db_session),
+    user: User = Depends(current_user),
+) -> TechnologiesResponse:
+    resolved = await usage.metered(
+        db, user, "domains.technologies",
+        {"target": body.target},
+        engine.TTL["domain_meta"],
+        lambda: domain_meta.technologies(body.target),
+        force_live=body.force_live,
+    )
+    return TechnologiesResponse(
+        target=body.target, profile=domain_meta.parse_technologies(resolved.data), meta=resolved.meta()
     )

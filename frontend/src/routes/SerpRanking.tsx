@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { usePersistedState } from "@/lib/persist";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/cn";
@@ -212,8 +213,8 @@ function CompareView({
 export default function SerpRanking({ embedded }: { embedded?: boolean }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [keyword, setKeyword] = useState(() => searchParams.get("q") ?? "");
-  const [loc, setLoc] = useState({ location_code: 2840, language_code: "en" });
-  const [loc2, setLoc2] = useState({ location_code: 2356, language_code: "en" });
+  const [loc, setLoc] = usePersistedState("serp.loc", { location_code: 2840, language_code: "en" });
+  const [loc2, setLoc2] = usePersistedState("serp.loc2", { location_code: 2356, language_code: "en" });
   const [depth, setDepth] = useState(100);
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [live, setLive] = useState(false);
@@ -227,6 +228,8 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
   mutateRef.current = mutation.mutate;
   const depthRef = useRef(depth);
   depthRef.current = depth;
+  const locRef = useRef(loc);
+  locRef.current = loc;
 
   const run = () => {
     const kw = keyword.trim();
@@ -239,7 +242,7 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
   useEffect(() => {
     const q = searchParams.get("q");
     if (q && q.trim()) {
-      mutateRef.current({ location_code: 2840, language_code: "en", keyword: q.trim(), depth: depthRef.current });
+      mutateRef.current({ ...locRef.current, keyword: q.trim(), depth: depthRef.current });
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setSearchParams]);
@@ -261,6 +264,7 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
             <Input
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
+              aria-label="Keyword"
               placeholder="Enter a keyword, e.g. running shoes"
               className="sm:flex-1 sm:basis-64"
             />
@@ -301,6 +305,7 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
           <Input
             value={highlight}
             onChange={(e) => setHighlight(e.target.value)}
+            aria-label="Highlight a domain in the results"
             placeholder="Highlight a domain in the results (optional) — e.g. komaki.in"
             className="sm:w-96"
           />

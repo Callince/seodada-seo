@@ -8,6 +8,7 @@ from app.schemas.common import Meta
 class ContentRequest(BaseModel):
     keyword: str = Field(min_length=1, max_length=300)
     citation_limit: int = Field(default=20, ge=1, le=100)
+    force_live: bool = False
 
 
 class Sentiment(BaseModel):
@@ -37,4 +38,24 @@ class ContentResponse(BaseModel):
     sentiment: Sentiment
     connotations: Connotations
     top_citations: list[Citation]
+    meta: Meta
+
+
+# ---- Sentiment + phrase trends ----
+class SentimentResponse(BaseModel):
+    keyword: str
+    total_citations: int | None = None
+    connotations: dict[str, int] = Field(default_factory=dict)
+    types: dict[str, int] = Field(default_factory=dict)
+    meta: Meta
+
+
+class PhraseTrendPoint(BaseModel):
+    date: str
+    citations: int | None = None
+
+
+class PhraseTrendsResponse(BaseModel):
+    keyword: str
+    rows: list[PhraseTrendPoint]
     meta: Meta

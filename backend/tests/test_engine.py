@@ -49,8 +49,9 @@ async def test_resolve_falls_back_to_postgres_when_l1_evicted(db, fresh_cache):
 
 
 @pytest.mark.asyncio
-async def test_expired_entry_refetches_live(db, fresh_cache):
-    """Expired cache entries must trigger a fresh fetch, not silently serve stale."""
+async def test_expired_within_swr_serves_stale_and_flags_revalidate(db, fresh_cache):
+    """Recently-expired entries are served instantly (SWR) and flagged for a
+    background refresh — resolve() itself does NOT block on a live fetch."""
     from datetime import timedelta
 
     from sqlalchemy import select
@@ -66,10 +67,41 @@ async def test_expired_entry_refetches_live(db, fresh_cache):
     params = {"k": "expired"}
     await engine.resolve(db, "serp.organic", params, 3600, fetch)
 
-    # Expire the durable row (still inside the stale window) and drop L1.
+    # Expire the durable row by 1h (well inside the SWR window) and drop L1.
     key = engine.params_hash("serp.organic", params)
     row = await db.scalar(select(ApiCache).where(ApiCache.params_hash == key))
     row.expires_at = engine._now() - timedelta(hours=1)
+    await db.commit()
+    fresh_cache._store.clear()
+
+    again = await engine.resolve(db, "serp.organic", params, 3600, fetch)
+    assert again.source == "revalidating"
+    assert again.from_cache is True
+    assert again.data == [{"v": 1}]  # original, served stale
+    assert calls["n"] == 1           # no synchronous refetch
+
+
+@pytest.mark.asyncio
+async def test_expired_beyond_swr_refetches_live(db, fresh_cache):
+    """Past the SWR window, resolve() fetches fresh synchronously."""
+    from datetime import timedelta
+
+    from sqlalchemy import select
+
+    from app.db.models import ApiCache
+
+    calls = {"n": 0}
+
+    async def fetch() -> DfsResult:
+        calls["n"] += 1
+        return DfsResult(result=[{"v": calls["n"]}], cost_cents=3)
+
+    params = {"k": "beyond-swr"}
+    await engine.resolve(db, "serp.organic", params, 3600, fetch)
+
+    key = engine.params_hash("serp.organic", params)
+    row = await db.scalar(select(ApiCache).where(ApiCache.params_hash == key))
+    row.expires_at = engine._now() - (engine.SWR_WINDOW + timedelta(days=1))
     await db.commit()
     fresh_cache._store.clear()
 
@@ -94,7 +126,8 @@ async def test_stale_served_only_when_upstream_fails(db, fresh_cache):
 
     key = engine.params_hash("serp.organic", params)
     row = await db.scalar(select(ApiCache).where(ApiCache.params_hash == key))
-    row.expires_at = engine._now() - timedelta(hours=1)
+    # Beyond the SWR window (so it isn't served proactively) but within STALE_WINDOW.
+    row.expires_at = engine._now() - (engine.SWR_WINDOW + timedelta(days=1))
     await db.commit()
     fresh_cache._store.clear()
 

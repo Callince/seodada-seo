@@ -1,8 +1,9 @@
-import { Search } from "lucide-react";
+import { Gauge, RefreshCw, Search } from "lucide-react";
 import { useState } from "react";
 
-import { useOnPage } from "@/api/hooks/useOnPage";
+import { useLighthouse, useOnPage } from "@/api/hooks/useOnPage";
 import { apiErrorMessage } from "@/api/client";
+import { ScoreRing, type Tone } from "@/components/public/landingKit";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
 import { SaveToProject } from "@/components/shared/SaveToProject";
@@ -15,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fmtInt } from "@/lib/format";
+import { usePersistedState } from "@/lib/persist";
 import type {
   Benchmark,
   DensityRow,
@@ -325,6 +327,111 @@ function BenchmarkPanel({ b }: { b: Benchmark }) {
   );
 }
 
+const LH_CATEGORIES: { key: string; label: string }[] = [
+  { key: "performance", label: "Performance" },
+  { key: "accessibility", label: "Accessibility" },
+  { key: "best-practices", label: "Best Practices" },
+  { key: "seo", label: "SEO" },
+];
+
+const LH_VITALS: { key: string; label: string }[] = [
+  { key: "lcp", label: "LCP" },
+  { key: "cls", label: "CLS" },
+  { key: "tbt", label: "TBT" },
+  { key: "fcp", label: "FCP" },
+  { key: "speed_index", label: "SI" },
+  { key: "tti", label: "TTI" },
+];
+
+const ringTone = (score: number): Tone => (score >= 90 ? "emerald" : score >= 50 ? "amber" : "blue");
+
+const vitalDot = (score: number | null) =>
+  score == null ? "bg-text-muted/40" : score >= 90 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-danger";
+
+function LighthouseCard({ url }: { url: string }) {
+  const lh = useLighthouse();
+  const data = lh.data;
+  const run = (force_live = false) => lh.mutate({ url, force_live });
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <CardTitle>Core Web Vitals (Lighthouse)</CardTitle>
+          <p className="mt-0.5 text-xs text-text-muted">Mobile Lighthouse run via DataForSEO.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {data && <CacheBadge meta={data.meta} />}
+          <Button
+            type="button"
+            size="sm"
+            variant={data ? "secondary" : "primary"}
+            disabled={lh.isPending}
+            onClick={() => run(!!data)}
+            title={data ? "Bypass the cache and run live" : "Runs a separate billed Lighthouse audit"}
+          >
+            <Gauge size={15} /> {lh.isPending ? "Running…" : data ? "Re-run" : "Run Lighthouse"}
+          </Button>
+        </div>
+      </CardHeader>
+      <CardBody>
+        {lh.isPending && (
+          <div className="space-y-5">
+            <div className="flex flex-wrap gap-6">
+              {LH_CATEGORIES.map((c) => (
+                <Skeleton key={c.key} className="h-[88px] w-[88px] rounded-full" />
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              {LH_VITALS.map((v) => (
+                <Skeleton key={v.key} className="h-16" />
+              ))}
+            </div>
+          </div>
+        )}
+        {lh.isError && !lh.isPending && (
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-sm text-danger">{apiErrorMessage(lh.error)}</p>
+            <Button type="button" variant="ghost" size="sm" onClick={() => run()}>
+              Retry
+            </Button>
+          </div>
+        )}
+        {!lh.isPending && !lh.isError && !data && (
+          <p className="text-sm text-text-muted">
+            Measure performance, accessibility, and Core Web Vitals with Google Lighthouse. This is a
+            separate billed call, so it only runs when you ask.
+          </p>
+        )}
+        {data && !lh.isPending && (
+          <div className="space-y-5">
+            <div className="flex flex-wrap items-start gap-x-8 gap-y-4">
+              {LH_CATEGORIES.filter((c) => data.categories[c.key] != null).map((c) => {
+                const score = Math.round(data.categories[c.key]);
+                return <ScoreRing key={c.key} value={score} size={88} label={c.label} tone={ringTone(score)} />;
+              })}
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              {LH_VITALS.map((v) => {
+                const m = data.vitals[v.key];
+                return (
+                  <div key={v.key} className="rounded-lg border border-border bg-surface p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs font-medium uppercase tracking-wide text-text-muted">{v.label}</p>
+                      <span className={`h-2 w-2 shrink-0 rounded-full ${vitalDot(m?.score ?? null)}`} />
+                    </div>
+                    <p className="mt-1 font-mono text-lg text-text">{m?.display ?? "—"}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </CardBody>
+    </Card>
+  );
+}
+
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
@@ -335,15 +442,16 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 export default function OnPage({ embedded }: { embedded?: boolean }) {
-  const [url, setUrl] = useState("");
-  const [keyword, setKeyword] = useState("");
-  const [detailTab, setDetailTab] = useState("overview");
+  const [url, setUrl] = usePersistedState("onpage.url", "");
+  const [keyword, setKeyword] = usePersistedState("onpage.keyword", "");
+  const [detailTab, setDetailTab] = usePersistedState("onpage.tab", "overview");
   const mutation = useOnPage();
-  const data = mutation.data;
+  // Persisted so the report survives navigating away and back.
+  const [data, setData] = usePersistedState<OnPageResponse | null>("onpage.data", null);
 
-  const run = () => {
+  const run = (force_live = false) => {
     const u = url.trim();
-    if (u) mutation.mutate({ url: u, target_keyword: keyword.trim() || undefined });
+    if (u) mutation.mutate({ url: u, target_keyword: keyword.trim() || undefined, force_live }, { onSuccess: setData });
   };
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -364,7 +472,14 @@ export default function OnPage({ embedded }: { embedded?: boolean }) {
             <Button type="submit" disabled={mutation.isPending || !url.trim()}>
               <Search size={16} /> {mutation.isPending ? "Analyzing…" : "Analyze"}
             </Button>
+            {data && (
+              <Button type="button" variant="secondary" title="Bypass the cache and fetch live"
+                disabled={mutation.isPending || !url.trim()} onClick={() => run(true)}>
+                <RefreshCw size={15} className={mutation.isPending ? "animate-spin" : ""} /> Refresh
+              </Button>
+            )}
           </form>
+          {data?.meta && <div className="mt-3"><CacheBadge meta={data.meta} /></div>}
         </CardBody>
       </Card>
 
@@ -375,7 +490,7 @@ export default function OnPage({ embedded }: { embedded?: boolean }) {
         </div>
       )}
       {mutation.isError && !mutation.isPending && (
-        <ErrorState message={apiErrorMessage(mutation.error)} onRetry={run} />
+        <ErrorState message={apiErrorMessage(mutation.error)} onRetry={() => run()} />
       )}
       {!mutation.isPending && !mutation.isError && !data && (
         <EmptyState title="Analyze a page" hint="Enter a URL to score its content and inspect keyword density." />
@@ -453,6 +568,9 @@ function OnPageReport({
           </CardBody>
         </Card>
       </div>
+
+      {/* Core Web Vitals — explicit, separately billed Lighthouse run */}
+      <LighthouseCard key={data.url} url={data.url} />
 
       {/* Detail tabs */}
       {sections.length > 0 && (

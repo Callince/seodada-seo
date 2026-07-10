@@ -31,6 +31,13 @@ export function CacheBadge({ meta }: { meta?: Meta }) {
         <History size={12} /> stale{a ? ` · ${a} old` : ""}
       </Badge>
     );
+  // "revalidating" = cached copy served instantly while a fresh one loads in the background.
+  if (meta.source === "revalidating")
+    return (
+      <Badge tone="info" title="Served instantly from cache — a fresh copy is refreshing in the background">
+        <History size={12} /> refreshing{a ? ` · ${a} old` : ""}
+      </Badge>
+    );
   return (
     <Badge tone="success" title={`served from ${meta.source} in ${meta.latency_ms}ms`}>
       <Database size={12} /> cached{a ? ` · ${a} old` : ""}

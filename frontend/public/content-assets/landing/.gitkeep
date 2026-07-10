@@ -1,0 +1,6 @@
+# Drop landing-page images here (see the prompt sheet). Expected files:
+#   hero-dashboard.png   1200x960
+#   case-1.png           1200x800
+#   case-2.png           1200x800
+#   avatar-1.png ... avatar-4.png   256x256
+# Until a file exists, the UI falls back to the built-in SVG mockup / initials.

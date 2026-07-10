@@ -53,7 +53,7 @@ docker compose up --build            # db + redis + migrate + api + web
 
 ```bash
 cd backend
-python -m pytest -q                  # full suite (~67 tests, all offline/mocked)
+python -m pytest -q                  # full suite (38 test files, all offline/mocked)
 python -m pytest tests/test_ai.py -q # one file
 ```
 

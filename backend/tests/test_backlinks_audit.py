@@ -26,6 +26,27 @@ def test_parse_summary_extracts_authority_and_dofollow_split():
     assert s["referring_domains"] == 240
 
 
+def test_parse_anchors_handles_null_or_nondict_attributes():
+    # DataForSEO returns referring_links_attributes as null / non-dict for many
+    # anchors — the parser must not crash (regression: used to 500).
+    result = [
+        {
+            "items": [
+                {"anchor": "a", "backlinks": 40, "referring_domains": 12, "referring_links_attributes": None},
+                {"anchor": "b", "backlinks": 100, "referring_domains": 30, "referring_links_attributes": {"nofollow": 25}},
+                {"anchor": "c", "backlinks": 5, "referring_domains": 2, "referring_links_attributes": []},
+                {"anchor": None, "backlinks": 1},  # dropped
+            ]
+        }
+    ]
+    rows = backlinks.parse_anchors(result)
+    assert [r["anchor"] for r in rows] == ["a", "b", "c"]
+    assert rows[0]["dofollow"] is True   # null attrs -> nofollow 0
+    assert rows[1]["dofollow"] is True   # 100 > 25
+    assert rows[2]["dofollow"] is True   # non-dict attrs -> nofollow 0
+    assert backlinks.parse_anchors([]) == []
+
+
 def test_parse_backlinks_rows():
     result = [{"items": [
         {"type": "backlink", "domain_from": "blog.example.com", "url_from": "https://blog.example.com/a",

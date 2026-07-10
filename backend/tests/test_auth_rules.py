@@ -6,12 +6,17 @@ from pydantic import ValidationError
 from app.schemas.auth import RegisterRequest
 
 
-def test_company_domain_and_password_rules():
-    RegisterRequest(email="a@fourdm.com", password="goodpass12", org_name="X")  # ok
-    RegisterRequest(email="b@fourdm.digital", password="goodpass12", org_name="X")  # ok
-    for email in ["a@gmail.com", "a@notfourdm.com"]:  # non-company domains
+def test_public_signup_allows_any_valid_email():
+    # Public SaaS — any valid email domain is accepted.
+    for email in ["a@fourdm.com", "b@gmail.com", "c@some-startup.io"]:
+        RegisterRequest(email=email, password="goodpass1", org_name="X")
+    # Still requires a syntactically valid email.
+    with pytest.raises(ValidationError):
+        RegisterRequest(email="not-an-email", password="goodpass1")
+
+
+def test_password_rules_min_eight_letter_and_digit():
+    RegisterRequest(email="a@b.com", password="abcd1234")  # ok: 8 chars, letter + digit
+    for pw in ["short1", "nodigitshere", "12345678"]:  # too short / no digit / no letter
         with pytest.raises(ValidationError):
-            RegisterRequest(email=email, password="goodpass12", org_name="X")
-    for pw in ["short1", "nodigitshere", "1234567890"]:  # too short / no digit / no letter
-        with pytest.raises(ValidationError):
-            RegisterRequest(email="a@fourdm.com", password=pw, org_name="X")
+            RegisterRequest(email="a@b.com", password=pw)

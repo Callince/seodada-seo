@@ -51,3 +51,43 @@ def parse_instant_pages(result: list[dict[str, Any]]) -> dict:
         "h1": htags.get("h1") or [],
         "issues": issues[:25],
     }
+
+
+# ---- Lighthouse (Core Web Vitals) ------------------------------------------
+
+PATH_LIGHTHOUSE = "/v3/on_page/lighthouse/live/json"
+
+_CWV_AUDITS = {
+    "largest-contentful-paint": "lcp",
+    "cumulative-layout-shift": "cls",
+    "total-blocking-time": "tbt",
+    "first-contentful-paint": "fcp",
+    "speed-index": "speed_index",
+    "interactive": "tti",
+}
+
+
+async def lighthouse(url: str) -> DfsResult:
+    payload = {"url": url, "for_mobile": True}
+    return await dfs_client.post(PATH_LIGHTHOUSE, payload)
+
+
+def parse_lighthouse(result: list[dict[str, Any]]) -> dict:
+    """Category scores (0-100) + the Core Web Vitals audit values."""
+    lh = result[0] if result else {}
+    categories = {
+        key: round(float(cat.get("score") or 0) * 100)
+        for key, cat in (lh.get("categories") or {}).items()
+        if isinstance(cat, dict) and cat.get("score") is not None
+    }
+    vitals = {}
+    audits = lh.get("audits") or {}
+    for audit_id, short in _CWV_AUDITS.items():
+        a = audits.get(audit_id) or {}
+        if a:
+            vitals[short] = {
+                "display": a.get("displayValue"),
+                "value": a.get("numericValue"),
+                "score": None if a.get("score") is None else round(float(a["score"]) * 100),
+            }
+    return {"categories": categories, "vitals": vitals, "fetched_url": lh.get("finalUrl")}

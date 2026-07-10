@@ -1,18 +1,21 @@
-import { Layers, Search } from "lucide-react";
+import { Layers, RefreshCw, Search } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import { apiErrorMessage } from "@/api/client";
 import {
   useIdeas,
+  useKeywordOverview,
   useRelated,
   useSuggestions,
   useTrends,
   useVolume,
 } from "@/api/hooks/useKeywords";
+import { AreaChart, ScoreRing } from "@/components/public/landingKit";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
 import { KeywordTable } from "@/components/shared/KeywordTable";
 import { LocationLanguagePicker } from "@/components/shared/LocationLanguagePicker";
+import { usePersistedState } from "@/lib/persist";
 import { SaveToProject } from "@/components/shared/SaveToProject";
 import { TrendChart } from "@/components/shared/TrendChart";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
@@ -27,6 +30,7 @@ import { fmtInt } from "@/lib/format";
 import { PERIOD_PRESETS, periodRange, type PeriodKey } from "@/lib/period";
 import type {
   KeywordListResponse,
+  KeywordOverviewResponse,
   Meta,
   TrendsResponse,
   VolumeResponse,
@@ -48,7 +52,7 @@ const TAB_MODULES: Record<TabKey, string> = {
   related: "keywords.related",
   ideas: "keywords.ideas",
 };
-type Loc = { location_code: number; language_code: string };
+type Loc = { location_code: number; language_code: string; force_live?: boolean };
 type TrendsBundle = { trends: TrendsResponse; volume: VolumeResponse };
 
 const MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -275,17 +279,96 @@ function BulkPane({ loc }: { loc: { location_code: number; language_code: string
   );
 }
 
+/** Non-blocking enrichment strip: difficulty ring, intent, core stats and a 12-month trend. */
+function OverviewStrip({
+  data,
+  loading,
+}: {
+  data: KeywordOverviewResponse | null;
+  loading: boolean;
+}) {
+  if (loading) {
+    return (
+      <Card>
+        <CardBody className="flex items-center gap-5">
+          <Skeleton className="h-20 w-20 shrink-0 rounded-full" />
+          <Skeleton className="h-14 flex-1" />
+        </CardBody>
+      </Card>
+    );
+  }
+  if (!data) return null;
+
+  const o = data.overview;
+  const trend = [...o.monthly_searches]
+    .filter((m) => m.year != null && m.month != null && m.volume != null)
+    .sort((a, b) => a.year! - b.year! || a.month! - b.month!)
+    .map((m) => m.volume!);
+  const d = o.difficulty;
+  const ringTone = d == null || d > 60 ? "blue" : d <= 30 ? "emerald" : "amber";
+
+  return (
+    <Card>
+      <CardBody>
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <p className="text-sm font-medium text-text">Keyword overview</p>
+          <CacheBadge meta={data.meta} />
+        </div>
+        <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+          {d != null && <ScoreRing value={d} size={84} label="difficulty" tone={ringTone} />}
+          {o.intent && (
+            <span className="rounded-full bg-primary-soft px-3 py-1 text-xs font-medium capitalize text-primary">
+              {o.intent}
+            </span>
+          )}
+          <div>
+            <p className="text-xs text-text-muted">Volume</p>
+            <p className="font-mono text-lg font-semibold text-text">{fmtInt(o.search_volume)}</p>
+          </div>
+          <div>
+            <p className="text-xs text-text-muted">CPC</p>
+            <p className="font-mono text-lg font-semibold text-text">
+              {o.cpc == null ? "—" : `$${o.cpc.toFixed(2)}`}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-text-muted">Competition</p>
+            <p className="font-mono text-lg font-semibold text-text">
+              {o.competition == null ? "—" : `${Math.round(o.competition * 100)}%`}
+            </p>
+          </div>
+          {trend.length > 1 && (
+            <div className="min-w-[10rem] max-w-xs flex-1">
+              <p className="mb-1 text-xs text-text-muted">12-month trend</p>
+              <div className="h-12">
+                <AreaChart values={trend} height={48} id="kw-overview" tone="blue" />
+              </div>
+            </div>
+          )}
+        </div>
+      </CardBody>
+    </Card>
+  );
+}
+
 export default function KeywordResearch({ embedded }: { embedded?: boolean }) {
-  const [seed, setSeed] = useState("");
-  const [loc, setLoc] = useState<Loc>({ location_code: 2840, language_code: "en" });
-  const [tab, setTab] = useState<TabKey>("overview");
-  const [submitted, setSubmitted] = useState("");
-  const [results, setResults] = useState<Partial<Record<TabKey, unknown>>>({});
+  // Persisted so the seed, tab and loaded results survive navigating away and back.
+  const [seed, setSeed] = usePersistedState("keywords.seed", "");
+  const [loc, setLoc] = usePersistedState<Loc>("keywords.loc", { location_code: 2840, language_code: "en" });
+  const [tab, setTab] = usePersistedState<TabKey>("keywords.tab", "overview");
+  const [submitted, setSubmitted] = usePersistedState("keywords.submitted", "");
+  const [results, setResults] = usePersistedState<Partial<Record<TabKey, unknown>>>("keywords.results", {});
   const [pendingTab, setPendingTab] = useState<TabKey | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [period, setPeriod] = useState<PeriodKey>("this_year");
+  const [period, setPeriod] = usePersistedState<PeriodKey>("keywords.period", "this_year");
   const [customFrom, setCustomFrom] = useState("");
   const [customTo, setCustomTo] = useState("");
+
+  // Overview enrichment persists alongside the tab results.
+  const [overviewData, setOverviewData] = usePersistedState<KeywordOverviewResponse | null>(
+    "keywords.overview",
+    null,
+  );
 
   const volume = useVolume();
   const trends = useTrends();
@@ -293,6 +376,18 @@ export default function KeywordResearch({ embedded }: { embedded?: boolean }) {
   const suggestions = useSuggestions();
   const related = useRelated();
   const ideas = useIdeas();
+  const kwOverview = useKeywordOverview();
+
+  // Non-blocking enrichment: failures render nothing rather than breaking the flow.
+  const loadOverview = (s: string, l: Loc) => {
+    kwOverview.mutate(
+      { keyword: s, ...l },
+      {
+        onSuccess: (d) => setOverviewData(d),
+        onError: () => setOverviewData(null),
+      },
+    );
+  };
 
   const load = async (
     t: TabKey,
@@ -343,6 +438,7 @@ export default function KeywordResearch({ embedded }: { embedded?: boolean }) {
     if (!s) return;
     setSubmitted(s);
     setResults({});
+    loadOverview(s, loc);
     void load(tab, s, loc, true);
   };
 
@@ -398,6 +494,16 @@ export default function KeywordResearch({ embedded }: { embedded?: boolean }) {
             <Button type="submit" disabled={isPending || !seed.trim()}>
               <Search size={16} /> Research
             </Button>
+            {submitted && (
+              <Button type="button" variant="secondary" title="Bypass the cache and fetch live"
+                disabled={isPending}
+                onClick={() => {
+                  loadOverview(submitted, { ...loc, force_live: true });
+                  void load(tab, submitted, { ...loc, force_live: true }, true);
+                }}>
+                <RefreshCw size={15} className={isPending ? "animate-spin" : ""} /> Refresh
+              </Button>
+            )}
           </form>
         </CardBody>
       </Card>
@@ -409,6 +515,7 @@ export default function KeywordResearch({ embedded }: { embedded?: boolean }) {
         />
       ) : (
         <div className="animate-fade-rise space-y-4">
+          <OverviewStrip data={overviewData} loading={kwOverview.isPending} />
           <div className="flex items-center justify-between">
             <Tabs value={tab} onChange={(v) => changeTab(v as TabKey)}>
               <TabsList>

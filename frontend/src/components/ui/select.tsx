@@ -18,8 +18,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSel
         ...style,
       }}
       className={cn(
-        "h-9 appearance-none rounded-md border border-border bg-surface pl-3 pr-9 text-sm text-text",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50",
+        "h-10 appearance-none rounded-lg border border-border bg-surface pl-3.5 pr-9 text-sm text-text",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--section)] disabled:opacity-50",
         className,
       )}
       {...props}

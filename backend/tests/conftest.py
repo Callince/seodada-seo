@@ -18,6 +18,8 @@ def pinned_settings(monkeypatch):
     monkeypatch.setattr(app_settings, "serp_provider", "dataforseo")
     monkeypatch.setattr(app_settings, "smtp_host", "")
     monkeypatch.setattr(app_settings, "google_gmail_refresh_token", "")
+    # Quota enforcement is opt-in per test (test_quota enables it).
+    monkeypatch.setattr(app_settings, "quota_enabled", False)
 
 
 @pytest_asyncio.fixture

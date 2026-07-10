@@ -1,9 +1,9 @@
-import { ExternalLink, Search } from "lucide-react";
-import { useState } from "react";
+import { ExternalLink, RefreshCw, Search } from "lucide-react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
-import { useContentAnalysis } from "@/api/hooks/useContent";
+import { useContentAnalysis, usePhraseTrends, useSentiment } from "@/api/hooks/useContent";
 import { apiErrorMessage } from "@/api/client";
+import { AreaChart } from "@/components/public/landingKit";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { SaveToProject } from "@/components/shared/SaveToProject";
 import { StatCard } from "@/components/shared/StatCard";
@@ -13,7 +13,8 @@ import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fmtInt } from "@/lib/format";
-import type { Connotations, ContentResponse } from "@/types";
+import { usePersistedState } from "@/lib/persist";
+import type { Connotations, ContentResponse, PhraseTrendsResponse, SentimentResponse } from "@/types";
 
 const SENTIMENT_COLORS = { positive: "#10B981", neutral: "#94A3B8", negative: "#F43F5E" };
 
@@ -95,14 +96,88 @@ function ConnotationBars({ data }: { data: Connotations }) {
   );
 }
 
-export default function ContentAnalysis({ embedded }: { embedded?: boolean }) {
-  const [keyword, setKeyword] = useState("");
-  const mutation = useContentAnalysis();
-  const data = mutation.data;
+/** Design-token fill for a connotation bar; unknown connotations fall back to primary. */
+function connotationFill(label: string): string {
+  const k = label.toLowerCase();
+  if (k === "positive") return "bg-success";
+  if (k === "negative") return "bg-danger";
+  if (k === "neutral") return "bg-text-muted/40";
+  return "bg-primary";
+}
 
-  const run = () => {
+function BrandSentiment({ data }: { data: SentimentResponse }) {
+  const entries = Object.entries(data.connotations);
+  const max = Math.max(...entries.map(([, v]) => v), 1);
+
+  return (
+    <div>
+      <p className="text-3xl font-semibold text-text">
+        {data.total_citations !== null ? fmtInt(data.total_citations) : "—"}
+      </p>
+      <p className="text-xs text-text-muted">total citations</p>
+      {entries.length > 0 && (
+        <div className="mt-4 space-y-2.5">
+          {entries.map(([label, value]) => (
+            <div key={label} className="flex items-center gap-3">
+              <span className="w-20 truncate text-sm capitalize text-text-muted">{label}</span>
+              <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-surface-2">
+                <div
+                  className={`h-full rounded-full ${connotationFill(label)}`}
+                  style={{ width: `${(value / max) * 100}%` }}
+                />
+              </div>
+              <span className="w-12 text-right font-mono text-xs text-text-muted">{fmtInt(value)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CitationTrend({ data }: { data: PhraseTrendsResponse }) {
+  const values = data.rows.map((r) => r.citations ?? 0);
+  if (values.length < 2) return <p className="text-sm text-text-muted">Not enough data yet.</p>;
+
+  const first = data.rows[0]?.date ?? "—";
+  const last = data.rows[data.rows.length - 1]?.date ?? "—";
+
+  return (
+    <div>
+      <div className="h-36">
+        <AreaChart values={values} id="citation-trend" height={144} tone="violet" />
+      </div>
+      <div className="mt-2 flex items-center justify-between font-mono text-xs text-text-muted">
+        <span>{first}</span>
+        <span>{last}</span>
+      </div>
+    </div>
+  );
+}
+
+export default function ContentAnalysis({ embedded }: { embedded?: boolean }) {
+  const [keyword, setKeyword] = usePersistedState("content.keyword", "");
+  const mutation = useContentAnalysis();
+  const sentimentMutation = useSentiment();
+  const trendsMutation = usePhraseTrends();
+  // Persisted so results survive navigating away and back.
+  const [data, setData] = usePersistedState<ContentResponse | null>("content.data", null);
+  const [sentimentData, setSentimentData] = usePersistedState<SentimentResponse | null>("content.sentiment", null);
+  const [trendsData, setTrendsData] = usePersistedState<PhraseTrendsResponse | null>("content.trends", null);
+
+  const run = (force_live = false) => {
     const k = keyword.trim();
-    if (k) mutation.mutate({ keyword: k });
+    if (!k) return;
+    mutation.mutate({ keyword: k, force_live }, { onSuccess: setData });
+    // Non-blocking enrichment: errors are swallowed (the cards simply don't render).
+    sentimentMutation.mutate(
+      { keyword: k, force_live },
+      { onSuccess: setSentimentData, onError: () => setSentimentData(null) },
+    );
+    trendsMutation.mutate(
+      { keyword: k, force_live },
+      { onSuccess: setTrendsData, onError: () => setTrendsData(null) },
+    );
   };
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,7 +197,14 @@ export default function ContentAnalysis({ embedded }: { embedded?: boolean }) {
             <Button type="submit" disabled={mutation.isPending || !keyword.trim()}>
               <Search size={16} /> {mutation.isPending ? "Analyzing…" : "Analyze"}
             </Button>
+            {data && (
+              <Button type="button" variant="secondary" title="Bypass the cache and fetch live"
+                disabled={mutation.isPending || !keyword.trim()} onClick={() => run(true)}>
+                <RefreshCw size={15} className={mutation.isPending ? "animate-spin" : ""} /> Refresh
+              </Button>
+            )}
           </form>
+          {data?.meta && <div className="mt-3"><CacheBadge meta={data.meta} /></div>}
         </CardBody>
       </Card>
 
@@ -133,7 +215,7 @@ export default function ContentAnalysis({ embedded }: { embedded?: boolean }) {
         </div>
       )}
       {mutation.isError && !mutation.isPending && (
-        <ErrorState message={apiErrorMessage(mutation.error)} onRetry={run} />
+        <ErrorState message={apiErrorMessage(mutation.error)} onRetry={() => run()} />
       )}
       {!mutation.isPending && !mutation.isError && !data && (
         <EmptyState title="Analyze content sentiment" hint="Enter a keyword or brand to see how the web talks about it." />
@@ -211,6 +293,45 @@ export default function ContentAnalysis({ embedded }: { embedded?: boolean }) {
               )}
             </CardBody>
           </Card>
+
+          {(sentimentMutation.isPending || sentimentData || trendsMutation.isPending || trendsData) && (
+            <div className="grid gap-4 lg:grid-cols-2">
+              {(sentimentMutation.isPending || sentimentData) && (
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between gap-2">
+                      <CardTitle>How the web talks about it</CardTitle>
+                      {!sentimentMutation.isPending && sentimentData && <CacheBadge meta={sentimentData.meta} />}
+                    </div>
+                  </CardHeader>
+                  <CardBody>
+                    {sentimentMutation.isPending ? (
+                      <Skeleton className="h-48" />
+                    ) : (
+                      sentimentData && <BrandSentiment data={sentimentData} />
+                    )}
+                  </CardBody>
+                </Card>
+              )}
+              {(trendsMutation.isPending || trendsData) && (
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between gap-2">
+                      <CardTitle>Citations over 12 months</CardTitle>
+                      {!trendsMutation.isPending && trendsData && <CacheBadge meta={trendsData.meta} />}
+                    </div>
+                  </CardHeader>
+                  <CardBody>
+                    {trendsMutation.isPending ? (
+                      <Skeleton className="h-48" />
+                    ) : (
+                      trendsData && <CitationTrend data={trendsData} />
+                    )}
+                  </CardBody>
+                </Card>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

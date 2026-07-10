@@ -1,179 +1,483 @@
-import { ArrowRight, FileBarChart, Folder, LayoutGrid, Search } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BarChart3,
+  Briefcase,
+  CalendarDays,
+  ExternalLink,
+  FileBarChart,
+  Folder,
+  Heading,
+  Image as ImageIcon,
+  Link2,
+  MessageSquareText,
+  Network,
+  Rocket,
+  Search,
+  ShieldCheck,
+  Star,
+  Tags,
+  Sparkles,
+  type LucideIcon,
+} from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useProjects } from "@/api/hooks/useProjects";
-import { useUsage } from "@/api/hooks/useUsage";
+import { useDashboardStats } from "@/api/hooks/useUsage";
+import { AreaChart, ScoreRing, TONES, type Tone } from "@/components/public/landingKit";
 import { PageHeader } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
-import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardBody } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { fmtInt } from "@/lib/format";
+import { sectionVars, type SectionId } from "@/lib/sections";
 import { useAuth } from "@/store/auth";
 
-const PROVIDER_LABELS: Record<string, string> = {
-  serp: "SERP Ranking",
-  keywords: "Keyword Volume",
-  trends: "Trends",
-  domains: "Domain Analytics",
-  onpage: "On-Page",
-  content: "Content Analysis",
-};
+/** The SEO workflow — mirrors the sidebar so the journey is consistent. */
+const WORKFLOW: { n: number; title: string; desc: string; to: string; icon: LucideIcon; section: SectionId }[] = [
+  { n: 1, title: "Research", desc: "Find the right keywords and competitors", to: "/keywords", icon: Search, section: "research" },
+  { n: 2, title: "Audit", desc: "Analyze technical SEO and content issues", to: "/audit", icon: ShieldCheck, section: "audit" },
+  { n: 3, title: "Optimize", desc: "Optimize content and on-page elements", to: "/content", icon: Rocket, section: "optimize" },
+  { n: 4, title: "Track", desc: "Track rankings and monitor performance", to: "/rank", icon: BarChart3, section: "track" },
+  { n: 5, title: "Manage", desc: "Manage projects, reports and schedules", to: "/projects", icon: Briefcase, section: "manage" },
+];
 
-const SOURCE_BADGE: Record<string, { label: string; free: boolean }> = {
-  dataforseo: { label: "Premium", free: false },
-  brave: { label: "Brave (free)", free: true },
-  google: { label: "Google Trends (free)", free: true },
-  local: { label: "Local (free)", free: true },
-};
+/** The six instant analysis tools, each with its own on-brand tone. */
+const TOOLS: { to: string; label: string; desc: string; icon: LucideIcon; tone: Tone }[] = [
+  { to: "/tools/url", label: "URL Analysis", desc: "Structure, status, redirects, links & robots.", icon: Link2, tone: "blue" },
+  { to: "/tools/meta", label: "Meta Analysis", desc: "Title, description, OG, Twitter & schema.", icon: Tags, tone: "cyan" },
+  { to: "/tools/sitemap", label: "Sitemap Analysis", desc: "Discover sitemaps and explore site structure.", icon: Network, tone: "violet" },
+  { to: "/tools/heading", label: "Heading Analysis", desc: "H1–H6 hierarchy, counts and structure issues.", icon: Heading, tone: "emerald" },
+  { to: "/tools/image", label: "Image Analysis", desc: "Every image and its alt text, size & loading.", icon: ImageIcon, tone: "amber" },
+  { to: "/tools/keyword", label: "Keyword Analysis", desc: "Word count and keyword density of a page.", icon: Search, tone: "teal" },
+];
 
-function DataSources({ providers }: { providers?: Record<string, string> }) {
-  if (!providers) return null;
-  const order = ["serp", "keywords", "trends", "domains", "onpage", "content"];
-  return (
-    <div className="space-y-2">
-      {order
-        .filter((k) => providers[k])
-        .map((k) => {
-          const badge = SOURCE_BADGE[providers[k]] ?? { label: providers[k], free: false };
-          return (
-            <div key={k} className="flex items-center justify-between text-sm">
-              <span className="text-text-muted">{PROVIDER_LABELS[k] ?? k}</span>
-              <span
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                  badge.free
-                    ? "bg-primary-soft text-primary"
-                    : "bg-surface-2 text-text-muted"
-                }`}
-              >
-                {badge.label}
-              </span>
-            </div>
-          );
-        })}
-    </div>
-  );
+const TOOL_LABELS: Record<string, string> = Object.fromEntries(
+  TOOLS.map((t) => [t.to.split("/").pop() as string, t.label]),
+);
+
+const QUICK_SUGGESTIONS = [
+  "best ai writing tools",
+  "seo analytics dashboard",
+  "competitor gap analysis",
+  "how to rank higher on google",
+];
+
+function chipStyle(tone: Tone) {
+  const [light, deep] = TONES[tone];
+  return { background: `linear-gradient(135deg, ${deep}, ${light})` };
+}
+
+/** Compact relative time for the projects table. */
+function ago(iso: string): string {
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (s < 3600) return `${Math.max(1, Math.round(s / 60))} min ago`;
+  if (s < 86400) return `${Math.round(s / 3600)} hours ago`;
+  return `${Math.round(s / 86400)} days ago`;
 }
 
 export default function Dashboard() {
   const user = useAuth((s) => s.user);
-  const { data } = useUsage();
+  const { data: stats } = useDashboardStats();
   const { data: projects } = useProjects();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
 
-  const quickSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const kw = q.trim();
-    if (kw) navigate(`/serp?q=${encodeURIComponent(kw)}`);
-  };
+  const recent = (projects ?? []).slice(0, 6);
+  const used = stats?.today_used ?? 0;
+  const limit = stats?.daily_limit ?? 0;
+  const pct = limit ? Math.min(100, Math.round((used / limit) * 100)) : 0;
+  const favKey = stats?.favorite_tool?.split(".").pop() ?? "";
+  const favLabel = TOOL_LABELS[favKey] || (stats?.favorite_tool ? favKey : "—");
+  const series = stats?.usage_series ?? [];
 
-  const recent = (projects ?? []).slice(0, 5);
+  const hasSeries = series && series.length > 1;
 
   return (
-    <div>
+    <div className="space-y-6">
       <PageHeader
-        title={`Welcome${user?.full_name ? `, ${user.full_name}` : ""}`}
-        subtitle="Your SEO intelligence workspace"
-      />
-
-      {/* Bento mosaic — hero search tile + quick-action tiles + info tiles. */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
-        <Card className="row-span-2 bg-gradient-to-br from-primary-soft/70 to-surface transition-shadow hover:shadow-md sm:col-span-2 lg:col-span-4">
-          <CardBody className="flex h-full flex-col justify-center gap-4 py-8">
-            <div>
-              <h2 className="text-xl font-semibold text-text">Check any keyword's SERP</h2>
-              <p className="mt-1 text-sm text-text-muted">
-                See the top 100 ranking pages, brands, and People Also Ask in seconds.
+        title={`Welcome back${user?.full_name ? `, ${user.full_name}` : ""}! 👋`}
+        subtitle="Here's what's happening with your SEO journey today."
+        actions={
+          limit ? (
+            <div className="hidden text-right sm:block">
+              <div className="flex items-center justify-end gap-2 text-sm">
+                <span className="text-text-muted">Usage today</span>
+                <span className="font-bold text-primary">{pct}%</span>
+                <span className="h-2 w-36 overflow-hidden rounded-full bg-surface-2">
+                  <span className="block h-full rounded-full gradient-fill" style={{ width: `${pct}%` }} />
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-text-muted">
+                {fmtInt(used)} / {fmtInt(limit)} analyses
               </p>
             </div>
-            <form onSubmit={quickSearch} className="flex flex-col gap-3 sm:flex-row">
-              <Input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Quick SERP search — enter a keyword…"
-                className="bg-surface sm:flex-1"
-              />
-              <Button type="submit" disabled={!q.trim()}>
-                <Search size={16} /> Search
+          ) : undefined
+        }
+      />
+
+      {/* ===== SEO Workflow — horizontal connected journey ===== */}
+      <Card>
+        <CardBody className="relative px-4 py-6 sm:px-8">
+          {/* connector line behind the icon row (desktop only) */}
+          <div
+            className="pointer-events-none absolute left-[10%] right-[10%] top-[52px] hidden h-0.5 bg-border md:block"
+            aria-hidden
+          />
+          <div className="grid grid-cols-2 gap-y-7 sm:grid-cols-3 md:grid-cols-5">
+            {WORKFLOW.map((s) => (
+              <Link
+                key={s.n}
+                to={s.to}
+                style={sectionVars(s.section)}
+                className="group relative z-10 flex flex-col items-center px-2 text-center focus-visible:outline-none"
+              >
+                <span className="section-gradient grid h-14 w-14 place-items-center rounded-2xl text-white shadow-glow ring-4 ring-surface transition-transform duration-300 group-hover:scale-110 group-focus-visible:ring-[color:var(--section)]">
+                  <s.icon size={22} />
+                </span>
+                <h3 className="mt-3 text-sm font-bold text-text transition-colors group-hover:text-[color:var(--section)]">
+                  {s.title}
+                </h3>
+                <p className="mt-1 text-xs leading-relaxed text-text-muted">{s.desc}</p>
+              </Link>
+            ))}
+          </div>
+        </CardBody>
+      </Card>
+
+      {/* ===== Stat cards ===== */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        {/* Usage ring */}
+        <Card className="min-h-[148px]">
+          <CardBody className="flex h-full items-center gap-4">
+            <ScoreRing value={limit ? pct : 0} size={90} label={limit ? "used" : "no cap"} />
+            <div className="flex-1">
+              <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Usage Today</p>
+              <p className="mt-1 text-2xl font-extrabold text-text font-mono">{fmtInt(used)}</p>
+              <p className="text-[11px] text-text-muted mt-0.5">
+                {limit ? `of ${fmtInt(limit)} daily runs` : "Unlimited tier"}
+              </p>
+            </div>
+          </CardBody>
+        </Card>
+
+        {/* Plan */}
+        <Card className="min-h-[148px]">
+          <CardBody className="flex h-full flex-col justify-between">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Active Plan</p>
+                <p className="mt-1 text-2xl font-extrabold text-primary tracking-tight">
+                  {stats?.plan_name ?? "Free Tier"}
+                </p>
+              </div>
+              <CalendarDays size={18} className="text-primary/70 bg-primary-soft p-1 rounded-lg h-7 w-7" />
+            </div>
+            <div className="pt-2">
+              <Link to="/billing" className="block">
+                <Button variant="secondary" size="sm" className="w-full text-xs font-semibold hover:border-primary/30 border border-transparent transition-all">
+                  Upgrade & Settings
+                </Button>
+              </Link>
+            </div>
+          </CardBody>
+        </Card>
+
+        {/* Total analyses + real/mock usage sparkline */}
+        <Card className="min-h-[148px]">
+          <CardBody className="flex h-full flex-col justify-between">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Total Analyses</p>
+                <p className="mt-1 text-2xl font-extrabold text-text font-mono">{fmtInt(stats?.total_analyses ?? 0)}</p>
+              </div>
+              <ArrowUpRight size={18} className="text-success bg-success/10 p-1 rounded-lg h-7 w-7" />
+            </div>
+            <div className="mt-1 h-10">
+              {hasSeries ? (
+                <AreaChart values={series} id="dash-usage" height={40} tone="blue" />
+              ) : (
+                <div className="flex h-full items-center text-xs text-text-muted">No activity yet</div>
+              )}
+            </div>
+          </CardBody>
+        </Card>
+
+        {/* Top tool */}
+        <Card className="min-h-[148px]">
+          <CardBody className="flex h-full flex-col justify-between">
+            <div className="flex items-start justify-between">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Favorite Tool</p>
+                <p className="mt-1 truncate text-xl font-extrabold text-text tracking-tight">{favLabel}</p>
+              </div>
+              <Star size={18} className="text-warning bg-warning/10 p-1 rounded-lg h-7 w-7 fill-warning/20" />
+            </div>
+            <div className="text-[11px] text-text-muted flex flex-col gap-1">
+              {stats?.favorite_tool_count ? (
+                <p className="mt-0.5">Used {fmtInt(stats.favorite_tool_count)} times this cycle</p>
+              ) : (
+                <p className="italic text-text-muted">No run history yet. Try a tool below!</p>
+              )}
+            </div>
+          </CardBody>
+        </Card>
+      </div>
+
+      {/* ===== Quick SERP lookup — Glassmorphic Search Hub ===== */}
+      <div className="gradient-fill relative overflow-hidden rounded-2xl p-6 shadow-xl sm:p-8 border border-white/10">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col gap-5 lg:flex-row lg:items-center">
+          <div className="lg:w-80 lg:shrink-0">
+            <h2 className="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+              <Rocket size={18} /> Quick SERP Lookup
+            </h2>
+            <p className="mt-1 text-sm text-white/80 leading-relaxed">
+              Analyze real-time top-100 organic search rankings, brand performance metrics, and People Also Ask questions.
+            </p>
+          </div>
+          
+          <div className="flex-1 flex flex-col gap-3">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (q.trim()) navigate(`/serp?q=${encodeURIComponent(q.trim())}`);
+              }}
+              className="flex flex-col gap-3 sm:flex-row"
+            >
+              <div className="relative flex-1">
+                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
+                <Input
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  aria-label="Quick SERP search"
+                  placeholder="Enter a keyword or domain (e.g. best ai tools)…"
+                  className="pl-11 pr-4 border-white/20 bg-white/95 text-text placeholder-text-muted/60 focus:bg-white focus:ring-2 focus:ring-primary h-11 rounded-xl shadow-inner"
+                />
+              </div>
+              <Button 
+                type="submit" 
+                disabled={!q.trim()} 
+                className="bg-white text-primary hover:bg-white/90 shadow-md h-11 px-6 font-bold transition-all text-xs uppercase tracking-wider shimmer shrink-0"
+              >
+                Search SERP
               </Button>
             </form>
-          </CardBody>
-        </Card>
-
-        <Link to="/workspace" className="lg:col-span-2">
-          <Card className="h-full transition-all hover:-translate-y-0.5 hover:shadow-md">
-            <CardBody className="flex h-full items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-md bg-primary-soft text-primary">
-                  <LayoutGrid size={19} />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-text">All-in-One analysis</p>
-                  <p className="text-xs text-text-muted">Every tool, one page</p>
-                </div>
-              </div>
-              <ArrowRight size={16} className="shrink-0 text-text-muted" />
-            </CardBody>
-          </Card>
-        </Link>
-
-        <Link to="/report" className="lg:col-span-2">
-          <Card className="h-full transition-all hover:-translate-y-0.5 hover:shadow-md">
-            <CardBody className="flex h-full items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-md bg-primary-soft text-primary">
-                  <FileBarChart size={19} />
-                </span>
-                <div>
-                  <p className="text-sm font-semibold text-text">Site Report</p>
-                  <p className="text-xs text-text-muted">Full audit + AI advisor</p>
-                </div>
-              </div>
-              <ArrowRight size={16} className="shrink-0 text-text-muted" />
-            </CardBody>
-          </Card>
-        </Link>
-
-        <Card className="transition-shadow hover:shadow-md sm:col-span-1 lg:col-span-3">
-          <CardHeader>
-            <CardTitle>Data sources</CardTitle>
-          </CardHeader>
-          <CardBody>
-            <DataSources providers={data?.providers} />
-          </CardBody>
-        </Card>
-
-        <Card className="transition-shadow hover:shadow-md sm:col-span-1 lg:col-span-3">
-          <CardHeader>
-            <CardTitle>Recent projects</CardTitle>
-          </CardHeader>
-          <CardBody className="space-y-1">
-            {recent.length ? (
-              recent.map((p) => (
-                <Link
-                  key={p.id}
-                  to={`/projects/${p.id}`}
-                  className="flex items-center justify-between rounded-md px-2 py-2 text-sm hover:bg-surface-2"
+            
+            {/* Quick click suggestions */}
+            <div className="flex flex-wrap items-center gap-2 mt-1">
+              <span className="text-xs text-white/70 font-medium">Try searching:</span>
+              {QUICK_SUGGESTIONS.map((suggestion) => (
+                <button
+                  key={suggestion}
+                  onClick={() => setQ(suggestion)}
+                  type="button"
+                  className="text-xs px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/10 transition-all duration-200"
                 >
-                  <span className="flex items-center gap-2 text-text">
-                    <Folder size={15} className="text-primary" />
-                    {p.name}
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== Instant SEO tools ===== */}
+      <div className="mt-2">
+        <div className="flex flex-col">
+          <h2 className="text-xl font-extrabold tracking-tight text-text">Instant SEO Tools</h2>
+          <p className="text-sm text-text-muted">Run localized, immediate audits on any URL with no configuration.</p>
+        </div>
+        
+        <div className="mt-4 grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          {TOOLS.map((t) => (
+            <Link
+              key={t.to}
+              to={t.to}
+              className="group flex flex-col justify-between rounded-2xl border border-border bg-surface p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-glow relative overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--section)] focus-visible:ring-offset-2 focus-visible:ring-offset-app-bg"
+            >
+              <div>
+                <div className="flex items-start justify-between">
+                  <span
+                    className="grid h-12 w-12 place-items-center rounded-2xl text-white shadow-md transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3"
+                    style={chipStyle(t.tone)}
+                  >
+                    <t.icon size={22} />
                   </span>
-                  <span className="font-mono text-xs text-text-muted">
-                    {p.run_count} {p.run_count === 1 ? "run" : "runs"}
+                  <span className="rounded-full bg-success/10 px-2.5 py-0.5 text-[10px] font-bold text-success border border-success/20 uppercase tracking-wider">
+                    Free
                   </span>
-                </Link>
-              ))
-            ) : (
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-text-muted">No saved projects yet.</p>
+                </div>
+                <h3 className="mt-4 text-base font-bold text-text tracking-tight group-hover:text-primary transition-colors">
+                  {t.label}
+                </h3>
+                <p className="mt-1.5 text-xs leading-relaxed text-text-muted">
+                  {t.desc}
+                </p>
+              </div>
+              <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold text-primary group-hover:underline">
+                Launch tool <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* ===== Recent projects ===== */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-extrabold tracking-tight text-text">Saved Workspaces</h2>
+            <p className="text-sm text-text-muted">Reopen, compare, and audit cached project results.</p>
+          </div>
+          <Link to="/projects" className="inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:underline group">
+            All Projects <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        </div>
+
+        <Card className="overflow-hidden border-border/70">
+          {recent.length ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead>
+                  <tr className="border-b border-border bg-surface-2/40 text-xs font-semibold uppercase tracking-wider text-text-muted">
+                    <th className="px-5 py-3.5">Project Name</th>
+                    <th className="hidden px-5 py-3.5 md:table-cell">Target Website</th>
+                    <th className="hidden px-5 py-3.5 text-right sm:table-cell">Last Audited</th>
+                    <th className="px-5 py-3.5 text-right">Run Count</th>
+                    <th className="hidden px-5 py-3.5 lg:table-cell">Trend</th>
+                    <th className="w-12 px-5 py-3.5" />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/60">
+                  {recent.map((p) => (
+                    <tr key={p.id} className="transition-colors hover:bg-surface-2/30">
+                      <td className="px-5 py-4 font-semibold text-text">
+                        <Link to={`/projects/${p.id}`} className="flex items-center gap-2.5 hover:text-primary transition-colors">
+                          <Folder size={16} className="text-primary shrink-0" />
+                          <span className="truncate max-w-[200px]">{p.name}</span>
+                        </Link>
+                      </td>
+                      <td className="hidden px-5 py-4 text-text-muted md:table-cell max-w-xs truncate font-mono text-xs">
+                        {p.target ?? <span className="text-text-muted/50">—</span>}
+                      </td>
+                      <td className="hidden px-5 py-4 text-right text-text-muted sm:table-cell text-xs">
+                        {p.last_run_at ? ago(p.last_run_at) : <span className="text-text-muted/50">—</span>}
+                      </td>
+                      <td className="px-5 py-4 text-right font-mono text-xs font-semibold text-text">
+                        {p.run_count}
+                      </td>
+                      <td className="hidden px-5 py-4 lg:table-cell">
+                        {p.runs_series?.some((v) => v > 0) ? (
+                          <div className="h-6 w-24">
+                            <AreaChart values={p.runs_series} id={`proj-${p.id}`} height={24} tone="blue" />
+                          </div>
+                        ) : (
+                          <div className="h-6 w-24 opacity-25">
+                            <svg viewBox="0 0 100 10" className="h-full w-full">
+                              <line x1="0" y1="5" x2="100" y2="5" stroke="var(--text-muted)" strokeWidth="1" strokeDasharray="3,3" />
+                            </svg>
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 text-right">
+                        <Link to={`/projects/${p.id}`} aria-label={`Open ${p.name}`} className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-primary-soft text-text-muted hover:text-primary transition-all">
+                          <ExternalLink size={14} />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <CardBody className="flex flex-col items-center justify-center py-12 text-center">
+              <span className="grid h-14 w-14 place-items-center rounded-full bg-primary-soft text-primary mb-4 shadow-sm">
+                <Briefcase size={24} />
+              </span>
+              <h3 className="text-lg font-bold text-text">No saved projects</h3>
+              <p className="max-w-md text-sm text-text-muted mt-1 leading-relaxed">
+                Workspaces allow you to group related tools, track organic rankings over time, and schedule automatic SEO email audits.
+              </p>
+              <div className="mt-5">
                 <Link to="/projects">
-                  <Button variant="ghost" size="sm">
-                    Create one <ArrowRight size={14} />
+                  <Button variant="primary" size="sm" className="font-semibold shadow-md px-5">
+                    Create your first workspace <ArrowRight size={14} />
                   </Button>
                 </Link>
               </div>
-            )}
+            </CardBody>
+          )}
+        </Card>
+      </div>
+
+      {/* ===== AI Advisor Banner & Quick Shortcuts ===== */}
+      <div className="grid gap-6 md:grid-cols-3">
+        {/* All-in-One Shortcut */}
+        <Link to="/workspace" className="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--section)] focus-visible:ring-offset-2 focus-visible:ring-offset-app-bg">
+          <Card className="h-full transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-glow">
+            <CardBody className="flex flex-col justify-between h-full p-6">
+              <div className="flex items-start gap-4">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary-soft text-primary transition-all group-hover:scale-110 group-hover:gradient-fill group-hover:text-white">
+                  <MessageSquareText size={20} />
+                </span>
+                <div>
+                  <h3 className="text-base font-bold text-text tracking-tight">All-in-One workspace</h3>
+                  <p className="mt-1 text-xs text-text-muted leading-relaxed">
+                    Analyze a domain across keyword research, SERP rankings, speed, backlinks, and on-page optimization simultaneously.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-5 flex items-center justify-end text-primary text-xs font-bold gap-1 group-hover:underline">
+                Enter workspace <ArrowRight size={13} />
+              </div>
+            </CardBody>
+          </Card>
+        </Link>
+
+        {/* Site Report Shortcut */}
+        <Link to="/report" className="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--section)] focus-visible:ring-offset-2 focus-visible:ring-offset-app-bg">
+          <Card className="h-full transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-glow">
+            <CardBody className="flex flex-col justify-between h-full p-6">
+              <div className="flex items-start gap-4">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary-soft text-primary transition-all group-hover:scale-110 group-hover:gradient-fill group-hover:text-white">
+                  <FileBarChart size={20} />
+                </span>
+                <div>
+                  <h3 className="text-base font-bold text-text tracking-tight">Composite site report</h3>
+                  <p className="mt-1 text-xs text-text-muted leading-relaxed">
+                    Generate an executive summary audit containing a domain's core findings, top keywords, and detailed recommendations.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-5 flex items-center justify-end text-primary text-xs font-bold gap-1 group-hover:underline">
+                Create report <ArrowRight size={13} />
+              </div>
+            </CardBody>
+          </Card>
+        </Link>
+
+        {/* AI Advisor Panel */}
+        <Card className="border-gradient relative overflow-hidden bg-gradient-to-br from-surface to-primary-soft/30">
+          <CardBody className="flex flex-col justify-between h-full p-6 relative z-10">
+            <div>
+              <div className="flex items-center gap-2 text-primary font-bold text-sm uppercase tracking-wider">
+                <Sparkles size={16} className="text-primary" />
+                <span>AI SEO Advisor</span>
+              </div>
+              <p className="mt-2.5 text-xs text-text-muted leading-relaxed">
+                Connect your workspace to activate the Google Gemini SEO Engine. Get prioritized, technical recommendations from your audit and keyword datasets.
+              </p>
+            </div>
+            <div className="mt-5 pt-3 border-t border-border/60">
+              <Link to="/audit">
+                <Button variant="outline" size="sm" className="w-full text-xs font-bold bg-surface hover:bg-primary-soft transition-all">
+                  Trigger Audit to Start
+                </Button>
+              </Link>
+            </div>
           </CardBody>
         </Card>
       </div>

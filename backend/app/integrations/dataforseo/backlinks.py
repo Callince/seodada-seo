@@ -17,6 +17,11 @@ PATH_SUMMARY = "/v3/backlinks/summary/live"
 PATH_BACKLINKS = "/v3/backlinks/backlinks/live"
 PATH_REFERRING = "/v3/backlinks/referring_domains/live"
 PATH_ANCHORS = "/v3/backlinks/anchors/live"
+PATH_TIMESERIES = "/v3/backlinks/timeseries_summary/live"
+PATH_NEW_LOST = "/v3/backlinks/timeseries_new_lost_summary/live"
+PATH_COMPETITORS = "/v3/backlinks/competitors/live"
+PATH_BULK_SPAM = "/v3/backlinks/bulk_spam_score/live"
+PATH_DOMAIN_INTERSECTION = "/v3/backlinks/domain_intersection/live"
 
 
 from app.services.normalize import clean_domain as _clean  # single shared normalizer
@@ -49,6 +54,50 @@ async def referring_domains(target: str, limit: int = 50) -> DfsResult:
 async def anchors(target: str, limit: int = 50) -> DfsResult:
     payload = {"target": _clean(target), "limit": limit, "order_by": ["backlinks,desc"]}
     return await dfs_client.post(PATH_ANCHORS, payload)
+
+
+async def timeseries(target: str, date_from: str, date_to: str) -> DfsResult:
+    """Authority/link totals over time (monthly buckets)."""
+    payload = {
+        "target": _clean(target),
+        "date_from": date_from,
+        "date_to": date_to,
+        "group_range": "month",
+    }
+    return await dfs_client.post(PATH_TIMESERIES, payload)
+
+
+async def new_lost(target: str, date_from: str, date_to: str) -> DfsResult:
+    """New vs lost backlinks/referring domains over time (monthly buckets)."""
+    payload = {
+        "target": _clean(target),
+        "date_from": date_from,
+        "date_to": date_to,
+        "group_range": "month",
+    }
+    return await dfs_client.post(PATH_NEW_LOST, payload)
+
+
+async def competitors(target: str, limit: int = 20) -> DfsResult:
+    """Domains with the most overlapping link profile."""
+    payload = {"target": _clean(target), "limit": limit, "exclude_large_domains": True}
+    return await dfs_client.post(PATH_COMPETITORS, payload)
+
+
+async def spam_score(target: str) -> DfsResult:
+    return await dfs_client.post(PATH_BULK_SPAM, {"targets": [_clean(target)]})
+
+
+async def link_gap(target: str, competitors_: list[str], limit: int = 50) -> DfsResult:
+    """Referring domains that link to the competitors but NOT to `target`."""
+    targets = {str(i + 1): _clean(c) for i, c in enumerate(competitors_)}
+    payload = {
+        "targets": targets,
+        "exclude_targets": [_clean(target)],
+        "limit": limit,
+        "order_by": ["1.rank,desc"],
+    }
+    return await dfs_client.post(PATH_DOMAIN_INTERSECTION, payload)
 
 
 # ---------------------------------------------------------------- parsers
@@ -114,6 +163,16 @@ def parse_referring_domains(result: list[dict[str, Any]]) -> list[dict]:
     ]
 
 
+def _mostly_dofollow(item: dict[str, Any]) -> bool:
+    """An anchor is 'dofollow' if its dofollow links outnumber nofollow ones.
+    Robust to DataForSEO returning referring_links_attributes as null or a
+    non-dict — the old code called .get() on a null value and 500'd."""
+    backlinks = int(item.get("backlinks") or 0)
+    attrs = item.get("referring_links_attributes")
+    nofollow = int(attrs.get("nofollow") or 0) if isinstance(attrs, dict) else 0
+    return backlinks > nofollow
+
+
 def parse_anchors(result: list[dict[str, Any]]) -> list[dict]:
     items = (result[0].get("items") if result else None) or []
     return [
@@ -121,9 +180,87 @@ def parse_anchors(result: list[dict[str, Any]]) -> list[dict]:
             "anchor": i.get("anchor"),
             "backlinks": i.get("backlinks"),
             "referring_domains": i.get("referring_domains"),
-            "dofollow": i.get("referring_links_attributes", {}).get("nofollow") is None
-            or (i.get("backlinks") or 0) > int((i.get("referring_links_attributes") or {}).get("nofollow") or 0),
+            "dofollow": _mostly_dofollow(i),
         }
         for i in items
         if i.get("anchor")
     ]
+
+
+def parse_timeseries(result: list[dict[str, Any]]) -> list[dict]:
+    items = (result[0].get("items") if result else None) or []
+    return [
+        {
+            "date": (i.get("date") or "")[:10],
+            "rank": i.get("rank"),
+            "authority": authority_from_rank(i.get("rank")),
+            "backlinks": i.get("backlinks"),
+            "referring_domains": i.get("referring_domains"),
+        }
+        for i in items
+        if i.get("date")
+    ]
+
+
+def parse_new_lost(result: list[dict[str, Any]]) -> list[dict]:
+    items = (result[0].get("items") if result else None) or []
+    return [
+        {
+            "date": (i.get("date") or "")[:10],
+            "new_backlinks": i.get("new_backlinks"),
+            "lost_backlinks": i.get("lost_backlinks"),
+            "new_referring_domains": i.get("new_referring_domains"),
+            "lost_referring_domains": i.get("lost_referring_domains"),
+        }
+        for i in items
+        if i.get("date")
+    ]
+
+
+def parse_competitors(result: list[dict[str, Any]]) -> list[dict]:
+    # NB: this endpoint's `rank` is not the 0-1000 backlink rank — surface raw.
+    items = (result[0].get("items") if result else None) or []
+    return [
+        {
+            "domain": i.get("target"),
+            "rank": i.get("rank"),
+            "intersections": i.get("intersections"),
+        }
+        for i in items
+        if i.get("target")
+    ]
+
+
+def parse_spam_score(result: list[dict[str, Any]]) -> int | None:
+    items = (result[0].get("items") if result else None) or []
+    if not items:
+        return None
+    score = items[0].get("spam_score")
+    return int(score) if score is not None else None
+
+
+def parse_link_gap(result: list[dict[str, Any]]) -> list[dict]:
+    """Each item nests per-target summaries under `domain_intersection`, keyed
+    by target index ("1", "2", …); the referring domain is each entry's
+    `target`. NB: multi-competitor mode returns domains linking to ALL of them."""
+    items = (result[0].get("items") if result else None) or []
+    rows: list[dict] = []
+    for i in items:
+        per_target = [
+            v
+            for v in (i.get("domain_intersection") or {}).values()
+            if isinstance(v, dict)
+        ]
+        if not per_target:
+            continue
+        first = per_target[0]
+        rows.append(
+            {
+                "domain": first.get("target"),
+                "rank": first.get("rank"),
+                "authority": authority_from_rank(first.get("rank")),
+                "links_to_competitors": sum(int(t.get("backlinks") or 0) for t in per_target),
+                "competitors_linked": len(per_target),
+            }
+        )
+    return [r for r in rows if r["domain"]]

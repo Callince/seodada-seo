@@ -66,6 +66,14 @@ class Settings(BaseSettings):
         "Mozilla/5.0 (compatible; FourDM-SiteAuditor/1.0; +https://seo.fourdm.services) "
         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
     )
+    # Advanced scraper (App B TieredCrawler) — powers the Site Audit crawl with
+    # curl_cffi TLS spoofing (Cloudflare-resistant), selectolax parsing, robots +
+    # AIMD politeness, and ETag caching.
+    crawl_max_depth: int = 5                 # BFS depth cap; max_pages still bounds size
+    scraper_cache_db: str = "scraper_cache.sqlite"  # ETag/frontier SQLite (writable path)
+    # JS rendering via Playwright. Off by default (the HTTP crawl already spoofs
+    # TLS); enable for SPA sites — also run `playwright install chromium`.
+    scraper_render_js: bool = False
 
     # Database
     database_url: str = "sqlite+aiosqlite:///./dev.db"
@@ -79,9 +87,21 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_minutes: int = 30
     refresh_token_days: int = 7
+    reset_token_minutes: int = 30  # password-reset link validity
 
     # Quotas
     default_org_quota_cents: int = 5000
+    # Daily analysis-count limit (seodada model): the active plan's usage_per_day,
+    # or this free allowance when there's no subscription. Toggle off to disable.
+    quota_enabled: bool = True
+    free_daily_analyses: int = 10
+
+    # Where admin-uploaded content images (blog covers / inline) are written.
+    # Defaults to the frontend's public content-assets dir so uploads sit next to
+    # the migrated seodada images and are served from the same /content-assets/
+    # path. In production point this at the nginx-served content-assets location
+    # (or a shared volume) so freshly uploaded files are reachable.
+    content_upload_dir: str = r"D:\data for seo\frontend\public\content-assets\uploads"
 
     # Platform admins — comma-separated emails granted access to /admin
     # (user management + per-user spend reporting). The User.role column is
@@ -181,6 +201,16 @@ class Settings(BaseSettings):
     razorpay_key_id: str = ""
     razorpay_key_secret: str = ""
     razorpay_webhook_secret: str = ""
+    # Seller details for the GST tax invoice (intra-state CGST+SGST). Defaults
+    # from the seodada company; override in .env for a different legal entity.
+    seller_name: str = "Fourth Dimension Media Solutions Pvt Ltd"
+    seller_gstin: str = "33AABCF6993P1ZY"
+    seller_state: str = "Tamil Nadu"
+    seller_state_code: str = "33"
+    seller_pan: str = "AABCF6993P"
+    seller_cin: str = "U22130TN2011PTC079276"
+    seller_hsn: str = "998314"  # SAC for digital services
+    seller_address: str = "Chennai, Tamil Nadu, India"
     gst_rate_percent: float = 18.0
     invoice_company_name: str = "FourDM"
 

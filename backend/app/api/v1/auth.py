@@ -13,20 +13,23 @@ from app.core.config import settings
 from app.core.security import (
     ACCESS,
     REFRESH,
+    RESET,
     create_access_token,
     create_refresh_token,
+    create_reset_token,
     decode_token,
     hash_password,
     verify_password,
 )
 from app.db.models import Organization, User
 from app.schemas.auth import (
-    _ALLOWED_DOMAINS,
     AuthResponse,
+    ForgotPasswordRequest,
     LoginRequest,
     MeOut,
     RefreshRequest,
     RegisterRequest,
+    ResetPasswordRequest,
     SignupVerifyRequest,
     TokenPair,
 )
@@ -48,9 +51,7 @@ def _frontend_base() -> str:
 
 
 async def _upsert_google_user(db: AsyncSession, email: str, name: str) -> User:
-    """Find or create a user for a verified Google email. Company domains only."""
-    if email.rsplit("@", 1)[-1].lower() not in _ALLOWED_DOMAINS:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Only @fourdm.com / @fourdm.digital accounts allowed")
+    """Find or create a user for a verified Google email (open to any account)."""
     user = await db.scalar(select(User).where(User.email == email))
     if user:
         return user
@@ -59,7 +60,7 @@ async def _upsert_google_user(db: AsyncSession, email: str, name: str) -> User:
     await db.flush()
     user = User(
         email=email, hashed_password=hash_password(secrets.token_urlsafe(24)),
-        full_name=name or "", org_id=org.id, role="owner",
+        full_name=name or "", org_id=org.id, role="owner", is_verified=True,
     )
     db.add(user)
     await db.commit()
@@ -82,7 +83,12 @@ async def _create_account(db: AsyncSession, email: str, hashed_pw: str, full_nam
     org = Organization(name=org_name.strip() or email, monthly_quota_cents=settings.default_org_quota_cents)
     db.add(org)
     await db.flush()
-    user = User(email=email, hashed_password=hashed_pw, full_name=full_name, org_id=org.id, role="owner")
+    # Reaches here only after the emailed OTP (or with email delivery disabled),
+    # so the address is confirmed — mark verified.
+    user = User(
+        email=email, hashed_password=hashed_pw, full_name=full_name,
+        org_id=org.id, role="owner", is_verified=True,
+    )
     db.add(user)
     await db.commit()
     await db.refresh(user)
@@ -148,6 +154,22 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db_session)):
     }
 
 
+@router.post("/admin/login", response_model=AuthResponse)
+async def admin_login(body: LoginRequest, db: AsyncSession = Depends(get_db_session)):
+    """Separate admin sign-in — same credentials, but only platform admins (emails
+    in ADMIN_EMAILS) are allowed through. Non-admins are rejected with 403."""
+    user = await db.scalar(select(User).where(User.email == body.email))
+    if not user or not verify_password(body.password, user.hashed_password):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
+    if not is_platform_admin(user):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "This account is not an administrator.")
+    return {
+        "access_token": create_access_token(user.id),
+        "refresh_token": create_refresh_token(user.id),
+        "user": _user_out(user),
+    }
+
+
 @router.post("/refresh", response_model=TokenPair)
 async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db_session)):
     user_id = decode_token(body.refresh_token, REFRESH)
@@ -156,6 +178,40 @@ async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db_sessio
     return {
         "access_token": create_access_token(user_id),
         "refresh_token": create_refresh_token(user_id),
+    }
+
+
+@router.post("/password/forgot")
+async def forgot_password(body: ForgotPasswordRequest, db: AsyncSession = Depends(get_db_session)):
+    """Email a password-reset link. Always returns ok so the endpoint can't be
+    used to probe which emails are registered."""
+    user = await db.scalar(select(User).where(User.email == body.email))
+    if user and settings.emails_enabled:
+        token = create_reset_token(user.id)
+        link = f"{_frontend_base()}/reset-password?token={token}"
+        await email_svc.send_email(
+            user.email, "Reset your seodada password",
+            f"<p>We received a request to reset your password.</p>"
+            f"<p><a href='{link}'>Click here to choose a new password</a>. "
+            f"This link expires in {settings.reset_token_minutes} minutes.</p>"
+            f"<p>If you didn't request this, you can safely ignore this email.</p>",
+        )
+    return {"ok": True}
+
+
+@router.post("/password/reset", response_model=AuthResponse)
+async def reset_password(body: ResetPasswordRequest, db: AsyncSession = Depends(get_db_session)):
+    user_id = decode_token(body.token, RESET)
+    user = await db.get(User, user_id) if user_id else None
+    if not user:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "This reset link is invalid or has expired.")
+    user.hashed_password = hash_password(body.password)
+    await db.commit()
+    await db.refresh(user)
+    return {
+        "access_token": create_access_token(user.id),
+        "refresh_token": create_refresh_token(user.id),
+        "user": _user_out(user),
     }
 
 
