@@ -44,7 +44,7 @@ export function PAAList({ items }: { items: PaaItem[] }) {
                   }
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-2 inline-flex items-center gap-1 text-primary hover:underline"
+                  className="mt-2 inline-flex items-center gap-1 text-[color:var(--section)] hover:underline"
                 >
                   <ExternalLink size={12} /> {it.url ? "Source" : "Search on Google"}
                 </a>

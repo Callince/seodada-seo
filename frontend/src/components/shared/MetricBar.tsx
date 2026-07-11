@@ -12,7 +12,7 @@ const TONE: Record<NonNullable<Metric["tone"]>, string> = {
   default: "text-text",
   danger: "text-danger",
   warning: "text-warning",
-  success: "text-primary",
+  success: "text-success",
 };
 
 /** Ahrefs-style horizontal metric strip — big numbers separated by dividers. */

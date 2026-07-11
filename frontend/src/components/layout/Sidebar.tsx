@@ -15,7 +15,7 @@ import { NavLink } from "react-router-dom";
 
 import { cn } from "@/lib/cn";
 import { visibleNavItems, type NavItem } from "@/lib/nav";
-import { sectionIdForName, sectionVars } from "@/lib/sections";
+import { moduleForSection, sectionVars } from "@/lib/sections";
 import { useAuth } from "@/store/auth";
 
 /** One icon chip per workflow group (mock: search/shield/rocket/chart/case). */
@@ -99,14 +99,14 @@ export function Sidebar({
           open ? "flex animate-fade-rise" : "hidden lg:flex",
         )}
       >
-        <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto overflow-x-hidden p-3 lg:px-2">
+        <nav className="scrollbar-subtle flex flex-1 flex-col gap-0.5 overflow-y-auto overflow-x-hidden p-3 lg:px-2">
           {groups.map((g) => {
             const GroupIcon = g.section ? GROUP_ICONS[g.section] : undefined;
             const step = g.section?.match(/^(\d+)\s·\s(.+)$/);
             const title = step ? step[2] : g.section;
             const isFolded = !!(g.section && folded[g.section]);
-            // Bind this group's accent so its chip + active items self-color.
-            const gvars = sectionVars(sectionIdForName(g.section));
+            // One accent per group, matching the dashboard stepper colors.
+            const gvars = sectionVars(moduleForSection(g.section));
 
             const links = g.items.map(({ to, label, icon: Icon, end }) => (
               <NavLink
@@ -117,11 +117,11 @@ export function Sidebar({
                 title={collapsed ? label : undefined}
                 className={({ isActive }) =>
                   cn(
-                    "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
+                    "relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
                     collapsed && "lg:justify-center lg:px-0",
                     isActive
                       ? "section-gradient font-semibold text-white shadow-glow"
-                      : "text-text-muted hover:bg-[color:var(--section-soft)] hover:text-text",
+                      : "text-text-muted hover:bg-[color:var(--section-soft)] hover:text-[color:var(--section)]",
                   )
                 }
               >
@@ -148,7 +148,8 @@ export function Sidebar({
               );
             }
 
-            // Expanded: icon-chip group header + collapsible items with a rail.
+            // Expanded: group header (accent chip) + collapsible items with a
+            // faint accent rail.
             return (
               <div key={g.section} className="mt-2 first:mt-0" style={gvars}>
                 <button
@@ -168,7 +169,7 @@ export function Sidebar({
                 {!isFolded && (
                   <div
                     className="ml-[15px] mt-0.5 space-y-0.5 border-l pl-2.5"
-                    style={{ borderColor: "color-mix(in srgb, var(--section) 30%, transparent)" }}
+                    style={{ borderColor: "color-mix(in srgb, var(--section) 35%, transparent)" }}
                   >
                     {links}
                   </div>

@@ -51,7 +51,7 @@ export default function ProjectDetail() {
                     className={cn(
                       "flex w-full flex-col gap-0.5 rounded-md border px-3 py-2 text-left transition-colors",
                       selected === r.id
-                        ? "border-primary bg-primary-soft"
+                        ? "border-[color:var(--section)] bg-[color:var(--section-soft)]"
                         : "border-border hover:bg-surface-2",
                     )}
                   >

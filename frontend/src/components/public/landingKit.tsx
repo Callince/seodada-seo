@@ -251,6 +251,8 @@ export const TONES = {
   teal: ["#14b8a6", "#0f766e"],
   sky: ["#38bdf8", "#0369a1"],
   amber: ["#f59e0b", "#b45309"],
+  rose: ["#ef4444", "#b91c1c"],
+  slate: ["#64748b", "#334155"],
 } as const;
 export type Tone = keyof typeof TONES;
 

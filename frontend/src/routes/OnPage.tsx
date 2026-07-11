@@ -1,4 +1,4 @@
-import { Gauge, RefreshCw, Search } from "lucide-react";
+import { BookOpen, FileText, Gauge, GraduationCap, RefreshCw, Search, Wrench } from "lucide-react";
 import { useState } from "react";
 
 import { useLighthouse, useOnPage } from "@/api/hooks/useOnPage";
@@ -6,6 +6,7 @@ import { apiErrorMessage } from "@/api/client";
 import { ScoreRing, type Tone } from "@/components/public/landingKit";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
+import { MetricCard } from "@/components/shared/MetricCard";
 import { SaveToProject } from "@/components/shared/SaveToProject";
 import { ScoreGauge } from "@/components/shared/ScoreGauge";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
@@ -91,7 +92,7 @@ function KeywordPanel({ ka }: { ka: KeywordAnalysis }) {
           <span
             key={k}
             className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-              ok ? "bg-primary-soft text-primary" : "bg-surface-2 text-text-muted line-through"
+              ok ? "bg-success/12 text-success" : "bg-surface-2 text-text-muted line-through"
             }`}
           >
             {ok ? "✓" : "✕"} {PLACEMENT_LABELS[k] ?? k}
@@ -159,7 +160,7 @@ function PixelBar({ label, m }: { label: string; m: SnippetPreview["title"] }) {
 }
 
 function Flag({ ok, label, bad }: { ok: boolean; label: string; bad?: boolean }) {
-  const tone = bad ? "bg-danger/15 text-danger" : ok ? "bg-primary-soft text-primary" : "bg-surface-2 text-text-muted";
+  const tone = bad ? "bg-danger/15 text-danger" : ok ? "bg-success/12 text-success" : "bg-surface-2 text-text-muted";
   return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${tone}`}>{ok ? "✓" : "✕"} {label}</span>;
 }
 
@@ -259,7 +260,7 @@ function ImagesCard({ images }: { images: ImageAudit }) {
                   href={img.src}
                   target="_blank"
                   rel="noreferrer"
-                  className="block truncate text-primary hover:underline"
+                  className="block truncate text-[color:var(--section)] hover:underline"
                 >
                   {fileName(img.src) || "(no src)"}
                 </a>
@@ -432,15 +433,6 @@ function LighthouseCard({ url }: { url: string }) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-xs font-medium uppercase tracking-wide text-text-muted">{label}</p>
-      <p className="mt-0.5 font-mono text-xl text-text">{value}</p>
-    </div>
-  );
-}
-
 export default function OnPage({ embedded }: { embedded?: boolean }) {
   const [url, setUrl] = usePersistedState("onpage.url", "");
   const [keyword, setKeyword] = usePersistedState("onpage.keyword", "");
@@ -553,20 +545,32 @@ function OnPageReport({
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card>
-          <CardBody className="flex flex-col items-center justify-center gap-2 py-6">
+          <CardBody className="flex flex-col items-center justify-center gap-3 py-6">
             <ScoreGauge score={data.content_score} label="content score" />
+            {(() => {
+              const s = data.content_score;
+              const v =
+                s == null
+                  ? null
+                  : s >= 90
+                    ? { t: "Excellent", c: "success" as const }
+                    : s >= 70
+                      ? { t: "Good", c: "success" as const }
+                      : s >= 50
+                        ? { t: "Fair", c: "warning" as const }
+                        : { t: "Needs work", c: "danger" as const };
+              return v ? <Badge tone={v.c}>{v.t}</Badge> : null;
+            })()}
           </CardBody>
         </Card>
-        <Card className="lg:col-span-2">
-          <CardBody className="grid grid-cols-2 gap-5 sm:grid-cols-4">
-            <Stat label="Word count" value={fmtInt(data.word_count)} />
-            <Stat label="Readability (FK)" value={data.readability.flesch_kincaid?.toFixed(1) ?? "—"} />
-            <Stat label="ARI" value={data.readability.ari?.toFixed(1) ?? "—"} />
-            {data.technical_score != null && (
-              <Stat label="Technical" value={data.technical_score.toFixed(0)} />
-            )}
-          </CardBody>
-        </Card>
+        <div className="grid grid-cols-2 gap-4 lg:col-span-2">
+          <MetricCard icon={FileText} label="Word count" value={fmtInt(data.word_count)} />
+          <MetricCard icon={BookOpen} label="Readability (FK)" value={data.readability.flesch_kincaid?.toFixed(1) ?? "—"} />
+          <MetricCard icon={GraduationCap} label="ARI" value={data.readability.ari?.toFixed(1) ?? "—"} />
+          {data.technical_score != null && (
+            <MetricCard icon={Wrench} label="Technical" value={data.technical_score.toFixed(0)} />
+          )}
+        </div>
       </div>
 
       {/* Core Web Vitals — explicit, separately billed Lighthouse run */}
@@ -608,7 +612,7 @@ function OnPageReport({
                 <ul className="space-y-1.5 text-sm text-text">
                   {data.recommendations.map((r, i) => (
                     <li key={i} className="flex gap-2">
-                      <span className="text-primary">→</span>
+                      <span className="text-[color:var(--section)]">→</span>
                       <span>{r}</span>
                     </li>
                   ))}

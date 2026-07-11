@@ -83,12 +83,17 @@ export default function Pricing() {
             <div
               key={p.name}
               className={cn(
-                "relative flex flex-col rounded-3xl border bg-surface p-8 shadow-sm transition-all hover:shadow-lg",
+                "relative flex flex-col rounded-3xl border bg-surface p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg",
                 p.popular
-                  ? "border-primary/40 shadow-glow md:-translate-y-2"
+                  ? "border-primary/40 shadow-glow md:-translate-y-2 md:hover:-translate-y-3"
                   : "border-border",
               )}
             >
+              {p.popular && (
+                <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
+                  <div className="absolute inset-x-0 -top-10 h-40 bg-gradient-to-b from-primary/15 to-transparent blur-2xl" />
+                </div>
+              )}
               {p.popular && (
                 <span className="absolute -top-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full gradient-fill px-3 py-1 text-xs font-semibold text-white shadow-glow">
                   <Sparkles size={13} /> Most popular
@@ -102,8 +107,9 @@ export default function Pricing() {
                 </span>
                 <span className="text-sm text-text-muted">/month</span>
               </div>
-              <div className="mt-4 rounded-xl bg-primary-soft px-4 py-3 text-sm font-medium text-primary">
-                {p.perDay} analyses per day
+              <div className="mt-4 flex items-baseline gap-1.5 rounded-xl bg-primary-soft px-4 py-3 text-primary">
+                <span className="text-lg font-bold tabular-nums">{p.perDay}</span>
+                <span className="text-sm font-medium">analyses per day</span>
               </div>
               <Link to="/register" className="mt-6">
                 <Button
@@ -128,7 +134,9 @@ export default function Pricing() {
           <ul className="mt-5 grid gap-3 sm:grid-cols-2">
             {features.map((f) => (
               <li key={f} className="flex items-start gap-2.5 text-sm">
-                <Check size={18} className="mt-0.5 shrink-0 text-success" />
+                <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-success/12 text-success">
+                  <Check size={13} strokeWidth={3} />
+                </span>
                 <span className="text-text-muted">{f}</span>
               </li>
             ))}

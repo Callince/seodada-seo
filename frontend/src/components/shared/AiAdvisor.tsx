@@ -17,12 +17,12 @@ export function AiAdvisor({ context, ready }: { context: Record<string, unknown>
   const run = () => ai.mutate(context, { onError: (e) => toast.error(apiErrorMessage(e)) });
 
   return (
-    <Card className="border-primary/40">
+    <Card className="border-[color:var(--section)]">
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle>
             <span className="inline-flex items-center gap-2">
-              <Sparkles size={16} className="text-primary" /> AI SEO Advisor
+              <Sparkles size={16} className="text-[color:var(--section)]" /> AI SEO Advisor
             </span>
           </CardTitle>
           <Button size="sm" onClick={run} loading={ai.isPending} disabled={!ready}>

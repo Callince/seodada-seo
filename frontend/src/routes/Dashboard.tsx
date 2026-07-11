@@ -1,6 +1,5 @@
 import {
   ArrowRight,
-  ArrowUpRight,
   BarChart3,
   Briefcase,
   CalendarDays,
@@ -27,22 +26,23 @@ import { useProjects } from "@/api/hooks/useProjects";
 import { useDashboardStats } from "@/api/hooks/useUsage";
 import { AreaChart, ScoreRing, TONES, type Tone } from "@/components/public/landingKit";
 import { LocationLanguagePicker } from "@/components/shared/LocationLanguagePicker";
+import { MetricCard } from "@/components/shared/MetricCard";
 import { PageHeader } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { fmtInt } from "@/lib/format";
 import { usePersistedState } from "@/lib/persist";
-import { sectionVars, type SectionId } from "@/lib/sections";
+import { moduleForPath, sectionVars } from "@/lib/sections";
 import { useAuth } from "@/store/auth";
 
 /** The SEO workflow — mirrors the sidebar so the journey is consistent. */
-const WORKFLOW: { n: number; title: string; desc: string; to: string; icon: LucideIcon; section: SectionId }[] = [
-  { n: 1, title: "Research", desc: "Find the right keywords and competitors", to: "/keywords", icon: Search, section: "research" },
-  { n: 2, title: "Audit", desc: "Analyze technical SEO and content issues", to: "/audit", icon: ShieldCheck, section: "audit" },
-  { n: 3, title: "Optimize", desc: "Optimize content and on-page elements", to: "/content", icon: Rocket, section: "optimize" },
-  { n: 4, title: "Track", desc: "Track rankings and monitor performance", to: "/rank", icon: BarChart3, section: "track" },
-  { n: 5, title: "Manage", desc: "Manage projects, reports and schedules", to: "/projects", icon: Briefcase, section: "manage" },
+const WORKFLOW: { n: number; title: string; desc: string; to: string; icon: LucideIcon }[] = [
+  { n: 1, title: "Research", desc: "Find the right keywords and competitors", to: "/keywords", icon: Search },
+  { n: 2, title: "Audit", desc: "Analyze technical SEO and content issues", to: "/audit", icon: ShieldCheck },
+  { n: 3, title: "Optimize", desc: "Optimize content and on-page elements", to: "/content", icon: Rocket },
+  { n: 4, title: "Track", desc: "Track rankings and monitor performance", to: "/rank", icon: BarChart3 },
+  { n: 5, title: "Manage", desc: "Manage projects, reports and schedules", to: "/projects", icon: Briefcase },
 ];
 
 /** The six instant analysis tools, each with its own on-brand tone. */
@@ -127,7 +127,7 @@ export default function Dashboard() {
               <Link
                 key={s.n}
                 to={s.to}
-                style={sectionVars(s.section)}
+                style={sectionVars(moduleForPath(s.to))}
                 className="group relative z-10 flex flex-col items-center px-2 text-center focus-visible:outline-none"
               >
                 <span className="section-gradient grid h-14 w-14 place-items-center rounded-2xl text-white shadow-glow ring-4 ring-surface transition-transform duration-300 group-hover:scale-110 group-focus-visible:ring-[color:var(--section)]">
@@ -181,45 +181,28 @@ export default function Dashboard() {
           </CardBody>
         </Card>
 
-        {/* Total analyses + real/mock usage sparkline */}
-        <Card className="min-h-[148px]">
-          <CardBody className="flex h-full flex-col justify-between">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Total Analyses</p>
-                <p className="mt-1 text-2xl font-extrabold text-text font-mono">{fmtInt(stats?.total_analyses ?? 0)}</p>
-              </div>
-              <ArrowUpRight size={18} className="text-success bg-success/10 p-1 rounded-lg h-7 w-7" />
-            </div>
-            <div className="mt-1 h-10">
-              {hasSeries ? (
-                <AreaChart values={series} id="dash-usage" height={40} tone="blue" />
-              ) : (
-                <div className="flex h-full items-center text-xs text-text-muted">No activity yet</div>
-              )}
-            </div>
-          </CardBody>
-        </Card>
+        {/* Total analyses — KPI with sparkline */}
+        <MetricCard
+          icon={BarChart3}
+          label="Total Analyses"
+          value={fmtInt(stats?.total_analyses ?? 0)}
+          series={hasSeries ? series : undefined}
+          sparkId="dash-usage"
+          tone="blue"
+          sub={hasSeries ? undefined : "No activity yet"}
+        />
 
-        {/* Top tool */}
-        <Card className="min-h-[148px]">
-          <CardBody className="flex h-full flex-col justify-between">
-            <div className="flex items-start justify-between">
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted">Favorite Tool</p>
-                <p className="mt-1 truncate text-xl font-extrabold text-text tracking-tight">{favLabel}</p>
-              </div>
-              <Star size={18} className="text-warning bg-warning/10 p-1 rounded-lg h-7 w-7 fill-warning/20" />
-            </div>
-            <div className="text-[11px] text-text-muted flex flex-col gap-1">
-              {stats?.favorite_tool_count ? (
-                <p className="mt-0.5">Used {fmtInt(stats.favorite_tool_count)} times this cycle</p>
-              ) : (
-                <p className="italic text-text-muted">No run history yet. Try a tool below!</p>
-              )}
-            </div>
-          </CardBody>
-        </Card>
+        {/* Favorite tool */}
+        <MetricCard
+          icon={Star}
+          label="Favorite Tool"
+          value={favLabel}
+          sub={
+            stats?.favorite_tool_count
+              ? `Used ${fmtInt(stats.favorite_tool_count)} times this cycle`
+              : "No run history yet — try a tool below."
+          }
+        />
       </div>
 
       {/* ===== Quick SERP lookup — Glassmorphic Search Hub ===== */}

@@ -1,4 +1,4 @@
-import { ArrowLeftRight, Search } from "lucide-react";
+import { ArrowLeftRight, Hash, HelpCircle, Search, Sparkles, Target } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -6,6 +6,7 @@ import { useSerpRanking } from "@/api/hooks/useSerp";
 import { apiErrorMessage } from "@/api/client";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
+import { MetricCard } from "@/components/shared/MetricCard";
 import {
   LocationLanguagePicker,
   locationLabel,
@@ -37,7 +38,7 @@ const columns: Column<SerpResult>[] = [
     key: "title", header: "Title", sortValue: (r) => r.title,
     render: (r) => (
       <span className="inline-flex items-center gap-2">
-        <a href={r.url} target="_blank" rel="noreferrer" className="font-medium text-text hover:text-primary hover:underline">
+        <a href={r.url} target="_blank" rel="noreferrer" className="font-medium text-text hover:text-[color:var(--section)] hover:underline">
           {r.title || r.url}
         </a>
         {r.featured && <Badge tone="warning">featured</Badge>}
@@ -77,7 +78,7 @@ function GoogleView({ results, highlight }: { results: SerpResult[]; highlight: 
         return (
           <div
             key={`${r.position}-${r.url}`}
-            className={cn("rounded-md p-3", hit && "bg-primary-soft ring-1 ring-primary/40")}
+            className={cn("rounded-md p-3", hit && "bg-[color:var(--section-soft)] ring-1 ring-[color:var(--section)]")}
           >
             <div className="flex items-center gap-2 text-xs text-text-muted">
               <span className="flex h-5 min-w-7 items-center justify-center rounded bg-surface-2 px-1 font-mono">
@@ -146,7 +147,7 @@ function CompareView({
       key: "domain", header: "Domain", sortValue: (r) => r.domain,
       render: (r) => (
         <div className="min-w-0">
-          <p className={cn("truncate font-medium", hl && (r.domain === hl || r.domain.endsWith("." + hl)) ? "text-primary" : "text-text")}>
+          <p className={cn("truncate font-medium", hl && (r.domain === hl || r.domain.endsWith("." + hl)) ? "text-[color:var(--section)]" : "text-text")}>
             {r.domain}
           </p>
           <p className="truncate text-xs text-text-muted">{r.title}</p>
@@ -187,7 +188,7 @@ function CompareView({
         <Badge tone="info">{onlyB} only in {labelB}</Badge>
       </div>
       {hl && (
-        <Card className={hlRow ? "border-primary/40 bg-primary-soft/40" : "border-warning/40 bg-warning/5"}>
+        <Card className={hlRow ? "border-[color:var(--section)] bg-[color:var(--section-soft)]" : "border-warning/40 bg-warning/5"}>
           <CardBody className="py-3 text-sm">
             {hlRow ? (
               <>
@@ -291,11 +292,11 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
               <option value="mobile">Mobile</option>
             </Select>
             <label className="flex items-center gap-1.5 whitespace-nowrap text-sm text-text-muted" title="Bypass the cache and fetch fresh (billed) data">
-              <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} className="h-4 w-4 accent-[var(--primary)]" />
+              <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} className="h-4 w-4 accent-[var(--section)]" />
               Live
             </label>
             <label className="flex items-center gap-1.5 whitespace-nowrap text-sm text-text-muted" title="Crawl the same keyword in a second market and diff the results">
-              <input type="checkbox" checked={compare} onChange={(e) => setCompare(e.target.checked)} className="h-4 w-4 accent-[var(--primary)]" />
+              <input type="checkbox" checked={compare} onChange={(e) => setCompare(e.target.checked)} className="h-4 w-4 accent-[var(--section)]" />
               Compare markets
             </label>
             <Button type="submit" disabled={pending || !keyword.trim()}>
@@ -331,7 +332,7 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
         <div className="animate-fade-rise space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-lg font-semibold text-text">
-              {data.results.length} results for <span className="text-primary">“{data.keyword}”</span>
+              {data.results.length} results for <span className="text-[color:var(--section)]">“{data.keyword}”</span>
               <span className="ml-2 text-sm font-normal text-text-muted">{locationLabel(loc.location_code)}</span>
             </h2>
             <div className="flex items-center gap-2">
@@ -343,6 +344,28 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
               />
             </div>
           </div>
+
+          {!compare && data.results.length > 0 && (() => {
+            const hlNorm = normDomain(highlight.trim());
+            const hlHit = hlNorm
+              ? data.results.find((r) => normDomain(r.domain) === hlNorm || normDomain(r.domain).endsWith("." + hlNorm))
+              : null;
+            return (
+              <div className={cn("grid grid-cols-2 gap-4", hlNorm ? "lg:grid-cols-4" : "lg:grid-cols-3")}>
+                <MetricCard icon={Hash} label="Organic results" value={fmtInt(data.results.length)} />
+                <MetricCard icon={Sparkles} label="Featured snippet" value={data.results.some((r) => r.featured) ? "Yes" : "No"} />
+                <MetricCard icon={HelpCircle} label="People Also Ask" value={fmtInt(data.paa.length)} />
+                {hlNorm && (
+                  <MetricCard
+                    icon={Target}
+                    label={highlight.trim()}
+                    value={hlHit?.position != null ? `#${hlHit.position}` : "Not ranking"}
+                    sub={hlHit ? "best position" : "absent from results"}
+                  />
+                )}
+              </div>
+            );
+          })()}
 
           {compare && mutation2.data ? (
             <CompareView

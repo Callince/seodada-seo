@@ -1,4 +1,4 @@
-import { ArrowRight, CalendarClock, FileText, Printer } from "lucide-react";
+import { ArrowRight, CalendarClock, DollarSign, FileText, Flag, ListTree, Printer, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -9,8 +9,8 @@ import { AiAdvisor } from "@/components/shared/AiAdvisor";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
 import { LocationLanguagePicker } from "@/components/shared/LocationLanguagePicker";
+import { MetricCard } from "@/components/shared/MetricCard";
 import { ScoreGauge } from "@/components/shared/ScoreGauge";
-import { StatCard } from "@/components/shared/StatCard";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +28,7 @@ const pageCols: Column<PageReport>[] = [
     header: "Page",
     sortValue: (r) => r.url,
     render: (r) => (
-      <a href={r.url} target="_blank" rel="noreferrer" className="text-primary hover:underline">
+      <a href={r.url} target="_blank" rel="noreferrer" className="text-[color:var(--section)] hover:underline">
         {(() => {
           try {
             return new URL(r.url).pathname || r.url;
@@ -112,7 +112,7 @@ function SchedulePanel({
       <CardHeader>
         <CardTitle>
           <span className="inline-flex items-center gap-2">
-            <CalendarClock size={16} className="text-primary" /> Automate this report
+            <CalendarClock size={16} className="text-[color:var(--section)]" /> Automate this report
           </span>
         </CardTitle>
       </CardHeader>
@@ -143,7 +143,7 @@ function SchedulePanel({
           {emailTo.trim() ? ` and emails ${emailTo.trim()}` : ""}.
         </span>
 
-        <Link to="/schedules" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+        <Link to="/schedules" className="inline-flex items-center gap-1 text-xs text-[color:var(--section)] hover:underline">
           Manage all schedules <ArrowRight size={12} />
         </Link>
       </CardBody>
@@ -170,7 +170,7 @@ function Report({ data }: { data: SiteReportResponse }) {
     <div className="animate-fade-rise space-y-5">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-text">
-          Report for <span className="text-primary">{data.domain}</span>
+          Report for <span className="text-[color:var(--section)]">{data.domain}</span>
           {data.keyword && <span className="text-text-muted"> · “{data.keyword}”</span>}
         </h2>
         <div className="flex items-center gap-2">
@@ -183,7 +183,7 @@ function Report({ data }: { data: SiteReportResponse }) {
 
       {/* Bento hero — health gauge anchors a 6-col mosaic of metric tiles. */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-6">
-        <Card className="col-span-2 row-span-2 bg-gradient-to-br from-primary-soft/70 to-surface transition-shadow hover:shadow-md">
+        <Card className="col-span-2 row-span-2 bg-gradient-to-br from-[color:var(--section-soft)] to-surface transition-shadow hover:shadow-md">
           <CardBody className="flex h-full items-center justify-center py-6">
             <ScoreGauge
               score={data.health_score}
@@ -193,23 +193,24 @@ function Report({ data }: { data: SiteReportResponse }) {
             />
           </CardBody>
         </Card>
-        <StatCard className="lg:col-span-2" label="Organic keywords" value={fmtInt(org.count)} accent />
-        <StatCard
+        <MetricCard className="lg:col-span-2" icon={ListTree} label="Organic keywords" value={fmtInt(org.count)} />
+        <MetricCard
           className="lg:col-span-2"
+          icon={DollarSign}
           label="Est. traffic value"
           value={org.traffic_cost == null ? "—" : `$${(org.traffic_cost / 100).toFixed(0)}`}
         />
         {data.ranking ? (
-          <StatCard
+          <MetricCard
             className="lg:col-span-2"
+            icon={TrendingUp}
             label={`Rank · ${data.keyword}`}
             value={data.ranking.found ? `#${data.ranking.position}` : "Not found"}
-            accent={!!data.ranking.found}
           />
         ) : (
-          <StatCard className="lg:col-span-2" label="Key findings" value={String(data.findings.length)} />
+          <MetricCard className="lg:col-span-2" icon={Flag} label="Key findings" value={String(data.findings.length)} />
         )}
-        <StatCard className="lg:col-span-2" label="Pages analyzed" value={String(data.pages.length)} />
+        <MetricCard className="lg:col-span-2" icon={FileText} label="Pages analyzed" value={String(data.pages.length)} />
       </div>
 
       {/* Advisor dominates; findings + recommendations stack beside it. */}
@@ -234,7 +235,7 @@ function Report({ data }: { data: SiteReportResponse }) {
                   <ul className="space-y-1.5 text-sm text-text">
                     {data.findings.map((f, i) => (
                       <li key={i} className="flex gap-2">
-                        <span className="text-primary">•</span>
+                        <span className="text-[color:var(--section)]">•</span>
                         <span>{f}</span>
                       </li>
                     ))}
@@ -251,7 +252,7 @@ function Report({ data }: { data: SiteReportResponse }) {
                   <ul className="space-y-1.5 text-sm text-text">
                     {data.recommendations.map((r, i) => (
                       <li key={i} className="flex gap-2">
-                        <span className="text-primary">→</span>
+                        <span className="text-[color:var(--section)]">→</span>
                         <span>{r}</span>
                       </li>
                     ))}

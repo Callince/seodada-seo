@@ -1,12 +1,12 @@
-import { ExternalLink, RefreshCw, Search } from "lucide-react";
+import { ExternalLink, Frown, Gauge, Meh, RefreshCw, Search, Smile } from "lucide-react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 import { useContentAnalysis, usePhraseTrends, useSentiment } from "@/api/hooks/useContent";
 import { apiErrorMessage } from "@/api/client";
 import { AreaChart } from "@/components/public/landingKit";
 import { CacheBadge } from "@/components/shared/CacheBadge";
+import { MetricCard } from "@/components/shared/MetricCard";
 import { SaveToProject } from "@/components/shared/SaveToProject";
-import { StatCard } from "@/components/shared/StatCard";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
@@ -102,7 +102,7 @@ function connotationFill(label: string): string {
   if (k === "positive") return "bg-success";
   if (k === "negative") return "bg-danger";
   if (k === "neutral") return "bg-text-muted/40";
-  return "bg-primary";
+  return "bg-[color:var(--section)]";
 }
 
 function BrandSentiment({ data }: { data: SentimentResponse }) {
@@ -246,13 +246,13 @@ export default function ContentAnalysis({ embedded }: { embedded?: boolean }) {
                 : (["positive", "neutral", "negative"] as const).reduce((a, b) =>
                     (s[b] ?? 0) > (s[a] ?? 0) ? b : a,
                   );
-            const toneLabel = tone === "—" ? "—" : `Mostly ${tone}`;
+            const toneLabel = tone === "—" ? "—" : tone.charAt(0).toUpperCase() + tone.slice(1);
             return (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <StatCard label="Overall tone" value={toneLabel} accent mono={false} />
-                <StatCard label="Positive" value={`${pct(s.positive, total)}%`} />
-                <StatCard label="Neutral" value={`${pct(s.neutral, total)}%`} />
-                <StatCard label="Negative" value={`${pct(s.negative, total)}%`} />
+                <MetricCard icon={Gauge} label="Overall tone" value={toneLabel} />
+                <MetricCard icon={Smile} label="Positive" value={`${pct(s.positive, total)}%`} />
+                <MetricCard icon={Meh} label="Neutral" value={`${pct(s.neutral, total)}%`} />
+                <MetricCard icon={Frown} label="Negative" value={`${pct(s.negative, total)}%`} />
               </div>
             );
           })()}
@@ -284,7 +284,7 @@ export default function ContentAnalysis({ embedded }: { embedded?: boolean }) {
                       {c.title || c.url}
                       <ExternalLink size={12} className="text-text-muted" />
                     </div>
-                    {c.domain && <p className="text-xs text-primary">{c.domain}</p>}
+                    {c.domain && <p className="text-xs text-[color:var(--section)]">{c.domain}</p>}
                     {c.snippet && <p className="mt-1 line-clamp-2 text-sm text-text-muted">{c.snippet}</p>}
                   </a>
                 ))

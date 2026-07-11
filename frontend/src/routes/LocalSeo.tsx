@@ -1,15 +1,18 @@
-import { ExternalLink, MapPin, RefreshCw, Search, Star } from "lucide-react";
+import { ExternalLink, Flag, MapPin, MessageSquare, RefreshCw, Search, Star, Store } from "lucide-react";
 import { useState } from "react";
 
 import { apiErrorMessage } from "@/api/client";
 import { useListings } from "@/api/hooks/useLocal";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
+import { MetricCard } from "@/components/shared/MetricCard";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { fmtInt } from "@/lib/format";
 import { usePersistedState } from "@/lib/persist";
 import type { ListingRow, ListingsResponse } from "@/types";
 
@@ -71,7 +74,7 @@ const cols: Column<ListingRow>[] = [
     sortValue: (r) => r.domain,
     render: (r) =>
       r.url ? (
-        <a href={r.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline">
+        <a href={r.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[color:var(--section)] hover:underline">
           {r.domain ?? "site"} <ExternalLink size={12} />
         </a>
       ) : (
@@ -133,16 +136,15 @@ export default function LocalSeo() {
                 className="pl-9"
               />
             </div>
-            <select
+            <Select
               value={city.label}
               onChange={(e) => setCity(CITIES.find((c) => c.label === e.target.value) ?? CITIES[0])}
-              className="h-10 rounded-lg border border-border bg-surface px-3 text-sm text-text"
               aria-label="City"
             >
               {CITIES.map((c) => (
                 <option key={c.label}>{c.label}</option>
               ))}
-            </select>
+            </Select>
             <Button type="submit" disabled={listings.isPending || !what.trim()}>
               <Search size={16} /> Search listings
             </Button>
@@ -159,12 +161,7 @@ export default function LocalSeo() {
         </CardBody>
       </Card>
 
-      {!result && !listings.isPending ? (
-        <EmptyState
-          title="Search local listings"
-          hint="Enter a business type to see who ranks in the local pack — ratings, reviews, and unclaimed profiles."
-        />
-      ) : listings.isPending ? (
+      {listings.isPending ? (
         <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="h-12 w-full" />
@@ -172,8 +169,28 @@ export default function LocalSeo() {
         </div>
       ) : error ? (
         <ErrorState message={error} onRetry={() => run(true)} />
+      ) : !result ? (
+        <EmptyState
+          title="Search local listings"
+          hint="Enter a business type to see who ranks in the local pack — ratings, reviews, and unclaimed profiles."
+        />
       ) : result ? (
-        <div className="animate-fade-rise space-y-3">
+        <div className="animate-fade-rise space-y-4">
+          {(() => {
+            const rows = result.rows;
+            const rated = rows.filter((r) => r.rating != null);
+            const avg = rated.length ? rated.reduce((s, r) => s + (r.rating ?? 0), 0) / rated.length : null;
+            const unclaimed = rows.filter((r) => r.is_claimed === false).length;
+            const reviews = rows.reduce((s, r) => s + (r.reviews ?? 0), 0);
+            return (
+              <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+                <MetricCard icon={Store} label="Listings in the pack" value={fmtInt(rows.length)} />
+                <MetricCard icon={Star} label="Average rating" value={avg == null ? "—" : avg.toFixed(1)} />
+                <MetricCard icon={Flag} label="Unclaimed" value={fmtInt(unclaimed)} sub="outreach targets" />
+                <MetricCard icon={MessageSquare} label="Total reviews" value={fmtInt(reviews)} />
+              </div>
+            );
+          })()}
           <div className="flex items-center justify-end">
             <CacheBadge meta={result.meta} />
           </div>

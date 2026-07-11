@@ -1,4 +1,4 @@
-import { AlertTriangle, Bug, Info as InfoIcon, Radar } from "lucide-react";
+import { AlertTriangle, Bug, Info as InfoIcon, Radar, type LucideIcon } from "lucide-react";
 import { useState } from "react";
 
 import { apiErrorMessage } from "@/api/client";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { cn } from "@/lib/cn";
 import { fmtInt } from "@/lib/format";
 import type { AuditIssue, AuditPageRow } from "@/types";
 
@@ -62,6 +63,40 @@ const pageCols: Column<AuditPageRow>[] = [
   },
 ];
 
+const SEV_STYLE = {
+  danger: { chip: "bg-danger/10 text-danger", text: "text-danger" },
+  warning: { chip: "bg-warning/10 text-warning", text: "text-warning" },
+  info: { chip: "bg-info/10 text-info", text: "text-info" },
+} as const;
+
+/** Premium severity card — rounded filled icon + count. */
+function SeverityCard({
+  icon: Icon,
+  tone,
+  label,
+  value,
+}: {
+  icon: LucideIcon;
+  tone: keyof typeof SEV_STYLE;
+  label: string;
+  value: number;
+}) {
+  const st = SEV_STYLE[tone];
+  return (
+    <Card className="lp-card lg:col-span-2">
+      <CardBody className="flex h-full items-center gap-3.5">
+        <span className={cn("grid h-12 w-12 shrink-0 place-items-center rounded-2xl", st.chip)}>
+          <Icon size={22} />
+        </span>
+        <div>
+          <p className="text-xs uppercase tracking-wide text-text-muted">{label}</p>
+          <p className={cn("font-mono text-2xl font-extrabold", st.text)}>{fmtInt(value)}</p>
+        </div>
+      </CardBody>
+    </Card>
+  );
+}
+
 export default function SiteAudit() {
   const [domain, setDomain] = useState("");
   const [pages, setPages] = useState(50);
@@ -83,6 +118,19 @@ export default function SiteAudit() {
   const s = status.data;
   const failed = s?.progress === "error" || s?.progress === "unknown";
   const crawling = !!taskId && !failed && (!s || s.progress !== "finished");
+
+  const score = s?.onpage_score == null ? null : Math.round(s.onpage_score);
+  const verdict =
+    score == null
+      ? null
+      : score >= 90
+        ? { t: "Excellent", c: "success" as const }
+        : score >= 70
+          ? { t: "Good", c: "success" as const }
+          : score >= 50
+            ? { t: "Fair", c: "warning" as const }
+            : { t: "Needs work", c: "danger" as const };
+  const totalIssues = s ? s.errors + s.warnings + s.notices : 0;
 
   return (
     <div>
@@ -158,37 +206,24 @@ export default function SiteAudit() {
           {/* Bento header: health gauge + severity tiles */}
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-6">
             <Card className="col-span-2 row-span-2 bg-gradient-to-br from-[color:var(--section-soft)] to-surface">
-              <CardBody className="flex h-full items-center justify-center py-6">
-                <ScoreGauge score={s.onpage_score == null ? null : Math.round(s.onpage_score)} label="site health" size={190} />
+              <CardBody className="flex h-full flex-col items-center justify-center gap-3 py-6">
+                <ScoreGauge score={score} label="site health" size={176} />
+                {verdict && <Badge tone={verdict.c}>{verdict.t}</Badge>}
+                {totalIssues > 0 && (
+                  <div className="w-full max-w-[220px]">
+                    <div className="flex h-2 overflow-hidden rounded-full bg-surface-2">
+                      {s.errors > 0 && <div className="bg-danger" style={{ width: `${(s.errors / totalIssues) * 100}%` }} />}
+                      {s.warnings > 0 && <div className="bg-warning" style={{ width: `${(s.warnings / totalIssues) * 100}%` }} />}
+                      {s.notices > 0 && <div className="bg-info" style={{ width: `${(s.notices / totalIssues) * 100}%` }} />}
+                    </div>
+                    <p className="mt-1.5 text-center text-[11px] text-text-muted">{fmtInt(totalIssues)} issues found</p>
+                  </div>
+                )}
               </CardBody>
             </Card>
-            <Card className="lg:col-span-2">
-              <CardBody className="flex h-full items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-danger/10 text-danger"><Bug size={19} /></span>
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-text-muted">Errors</p>
-                  <p className="font-mono text-2xl text-danger">{fmtInt(s.errors)}</p>
-                </div>
-              </CardBody>
-            </Card>
-            <Card className="lg:col-span-2">
-              <CardBody className="flex h-full items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-warning/10 text-warning"><AlertTriangle size={19} /></span>
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-text-muted">Warnings</p>
-                  <p className="font-mono text-2xl text-warning">{fmtInt(s.warnings)}</p>
-                </div>
-              </CardBody>
-            </Card>
-            <Card className="lg:col-span-2">
-              <CardBody className="flex h-full items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-info/10 text-info"><InfoIcon size={19} /></span>
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-text-muted">Notices</p>
-                  <p className="font-mono text-2xl text-info">{fmtInt(s.notices)}</p>
-                </div>
-              </CardBody>
-            </Card>
+            <SeverityCard icon={Bug} tone="danger" label="Errors" value={s.errors} />
+            <SeverityCard icon={AlertTriangle} tone="warning" label="Warnings" value={s.warnings} />
+            <SeverityCard icon={InfoIcon} tone="info" label="Notices" value={s.notices} />
             <div className="col-span-2 lg:col-span-2">
               <MetricBar
                 className="h-full"

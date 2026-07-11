@@ -11,7 +11,7 @@
    ========================================================================== */
 :root {
   /* seodada — light */
-  --app-bg: #f5f8fd;
+  --app-bg: #f7f9fc;
   --surface: #ffffff;
   --surface-2: #eef3fb;
   --border: #e2e8f2;
@@ -35,28 +35,46 @@
   --footer: #0b1229;
   --footer-text: #94a4c8;
 
-  /* ---- Workflow section accents (light). Each sidebar group / module family
-     carries its own hue: Research → blue, Audit → violet, Optimize → emerald,
-     Track → amber, Manage → rose, Tools → teal. Overview stays brand primary.
-     `-soft` derives from the base via color-mix, so overriding the base in
-     .dark auto-updates the tint. -------------------------------------------- */
-  --sec-overview: var(--primary);
-  --sec-research: #6d28d9;
-  --sec-audit: #a21caf;
-  --sec-optimize: #b45309;
-  --sec-track: #047857;
-  --sec-manage: #3730a3;
-  --sec-tools: #475569;
+  /* ---- Per-module accents (light). Each module gets its own hue so pages read
+     as distinct while sharing the SEOdada system. `-soft` derives via
+     color-mix, so overriding the base in .dark auto-updates the tint. ------- */
+  --sec-overview: var(--primary);   /* Dashboard / All-in-One */
+  --sec-keywords: #8b5cf6;          /* Keyword Research — purple */
+  --sec-serp: #6366f1;              /* SERP — indigo */
+  --sec-domains: #f59e0b;           /* Domain Analytics — gold */
+  --sec-competitors: #ec4899;       /* Competitors — pink */
+  --sec-local: #14b8a6;             /* Local — teal */
+  --sec-audit: #ef4444;             /* Site Audit — red */
+  --sec-onpage: #f97316;            /* On-Page — orange */
+  --sec-content: #a855f7;           /* Content — violet */
+  --sec-report: #3b82f6;            /* Site Report — professional blue */
+  --sec-rank: #10b981;              /* Rank Tracking — growth green */
+  --sec-backlinks: #06b6d4;         /* Backlinks — cyan */
+  --sec-aivis: #7c3aed;             /* AI Visibility — AI purple */
+  --sec-schedules: #0ea5e9;         /* Schedules — sky */
+  --sec-manage: #64748b;            /* Projects / Billing — slate */
+  --sec-tools: #6b7280;             /* Free tools — gray */
+  --sec-admin: #334155;             /* Admin — enterprise slate */
 
   --sec-overview-soft: var(--primary-soft);
-  --sec-research-soft: color-mix(in srgb, var(--sec-research) 12%, transparent);
+  --sec-keywords-soft: color-mix(in srgb, var(--sec-keywords) 12%, transparent);
+  --sec-serp-soft: color-mix(in srgb, var(--sec-serp) 12%, transparent);
+  --sec-domains-soft: color-mix(in srgb, var(--sec-domains) 12%, transparent);
+  --sec-competitors-soft: color-mix(in srgb, var(--sec-competitors) 12%, transparent);
+  --sec-local-soft: color-mix(in srgb, var(--sec-local) 12%, transparent);
   --sec-audit-soft: color-mix(in srgb, var(--sec-audit) 12%, transparent);
-  --sec-optimize-soft: color-mix(in srgb, var(--sec-optimize) 12%, transparent);
-  --sec-track-soft: color-mix(in srgb, var(--sec-track) 12%, transparent);
+  --sec-onpage-soft: color-mix(in srgb, var(--sec-onpage) 12%, transparent);
+  --sec-content-soft: color-mix(in srgb, var(--sec-content) 12%, transparent);
+  --sec-report-soft: color-mix(in srgb, var(--sec-report) 12%, transparent);
+  --sec-rank-soft: color-mix(in srgb, var(--sec-rank) 12%, transparent);
+  --sec-backlinks-soft: color-mix(in srgb, var(--sec-backlinks) 12%, transparent);
+  --sec-aivis-soft: color-mix(in srgb, var(--sec-aivis) 12%, transparent);
+  --sec-schedules-soft: color-mix(in srgb, var(--sec-schedules) 12%, transparent);
   --sec-manage-soft: color-mix(in srgb, var(--sec-manage) 12%, transparent);
   --sec-tools-soft: color-mix(in srgb, var(--sec-tools) 12%, transparent);
+  --sec-admin-soft: color-mix(in srgb, var(--sec-admin) 12%, transparent);
 
-  /* Active section accent — overridden per route by AppShell; every shared
+  /* Active module accent — overridden per route by AppShell; every shared
      component (page header, stat cards, inputs, sidebar) reads these. */
   --section: var(--primary);
   --section-soft: var(--primary-soft);
@@ -86,14 +104,24 @@
   --footer: #05091a;
   --footer-text: #8493b8;
 
-  /* Workflow section accents (dark) — brighter for contrast on navy. `-soft`
-     tints and `--section` inherit automatically from these + --primary. */
-  --sec-research: #a78bfa;
-  --sec-audit: #e879f9;
-  --sec-optimize: #fbbf24;
-  --sec-track: #34d399;
-  --sec-manage: #818cf8;
-  --sec-tools: #94a3b8;
+  /* Per-module accents (dark) — brighter for contrast on navy. `-soft` tints
+     and `--section` inherit automatically from these + --primary. */
+  --sec-keywords: #a78bfa;
+  --sec-serp: #818cf8;
+  --sec-domains: #fbbf24;
+  --sec-competitors: #f472b6;
+  --sec-local: #2dd4bf;
+  --sec-audit: #f87171;
+  --sec-onpage: #fb923c;
+  --sec-content: #c084fc;
+  --sec-report: #60a5fa;
+  --sec-rank: #34d399;
+  --sec-backlinks: #22d3ee;
+  --sec-aivis: #a78bfa;
+  --sec-schedules: #38bdf8;
+  --sec-manage: #94a3b8;
+  --sec-tools: #9ca3af;
+  --sec-admin: #94a3b8;
 }
 
 * {
@@ -138,6 +166,27 @@ body {
     var(--section) 46%,
     color-mix(in srgb, var(--section) 82%, #000000)
   );
+}
+
+/* Near-invisible scrollbar — thin, faint thumb on a transparent track; only
+   nudges into view on hover. Used by the sidebar nav (and any scroll area). */
+.scrollbar-subtle {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--text-muted) 22%, transparent) transparent;
+}
+.scrollbar-subtle::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-subtle::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-subtle::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--text-muted) 16%, transparent);
+  border-radius: 9999px;
+}
+.scrollbar-subtle:hover::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--text-muted) 40%, transparent);
 }
 
 /* Animated gradient — motion on hover (not perpetual, keeps it calm & cheap). */
@@ -453,7 +502,7 @@ body {
 .lp-shadow {
   box-shadow:
     0 1px 2px rgba(16, 24, 40, 0.04),
-    0 6px 14px -6px rgba(16, 24, 40, 0.08);
+    0 12px 32px rgba(16, 24, 40, 0.08);
 }
 .lp-shadow-lg {
   box-shadow:

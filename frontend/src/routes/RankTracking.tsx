@@ -195,7 +195,7 @@ export default function RankTracking({ embedded }: { embedded?: boolean }) {
               <option value="mobile">Mobile</option>
             </Select>
             <label className="flex items-center gap-1.5 whitespace-nowrap text-sm text-text-muted" title="Bypass the cache and fetch a fresh (billed) SERP snapshot">
-              <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} className="h-4 w-4 accent-[var(--primary)]" />
+              <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} className="h-4 w-4 accent-[var(--section)]" />
               Live
             </label>
             <Button type="submit" disabled={mutation.isPending || !keyword.trim() || !domain.trim()}>
@@ -225,7 +225,7 @@ export default function RankTracking({ embedded }: { embedded?: boolean }) {
                     </p>
                     <p
                       className={`mt-1 font-mono text-3xl ${
-                        data.found ? "text-primary" : "text-text-muted"
+                        data.found ? "text-[color:var(--section)]" : "text-text-muted"
                       }`}
                     >
                       {data.found ? `#${data.position}` : "Not found"}
@@ -242,7 +242,7 @@ export default function RankTracking({ embedded }: { embedded?: boolean }) {
                         href={data.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="block truncate text-sm text-primary hover:underline"
+                        className="block truncate text-sm text-[color:var(--section)] hover:underline"
                       >
                         {data.url}
                       </a>
