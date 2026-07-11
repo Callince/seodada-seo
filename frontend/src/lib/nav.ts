@@ -73,7 +73,7 @@ export const NAV_ITEMS: NavItem[] = [
   { to: "/billing", label: "Billing", icon: CreditCard, section: "5 · Manage" },
 
   // ---- Free instant tools (utilities, available any time) ----
-  { to: "/tools", label: "All Tools", icon: LayoutGrid, end: true, section: "Free tools" },
+  { to: "/tools", label: "All-in-One", icon: LayoutGrid, end: true, section: "Free tools" },
   { to: "/tools/url", label: "URL Analysis", icon: Link2, section: "Free tools" },
   { to: "/tools/keyword", label: "Keyword Analysis", icon: Search, section: "Free tools" },
   { to: "/tools/heading", label: "Heading Analysis", icon: Heading, section: "Free tools" },

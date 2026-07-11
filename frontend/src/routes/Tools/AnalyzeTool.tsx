@@ -450,7 +450,7 @@ function TagCard({ title, prefix, tags }: { title: string; prefix: string; tags:
   );
 }
 
-function PageResult({ tool, data }: { tool: Tool; data: PageAnalysis }) {
+export function PageResult({ tool, data }: { tool: Tool; data: PageAnalysis }) {
   if (tool === "url") {
     const u = data.url;
     return (
@@ -527,7 +527,7 @@ function PageResult({ tool, data }: { tool: Tool; data: PageAnalysis }) {
   );
 }
 
-function SitemapResult({ data }: { data: SitemapAnalysis }) {
+export function SitemapResult({ data }: { data: SitemapAnalysis }) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-3">

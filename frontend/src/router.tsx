@@ -42,7 +42,7 @@ const SiteAudit = lazy(() => import("@/routes/SiteAudit"));
 const AiVisibility = lazy(() => import("@/routes/AiVisibility"));
 const Billing = lazy(() => import("@/routes/Billing/Billing"));
 const AnalyzeTool = lazy(() => import("@/routes/Tools/AnalyzeTool"));
-const ToolsHub = lazy(() => import("@/routes/Tools/ToolsHub"));
+const AllInOne = lazy(() => import("@/routes/Tools/AllInOne"));
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = useAuth((s) => s.accessToken);
@@ -105,7 +105,7 @@ export const router = createBrowserRouter([
       { path: "/audit", element: <SiteAudit /> },
       { path: "/ai-visibility", element: <AiVisibility /> },
       { path: "/billing", element: <Billing /> },
-      { path: "/tools", element: <ToolsHub /> },
+      { path: "/tools", element: <AllInOne /> },
       { path: "/tools/url", element: <AnalyzeTool tool="url" /> },
       { path: "/tools/keyword", element: <AnalyzeTool tool="keyword" /> },
       { path: "/tools/heading", element: <AnalyzeTool tool="heading" /> },
