@@ -56,6 +56,18 @@ class FetchError(Exception):
     pass
 
 
+# DNS64 resolvers (common on IPv6-only ISPs like Jio) synthesize a fake IPv6
+# in the NAT64 well-known prefix for every v4-only host. Python flags that
+# whole prefix as "reserved", so judge the embedded IPv4 instead (RFC 6052).
+_NAT64 = ipaddress.ip_network("64:ff9b::/96")
+
+
+def _effective_ip(ip: ipaddress.IPv4Address | ipaddress.IPv6Address):
+    if isinstance(ip, ipaddress.IPv6Address) and ip in _NAT64:
+        return ipaddress.ip_address(int(ip) & 0xFFFFFFFF)
+    return ip
+
+
 async def _is_public_host(host: str) -> bool:
     """Resolve `host` off the event loop and reject private/loopback targets."""
     try:
@@ -64,7 +76,7 @@ async def _is_public_host(host: str) -> bool:
     except (socket.gaierror, OSError):
         return False
     for info in infos:
-        ip = ipaddress.ip_address(info[4][0])
+        ip = _effective_ip(ipaddress.ip_address(info[4][0]))
         if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast:
             return False
     return True

@@ -1,4 +1,3 @@
-import { Search } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
@@ -23,21 +22,24 @@ function BrandPanel() {
       <div className="float-slow pointer-events-none absolute -left-24 top-8 h-72 w-72 rounded-full bg-white/10 blur-3xl" aria-hidden />
       <div className="float-slower pointer-events-none absolute -right-12 bottom-8 h-80 w-80 rounded-full bg-[#7dd3fc]/25 blur-3xl" aria-hidden />
 
-      <Link to="/" className="relative z-10 flex items-center gap-2">
-        <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/15 backdrop-blur">
-          <Search size={17} />
-        </span>
-        <span className="text-xl font-extrabold lowercase tracking-tight">seodada</span>
+      <Link to="/" className="relative z-10 inline-flex w-fit" aria-label="seodada home">
+        <img
+          src="/content-assets/logo_1761200794.png"
+          alt="seodada"
+          width={119}
+          height={32}
+          className="h-9 w-auto drop-shadow-md"
+        />
       </Link>
 
       {/* floating dashboard preview */}
       <div className="relative z-10 my-8">
-        <div className="glass float-slow rounded-2xl border border-white/20 p-5 shadow-2xl">
+        <div className="float-slow rounded-2xl border border-white/25 bg-[#122a5c]/55 p-5 shadow-2xl backdrop-blur-xl">
           <div className="grid grid-cols-3 gap-3">
             {PREVIEW_KPIS.map((k) => (
               <div key={k.label} className="rounded-xl bg-white/10 p-3">
-                <p className="text-[10px] uppercase tracking-wide text-white/70">{k.label}</p>
-                <p className="mt-0.5 text-lg font-extrabold">{k.value}</p>
+                <p className="text-[10px] uppercase tracking-wide text-white/80">{k.label}</p>
+                <p className="mt-0.5 text-lg font-extrabold text-white">{k.value}</p>
                 <p className="text-[11px] font-semibold text-emerald-300">{k.delta}</p>
               </div>
             ))}
@@ -62,7 +64,7 @@ function BrandPanel() {
             />
           </svg>
         </div>
-        <div className="glass float-slower absolute -bottom-5 -right-3 rounded-xl border border-white/20 px-3 py-2 text-xs font-semibold shadow-xl">
+        <div className="float-slower absolute -bottom-5 -right-3 rounded-xl border border-white/25 bg-[#122a5c]/70 px-3 py-2 text-xs font-semibold text-white shadow-xl backdrop-blur-xl">
           <span className="text-emerald-300">▲</span> Rank #3 · running shoes
         </div>
       </div>
@@ -80,7 +82,7 @@ function BrandPanel() {
             {["PN", "AM", "SO", "RK"].map((i) => (
               <span
                 key={i}
-                className="grid h-7 w-7 place-items-center rounded-full border border-white/40 bg-white/20 text-[10px] font-bold backdrop-blur"
+                className="grid h-7 w-7 place-items-center rounded-full border border-white/60 bg-[#122a5c]/60 text-[10px] font-bold text-white backdrop-blur"
               >
                 {i}
               </span>
@@ -111,14 +113,14 @@ export function AuthLayout({
       {/* form side */}
       <div className="flex w-full items-center justify-center p-6 lg:w-1/2">
         <div className="w-full max-w-sm">
-          <Link to="/" className="mb-6 flex items-center justify-center gap-2 lg:hidden">
-            <span className="grid h-9 w-9 place-items-center rounded-xl gradient-fill text-white shadow-glow">
-              <Search size={17} />
-            </span>
-            <span className="text-xl font-extrabold lowercase tracking-tight">
-              <span className="gradient-text">seo</span>
-              <span className="text-text">dada</span>
-            </span>
+          <Link to="/" className="mb-6 flex justify-center lg:hidden" aria-label="seodada home">
+            <img
+              src="/content-assets/logo_1761200794.png"
+              alt="seodada"
+              width={119}
+              height={32}
+              className="h-9 w-auto"
+            />
           </Link>
 
           <div className="rounded-2xl border border-border bg-surface p-7 lp-shadow-lg">
