@@ -19,6 +19,7 @@ import {
   type PageAnalysis,
   type SitemapAnalysis,
 } from "@/api/hooks/useAnalyze";
+import { type Tone } from "@/components/public/landingKit";
 import { PageHeader } from "@/components/shared/states";
 import { usePersistedState } from "@/lib/persist";
 import { Badge } from "@/components/ui/badge";
@@ -39,13 +40,13 @@ function sitemapDomain(data: SitemapAnalysis): string {
   }
 }
 
-export const TOOL_META: Record<Tool, { title: string; subtitle: string; icon: LucideIcon }> = {
-  url: { title: "URL Analysis", subtitle: "Structure, status, redirects, links, canonical & robots.", icon: Link2 },
-  keyword: { title: "Keyword Analysis", subtitle: "Word count and keyword density of the page's content.", icon: Search },
-  heading: { title: "Heading Analysis", subtitle: "H1–H6 hierarchy, counts, and structure issues.", icon: Heading },
-  image: { title: "Image Analysis", subtitle: "Every image and whether it has descriptive alt text.", icon: ImageIcon },
-  meta: { title: "Meta Analysis", subtitle: "Title, description, canonical, viewport, Open Graph & Twitter.", icon: Tags },
-  sitemap: { title: "Sitemap Analysis", subtitle: "Discover the XML sitemap(s) and count indexed URLs.", icon: Network },
+export const TOOL_META: Record<Tool, { title: string; subtitle: string; icon: LucideIcon; tone: Tone }> = {
+  url: { title: "URL Analysis", subtitle: "Structure, status, redirects, links, canonical & robots.", icon: Link2, tone: "blue" },
+  keyword: { title: "Keyword Analysis", subtitle: "Word count and keyword density of the page's content.", icon: Search, tone: "teal" },
+  heading: { title: "Heading Analysis", subtitle: "H1–H6 hierarchy, counts, and structure issues.", icon: Heading, tone: "emerald" },
+  image: { title: "Image Analysis", subtitle: "Every image and whether it has descriptive alt text.", icon: ImageIcon, tone: "amber" },
+  meta: { title: "Meta Analysis", subtitle: "Title, description, canonical, viewport, Open Graph & Twitter.", icon: Tags, tone: "cyan" },
+  sitemap: { title: "Sitemap Analysis", subtitle: "Discover the XML sitemap(s) and count indexed URLs.", icon: Network, tone: "violet" },
 };
 
 const CHECK_TONE: Record<string, "success" | "warning" | "danger"> = {

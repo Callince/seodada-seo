@@ -7,6 +7,7 @@ import {
   useSchedules,
   useUpdateSchedule,
 } from "@/api/hooks/useSchedules";
+import { MetricCard } from "@/components/shared/MetricCard";
 import { EmptyState, PageHeader } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
@@ -34,13 +35,19 @@ export default function Schedules() {
           hint="Open a Site Report and use “Automate this report” to schedule a recurring audit."
         />
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
+          <div className="grid grid-cols-3 gap-4">
+            <MetricCard icon={CalendarClock} label="Schedules" value={String(items.length)} />
+            <MetricCard icon={Play} label="Active" value={String(items.filter((s) => s.active).length)} />
+            <MetricCard icon={Pause} label="Paused" value={String(items.filter((s) => !s.active).length)} />
+          </div>
+          <div className="space-y-3">
           {items.map((s) => (
             <Card key={s.id} className="transition-colors hover:bg-surface-2">
               <CardBody className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <p className="flex items-center gap-2 text-sm font-medium text-text">
-                    <CalendarClock size={15} className="text-primary" />
+                    <CalendarClock size={15} className="text-[color:var(--section)]" />
                     {s.label}
                     {!s.active && (
                       <span className="rounded-full bg-surface-2 px-2 py-0.5 text-xs text-text-muted">
@@ -72,9 +79,10 @@ export default function Schedules() {
               </CardBody>
             </Card>
           ))}
+          </div>
           <p className="pt-1 text-sm text-text-muted">
             Reports land in your{" "}
-            <Link to="/projects" className="text-primary hover:underline">
+            <Link to="/projects" className="text-[color:var(--section)] hover:underline">
               Projects
             </Link>{" "}
             — reopen any saved run for $0.

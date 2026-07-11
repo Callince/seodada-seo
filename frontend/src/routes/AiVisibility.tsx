@@ -5,7 +5,7 @@ import { apiErrorMessage } from "@/api/client";
 import { useAiVisibilityStatus, useAiVolume, useAskLlm, useLlmMentions, useStartAiVisibility } from "@/api/hooks/useAiVisibility";
 import { LocationLanguagePicker } from "@/components/shared/LocationLanguagePicker";
 import { CacheBadge } from "@/components/shared/CacheBadge";
-import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
+import { EmptyState, ErrorState } from "@/components/shared/states";
 import { AreaChart } from "@/components/public/landingKit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ function Tile({ label, value, accent }: { label: string; value: number; accent?:
     <Card>
       <CardBody>
         <p className="text-xs font-medium uppercase tracking-wide text-text-muted">{label}</p>
-        <p className={`mt-1 font-mono text-2xl ${accent === "primary" ? "text-primary" : "text-text"}`}>
+        <p className={`mt-1 font-mono text-2xl ${accent === "primary" ? "text-[color:var(--section)]" : "text-text"}`}>
           {fmtInt(value)}
         </p>
       </CardBody>
@@ -130,10 +130,29 @@ export default function AiVisibility() {
 
   return (
     <div>
-      <PageHeader
-        title="AI Visibility"
-        subtitle="See which of your keywords trigger a Google AI Overview or AI Mode answer — and whether your site is cited as a source. The keywords you 'rank' for in AI."
-      />
+      {/* AI hero — Track green */}
+      <div
+        className="relative mb-5 overflow-hidden rounded-2xl p-6 text-white sm:p-8"
+        style={{ background: "linear-gradient(135deg, #064e3b, #065f46 48%, #10b981)" }}
+      >
+        <div className="cyber-grid pointer-events-none absolute inset-0 opacity-[0.15]" aria-hidden />
+        <div className="float-slow pointer-events-none absolute -right-10 -top-12 h-64 w-64 rounded-full bg-[#34d399]/30 blur-3xl" aria-hidden />
+        <div className="relative z-10 flex items-start gap-4">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/15 backdrop-blur">
+            <Sparkles size={24} />
+          </span>
+          <div>
+            <span className="inline-flex items-center rounded-full bg-white/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide backdrop-blur">
+              AI Search
+            </span>
+            <h1 className="mt-1.5 text-2xl font-extrabold tracking-tight">AI Visibility</h1>
+            <p className="mt-1 max-w-2xl text-sm text-white/80">
+              See which keywords trigger a Google AI Overview or AI Mode answer — and whether your
+              site is cited as a source. The keywords you "rank" for in AI.
+            </p>
+          </div>
+        </div>
+      </div>
 
       <Card className="mb-5">
         <CardBody className="space-y-3">
@@ -155,17 +174,17 @@ export default function AiVisibility() {
             onChange={(e) => setRaw(e.target.value)}
             rows={4}
             placeholder={"One keyword per line (or comma-separated) — up to 20.\nbest electric scooter in india\nelectric scooter under 50000\nelectric scooter price in india"}
-            className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--section)]"
           />
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-4">
               <p className="text-xs text-text-muted">{keywords.length} unique keyword{keywords.length === 1 ? "" : "s"} (max 20)</p>
               <label className="flex items-center gap-1.5 text-sm text-text-muted" title="Also query Google's dedicated AI Mode answer (extra billed call per keyword)">
-                <input type="checkbox" checked={aiMode} onChange={(e) => setAiMode(e.target.checked)} className="h-4 w-4 accent-[var(--primary)]" />
+                <input type="checkbox" checked={aiMode} onChange={(e) => setAiMode(e.target.checked)} className="h-4 w-4 accent-[var(--section)]" />
                 Include AI Mode
               </label>
               <label className="flex items-center gap-1.5 text-sm text-text-muted" title="Bypass the cache and fetch fresh (billed) data">
-                <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} className="h-4 w-4 accent-[var(--primary)]" />
+                <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} className="h-4 w-4 accent-[var(--section)]" />
                 Live
               </label>
             </div>
@@ -191,14 +210,14 @@ export default function AiVisibility() {
       {running && taskId && (
         <Card>
           <CardBody className="flex flex-col items-center gap-3 py-10 text-center">
-            <Bot size={32} className="animate-pulse text-primary" />
+            <Bot size={32} className="animate-pulse text-[color:var(--section)]" />
             <p className="text-sm font-medium text-text">Querying Google AI for {domain.trim()}…</p>
             <p className="text-sm text-text-muted">
               {s ? `${s.checked} / ${s.total} keywords checked` : "Starting…"}
             </p>
             <div className="h-2 w-64 overflow-hidden rounded-full bg-surface-2">
               <div
-                className="h-full rounded-full bg-primary transition-all duration-500"
+                className="section-gradient h-full rounded-full transition-all duration-500"
                 style={{ width: s && s.total ? `${Math.min(100, (s.checked / s.total) * 100)}%` : "8%" }}
               />
             </div>
@@ -294,7 +313,7 @@ export default function AiVisibility() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="rounded-md bg-surface-2 p-4">
                     <p className="text-xs font-medium uppercase tracking-wide text-text-muted">Mentions</p>
-                    <p className="mt-1 font-mono text-2xl text-primary">{fmtInt(mentions.data.mentions)}</p>
+                    <p className="mt-1 font-mono text-2xl text-[color:var(--section)]">{fmtInt(mentions.data.mentions)}</p>
                   </div>
                   <div className="rounded-md bg-surface-2 p-4">
                     <p className="text-xs font-medium uppercase tracking-wide text-text-muted">AI search volume</p>
@@ -410,7 +429,7 @@ export default function AiVisibility() {
               onChange={(e) => setPrompt(e.target.value)}
               rows={3}
               placeholder="e.g. best electric scooter brands in India"
-              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--section)]"
             />
             <div className="flex flex-wrap items-center justify-end gap-3">
               <Select value={model} onChange={(e) => setModel(e.target.value)} aria-label="Model">

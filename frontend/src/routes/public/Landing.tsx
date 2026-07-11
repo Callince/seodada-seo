@@ -30,6 +30,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 
 import { AreaChart, Bars, CountUp, LandingImage, Magnetic, Particles, Reveal, ScoreRing } from "@/components/public/landingKit";
+import { sectionVars, type ModuleId } from "@/lib/sections";
 import { Button } from "@/components/ui/button";
 import { Seo, SITE_URL } from "@/lib/seo";
 import { useAuth } from "@/store/auth";
@@ -75,15 +76,16 @@ const ECOSYSTEM = [
 
 const TRAFFIC = [22, 30, 26, 38, 34, 48, 44, 60, 55, 72, 68, 88];
 
-/** Product modules shown in the horizontal card rail. */
-const WIDGETS = [
-  { key: "keywords", label: "Keyword Tracker", sub: "Positions & movement", icon: Search },
-  { key: "traffic", label: "Traffic", sub: "Organic sessions over time", icon: TrendingUp },
-  { key: "health", label: "Site Health", sub: "Technical score & issues", icon: ShieldCheck },
-  { key: "backlinks", label: "Backlinks", sub: "Referring domains & authority", icon: Link2 },
-  { key: "competitors", label: "Competitors", sub: "Share of voice", icon: Swords },
-  { key: "ai", label: "AI Insights", sub: "GEO & AEO visibility", icon: Sparkles },
-] as const;
+/** Product modules shown in the horizontal card rail. Each keys to the same
+ *  per-module accent that module's page uses in the app. */
+const WIDGETS: { key: string; label: string; sub: string; icon: typeof Search; mod: ModuleId }[] = [
+  { key: "keywords", label: "Keyword Tracker", sub: "Positions & movement", icon: Search, mod: "keywords" },
+  { key: "traffic", label: "Traffic", sub: "Organic sessions over time", icon: TrendingUp, mod: "rank" },
+  { key: "health", label: "Site Health", sub: "Technical score & issues", icon: ShieldCheck, mod: "audit" },
+  { key: "backlinks", label: "Backlinks", sub: "Referring domains & authority", icon: Link2, mod: "backlinks" },
+  { key: "competitors", label: "Competitors", sub: "Share of voice", icon: Swords, mod: "competitors" },
+  { key: "ai", label: "AI Insights", sub: "GEO & AEO visibility", icon: Sparkles, mod: "aivis" },
+];
 
 const KEYWORDS = [
   { kw: "ai seo platform", pos: 3, up: true },
@@ -111,17 +113,20 @@ const BENTO = [
   { title: "AI Visibility", desc: "Track how often you're cited across AI answer engines — GEO & AEO.", icon: Eye, span: "lg:col-span-2", tone: "cyan" },
 ];
 
-/** Sticky workflow. */
-const FLOW = [
-  { k: "Audit", desc: "Crawl and score every page — technical issues surfaced by priority.", icon: Radar },
-  { k: "Research", desc: "Find the keywords and questions your audience actually searches.", icon: Search },
-  { k: "Optimize", desc: "Fix on-page, content and structure with AI-written guidance.", icon: Sparkles },
-  { k: "Publish", desc: "Ship optimized content and web stories — GEO & AEO ready.", icon: Rocket },
-  { k: "Monitor", desc: "Track rankings, AI visibility and site health on autopilot.", icon: Activity },
-  { k: "Grow", desc: "Compound gains with automated reporting and alerts.", icon: TrendingUp },
+/** Sticky workflow. Each step keys to a workflow-section accent, matching the
+ *  in-app dashboard stepper (Research=purple, Audit=red, Optimize=violet,
+ *  Track=green, Manage=slate). */
+const FLOW: { k: string; desc: string; icon: typeof Radar; mod: ModuleId }[] = [
+  { k: "Audit", desc: "Crawl and score every page — technical issues surfaced by priority.", icon: Radar, mod: "audit" },
+  { k: "Research", desc: "Find the keywords and questions your audience actually searches.", icon: Search, mod: "keywords" },
+  { k: "Optimize", desc: "Fix on-page, content and structure with AI-written guidance.", icon: Sparkles, mod: "content" },
+  { k: "Publish", desc: "Ship optimized content and web stories — GEO & AEO ready.", icon: Rocket, mod: "overview" },
+  { k: "Monitor", desc: "Track rankings, AI visibility and site health on autopilot.", icon: Activity, mod: "rank" },
+  { k: "Grow", desc: "Compound gains with automated reporting and alerts.", icon: TrendingUp, mod: "manage" },
 ];
-/** A different chart colour per workflow step (all suit the UI). */
-const FLOW_TONES = ["blue", "cyan", "violet", "indigo", "emerald", "teal"] as const;
+/** Chart colour per workflow step — matched to each step's section accent
+ *  (Audit=red, Research/Optimize=purple, Publish=blue, Monitor=green, Grow=slate). */
+const FLOW_TONES = ["rose", "violet", "violet", "blue", "emerald", "slate"] as const;
 
 /** Case studies — illustrative outcomes (mark as examples before launch). */
 const CASES = [
@@ -442,7 +447,7 @@ export default function Landing() {
             </motion.span>
             <motion.h1
               variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-              className="mt-5 text-4xl font-extrabold leading-[1.03] tracking-tight text-text sm:text-5xl lg:text-6xl xl:text-7xl"
+              className="mt-5 text-balance text-[2rem] font-extrabold leading-[1.08] tracking-tight text-text sm:text-5xl sm:leading-[1.03] lg:text-6xl xl:text-7xl"
             >
               AI SEO
               <br />
@@ -494,7 +499,7 @@ export default function Landing() {
 
             <motion.div
               variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-              className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 lg:justify-start"
+              className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-6 sm:gap-y-3 lg:justify-start"
             >
               <div className="flex -space-x-2">
                 {["PN", "AM", "SO", "RK"].map((x, i) => (
@@ -618,7 +623,7 @@ export default function Landing() {
             <Reveal className="flex flex-wrap items-end justify-between gap-4">
               <div className="max-w-2xl">
                 <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Product</span>
-                <h2 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">
+                <h2 className="mt-3 text-balance text-4xl font-extrabold tracking-tight sm:text-5xl">
                   Your entire SEO command center
                 </h2>
                 <p className="mt-4 text-lg text-text-muted">
@@ -659,16 +664,17 @@ export default function Landing() {
               {WIDGETS.map((w) => (
                 <article
                   key={w.key}
+                  style={sectionVars(w.mod)}
                   className="lp-card group relative flex h-[380px] w-[86vw] max-w-[500px] shrink-0 snap-start flex-col overflow-hidden rounded-[16px] border border-white/50 bg-[color-mix(in_srgb,#ffffff_42%,transparent)] backdrop-blur-2xl lp-shadow sm:w-[500px]"
                 >
-                  {/* soft brand gradient wash (blue → cyan → violet) behind the glass */}
+                  {/* soft wash in the card's own section colour behind the glass */}
                   <div
                     aria-hidden
-                    className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,color-mix(in_srgb,#1d7dbd_20%,transparent),transparent_46%,color-mix(in_srgb,#7c3aed_16%,transparent))] opacity-80 transition-opacity duration-300 group-hover:opacity-100"
+                    className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,color-mix(in_srgb,var(--section)_22%,transparent),transparent_46%,color-mix(in_srgb,var(--section)_10%,transparent))] opacity-80 transition-opacity duration-300 group-hover:opacity-100"
                   />
                   {/* header — no fill, blends into the glass card */}
                   <div className="relative flex items-center gap-3 px-6 pt-6">
-                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl gradient-fill text-white shadow-glow">
+                    <span className="section-gradient grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-white shadow-glow">
                       <w.icon size={19} />
                     </span>
                     <div className="min-w-0">
@@ -697,7 +703,7 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal className="mx-auto max-w-2xl text-center">
             <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Platform</span>
-            <h2 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">
+            <h2 className="mt-3 text-balance text-4xl font-extrabold tracking-tight sm:text-5xl">
               Everything to dominate search
             </h2>
             <p className="mt-4 text-lg text-text-muted">SEO, GEO, AEO and AI visibility — one intelligent system.</p>
@@ -736,7 +742,7 @@ export default function Landing() {
           <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:py-24">
             <div>
               <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Workflow</span>
-              <h2 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">
+              <h2 className="mt-3 text-balance text-4xl font-extrabold tracking-tight sm:text-5xl">
                 From audit to growth, on autopilot
               </h2>
               <p className="mt-4 text-lg text-text-muted">
@@ -746,19 +752,15 @@ export default function Landing() {
                 {FLOW.map((s, i) => {
                   const active = i === flowStep;
                   return (
-                    <li key={s.k}>
+                    <li key={s.k} style={sectionVars(s.mod)}>
                       <div
                         className={`flex items-start gap-4 rounded-2xl border p-3.5 transition-all duration-300 ${
                           active
-                            ? "border-primary bg-surface shadow-md"
+                            ? "border-[color:var(--section)] bg-surface shadow-md"
                             : "border-border bg-surface lg:border-transparent lg:bg-transparent lg:opacity-60"
                         }`}
                       >
-                        <span
-                          className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl transition-colors ${
-                            active ? "gradient-fill text-white" : "bg-surface-2 text-text-muted"
-                          }`}
-                        >
+                        <span className="section-gradient grid h-9 w-9 shrink-0 place-items-center rounded-xl text-white shadow-sm">
                           <s.icon size={17} />
                         </span>
                         <div className="min-w-0">
@@ -779,7 +781,7 @@ export default function Landing() {
 
             {/* Live panel that updates with scroll */}
             <div className="hidden lg:block">
-              <div className="lp-ring rounded-3xl">
+              <div className="lp-ring rounded-3xl" style={sectionVars(FLOW[flowStep].mod)}>
                 <div className="rounded-3xl border border-border lp-glass p-6 lp-shadow-lg">
                   <motion.div
                     key={flowStep}
@@ -788,7 +790,7 @@ export default function Landing() {
                     transition={{ duration: 0.35 }}
                   >
                       <div className="flex items-center gap-3">
-                        <span className="grid h-11 w-11 place-items-center rounded-xl gradient-fill text-white">
+                        <span className="section-gradient grid h-11 w-11 place-items-center rounded-xl text-white">
                           {(() => {
                             const Icon = FLOW[flowStep].icon;
                             return <Icon size={20} />;
@@ -835,7 +837,7 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal className="max-w-2xl">
             <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Case studies</span>
-            <h2 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">Real teams, real growth</h2>
+            <h2 className="mt-3 text-balance text-4xl font-extrabold tracking-tight sm:text-5xl">Real teams, real growth</h2>
           </Reveal>
 
           <div className="mt-14 space-y-8">
@@ -915,7 +917,7 @@ export default function Landing() {
                 ))}
                 <span className="ml-2 text-sm font-semibold text-text">4.9/5 · 500+ reviews</span>
               </div>
-              <h2 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">Loved by SEO teams</h2>
+              <h2 className="mt-3 text-balance text-4xl font-extrabold tracking-tight sm:text-5xl">Loved by SEO teams</h2>
             </div>
             <div className="flex gap-2">
               <button
@@ -946,7 +948,7 @@ export default function Landing() {
                           <Star key={i} size={13} fill="currentColor" />
                         ))}
                       </div>
-                      <button aria-label="Play video testimonial" className="grid h-9 w-9 place-items-center rounded-full bg-primary-soft text-primary transition hover:gradient-fill hover:text-white">
+                      <button aria-label="Play video testimonial" className="grid h-11 w-11 place-items-center rounded-full bg-primary-soft text-primary transition hover:gradient-fill hover:text-white">
                         <Play size={14} />
                       </button>
                     </div>
@@ -980,7 +982,7 @@ export default function Landing() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal className="mx-auto max-w-2xl text-center">
             <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Pricing</span>
-            <h2 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">
+            <h2 className="mt-3 text-balance text-[2rem] font-extrabold tracking-tight sm:text-5xl">
               Simple, <span className="gradient-text">transparent pricing</span>
             </h2>
             <p className="mt-4 text-lg text-text-muted">Every plan unlocks the full suite. Scale by daily analyses.</p>
@@ -1056,7 +1058,7 @@ export default function Landing() {
                   </ul>
                 </div>
                 <RouterLink to="/contact" className="relative mt-6">
-                  <Button className="w-full rounded-full bg-white text-[#2e3f87] hover:bg-white/90">Contact sales</Button>
+                  <Button variant="secondary" className="w-full rounded-full bg-white text-[#2e3f87] hover:bg-white/90">Contact sales</Button>
                 </RouterLink>
               </div>
             </Reveal>
@@ -1069,7 +1071,7 @@ export default function Landing() {
       <section className="py-20 sm:py-28">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <Reveal className="text-center">
-            <h2 className="text-4xl font-extrabold tracking-tight sm:text-5xl">Frequently asked questions</h2>
+            <h2 className="text-balance text-4xl font-extrabold tracking-tight sm:text-5xl">Frequently asked questions</h2>
             <p className="mt-4 text-lg text-text-muted">Everything you need to know before you start.</p>
           </Reveal>
           <div className="mt-12 space-y-3">
@@ -1096,7 +1098,7 @@ export default function Landing() {
             <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
               <Magnetic>
                 <RouterLink to={primaryTo}>
-                  <Button size="lg" className="rounded-full bg-white text-[#2e3f87] shadow-lg hover:bg-white/90">
+                  <Button size="lg" variant="secondary" className="rounded-full bg-white text-[#2e3f87] shadow-lg hover:bg-white/90">
                     {primaryLabel} <ArrowRight size={16} />
                   </Button>
                 </RouterLink>

@@ -6,7 +6,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { CommandPalette } from "@/components/shared/CommandPalette";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/toaster";
-import { sectionIdForPath, sectionVars } from "@/lib/sections";
+import { moduleForPath, sectionVars } from "@/lib/sections";
 
 export function AppShell() {
   const [navOpen, setNavOpen] = useState(false);
@@ -43,10 +43,10 @@ export function AppShell() {
       />
       <div className="flex flex-1 flex-col overflow-hidden">
         <TopBar onMenu={() => setNavOpen(true)} onCommand={() => setPaletteOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <main className="scrollbar-subtle flex-1 overflow-y-auto p-4 sm:p-6">
           {/* --section accent is bound to the active route's workflow group, so
               every shared component below inherits its color automatically. */}
-          <div className="mx-auto max-w-[1440px]" style={sectionVars(sectionIdForPath(location.pathname))}>
+          <div className="mx-auto max-w-[1440px]" style={sectionVars(moduleForPath(location.pathname))}>
             <Suspense fallback={<Skeleton className="h-64 w-full" />}>
               {/* Re-key on path so the CSS fade-rise replays on each navigation
                   (zero-JS page transition — no Framer Motion in the bundle). */}

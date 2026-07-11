@@ -30,11 +30,11 @@ export default {
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       borderRadius: {
-        // Partly-rounded, modern SaaS scale — calm corners, not pill-like.
+        // Premium SaaS scale — large, soft corners (cards at 20px).
         md: "8px",
         lg: "12px",
-        xl: "14px",
-        "2xl": "16px",
+        xl: "16px",
+        "2xl": "20px",
       },
       boxShadow: {
         // Soft, neutral elevation (kept gentle for the rounded soft-UI feel).

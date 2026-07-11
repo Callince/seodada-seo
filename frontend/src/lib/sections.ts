@@ -1,47 +1,92 @@
 import type { CSSProperties } from "react";
 
-import { NAV_ITEMS } from "@/lib/nav";
+/**
+ * Per-module accent system. Each module has its own hue (CSS vars
+ * `--sec-<id>` / `--sec-<id>-soft` in index.css, themed light + dark). The
+ * shell binds the active module's accent to `--section`, which every shared
+ * component inherits — so a page's whole UI keys to its module color.
+ */
+export type ModuleId =
+  | "overview"
+  | "keywords"
+  | "serp"
+  | "domains"
+  | "competitors"
+  | "local"
+  | "audit"
+  | "onpage"
+  | "content"
+  | "report"
+  | "rank"
+  | "backlinks"
+  | "aivis"
+  | "schedules"
+  | "manage"
+  | "tools"
+  | "admin";
 
 /**
- * Workflow sections, each with its own accent color. The actual color values
- * live as CSS variables in index.css (`--sec-<id>` / `--sec-<id>-soft`, themed
- * for light + dark). This module only maps routes → section id so the shell can
- * set the active `--section` accent, which every shared component inherits.
+ * Route prefix → accent id (longest prefix wins). Each route takes its
+ * workflow-group color so pages match the sidebar + dashboard stepper:
+ * Research→purple, Audit→red, Optimize→violet, Track→green, Manage→slate.
  */
-export type SectionId =
-  | "overview"
-  | "research"
-  | "audit"
-  | "optimize"
-  | "track"
-  | "manage"
-  | "tools";
+const ROUTE_MODULE: [string, ModuleId][] = [
+  ["/dashboard", "overview"],
+  ["/workspace", "overview"],
+  // Research
+  ["/keywords", "keywords"],
+  ["/serp", "keywords"],
+  ["/domains", "keywords"],
+  ["/competitors", "keywords"],
+  ["/local", "keywords"],
+  // Audit
+  ["/audit", "audit"],
+  ["/onpage", "audit"],
+  // Optimize
+  ["/content", "content"],
+  ["/report", "content"],
+  // Track
+  ["/rank", "rank"],
+  ["/backlinks", "rank"],
+  ["/ai-visibility", "rank"],
+  ["/schedules", "rank"],
+  // Manage
+  ["/projects", "manage"],
+  ["/billing", "manage"],
+  // Free tools
+  ["/tools", "tools"],
+  ["/admin", "admin"],
+];
 
-/** Sidebar section label → stable id used for the accent CSS var. */
-const NAME_TO_ID: Record<string, SectionId> = {
+/** The module a path belongs to (defaults to overview). */
+export function moduleForPath(pathname: string): ModuleId {
+  const hit = ROUTE_MODULE.filter(
+    ([p]) => pathname === p || pathname.startsWith(p + "/"),
+  ).sort((a, b) => b[0].length - a[0].length)[0];
+  return hit ? hit[1] : "overview";
+}
+
+/**
+ * Sidebar workflow group → its accent, matching the dashboard stepper colors
+ * (one color per group, so the nav stays to a handful of hues, not one per
+ * module). Research=purple, Audit=red, Optimize=violet, Track=green, Manage=slate.
+ */
+const SECTION_MODULE: Record<string, ModuleId> = {
   Overview: "overview",
-  "1 · Research": "research",
+  "1 · Research": "keywords",
   "2 · Audit": "audit",
-  "3 · Optimize": "optimize",
-  "4 · Track": "track",
+  "3 · Optimize": "content",
+  "4 · Track": "rank",
   "5 · Manage": "manage",
   "Free tools": "tools",
 };
 
-export function sectionIdForName(name?: string): SectionId {
-  return (name && NAME_TO_ID[name]) || "overview";
+export function moduleForSection(name?: string): ModuleId {
+  return (name && SECTION_MODULE[name]) || "overview";
 }
 
-/** Longest-matching nav item for a path → its section id (defaults to overview). */
-export function sectionIdForPath(pathname: string): SectionId {
-  const item = NAV_ITEMS.filter((n) =>
-    n.end ? pathname === n.to : n.to !== "/" && pathname.startsWith(n.to),
-  ).sort((a, b) => b.to.length - a.to.length)[0];
-  return sectionIdForName(item?.section);
-}
-
-/** Inline style that binds `--section`/`--section-soft` to a section's accent. */
-export function sectionVars(id: SectionId): CSSProperties {
+/** Inline style that binds `--section`/`--section-soft` to a module's accent. */
+export function sectionVars(id: ModuleId): CSSProperties {
   return {
     ["--section" as string]: `var(--sec-${id})`,
     ["--section-soft" as string]: `var(--sec-${id}-soft)`,

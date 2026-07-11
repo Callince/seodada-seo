@@ -1,4 +1,4 @@
-import { Layers, RefreshCw, Search } from "lucide-react";
+import { BarChart3, DollarSign, Gauge, Layers, RefreshCw, Search } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import { apiErrorMessage } from "@/api/client";
@@ -15,11 +15,11 @@ import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
 import { KeywordTable } from "@/components/shared/KeywordTable";
 import { LocationLanguagePicker } from "@/components/shared/LocationLanguagePicker";
+import { MetricCard } from "@/components/shared/MetricCard";
 import { usePersistedState } from "@/lib/persist";
 import { SaveToProject } from "@/components/shared/SaveToProject";
 import { TrendChart } from "@/components/shared/TrendChart";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
-import { StatCard } from "@/components/shared/StatCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -78,9 +78,10 @@ function OverviewPane({ data }: { data: VolumeResponse }) {
         Primary keyword — <span className="font-medium text-text">{row.keyword}</span>
       </p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label="Search volume" value={fmtInt(row.search_volume)} accent />
-        <StatCard label="CPC" value={row.cpc == null ? "—" : `$${row.cpc.toFixed(2)}`} />
-        <StatCard
+        <MetricCard icon={BarChart3} label="Search volume" value={fmtInt(row.search_volume)} />
+        <MetricCard icon={DollarSign} label="CPC" value={row.cpc == null ? "—" : `$${row.cpc.toFixed(2)}`} />
+        <MetricCard
+          icon={Gauge}
           label="Competition"
           value={row.competition == null ? "—" : `${row.competition}/100`}
         />
@@ -193,7 +194,7 @@ function PeriodBar({
               className={cn(
                 "rounded-full px-3 py-1 text-xs font-medium transition-colors",
                 period === p.key
-                  ? "bg-primary text-white"
+                  ? "section-gradient text-white"
                   : "bg-surface-2 text-text-muted hover:text-text",
               )}
             >
@@ -253,7 +254,7 @@ function BulkPane({ loc }: { loc: { location_code: number; language_code: string
       <CardBody className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="inline-flex items-center gap-2 text-sm font-semibold text-text">
-            <Layers size={16} className="text-primary" /> Bulk keyword analysis
+            <Layers size={16} className="text-[color:var(--section)]" /> Bulk keyword analysis
           </h3>
           {volume.data && <CacheBadge meta={volume.data.meta} />}
         </div>
@@ -262,7 +263,7 @@ function BulkPane({ loc }: { loc: { location_code: number; language_code: string
           onChange={(e) => setRaw(e.target.value)}
           rows={4}
           placeholder={"One keyword per line (or comma-separated) — up to 100.\nrunning shoes\nbest trail runners\nmarathon training plan"}
-          className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--section)]"
         />
         <div className="flex items-center justify-between gap-3">
           <p className="text-xs text-text-muted">{keywords.length} unique keyword{keywords.length === 1 ? "" : "s"} ready (max 100)</p>
@@ -307,6 +308,18 @@ function OverviewStrip({
   const d = o.difficulty;
   const ringTone = d == null || d > 60 ? "blue" : d <= 30 ? "emerald" : "amber";
 
+  // The Labs "keyword overview" source can return an empty record (no
+  // difficulty/intent/volume) even on a 200 — don't render a bare "— — —"
+  // card; the Overview tab already covers volume/CPC/competition.
+  const hasData =
+    d != null ||
+    !!o.intent ||
+    o.search_volume != null ||
+    o.cpc != null ||
+    o.competition != null ||
+    trend.length > 1;
+  if (!hasData) return null;
+
   return (
     <Card>
       <CardBody>
@@ -317,7 +330,7 @@ function OverviewStrip({
         <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
           {d != null && <ScoreRing value={d} size={84} label="difficulty" tone={ringTone} />}
           {o.intent && (
-            <span className="rounded-full bg-primary-soft px-3 py-1 text-xs font-medium capitalize text-primary">
+            <span className="rounded-full bg-[color:var(--section-soft)] px-3 py-1 text-xs font-medium capitalize text-[color:var(--section)]">
               {o.intent}
             </span>
           )}

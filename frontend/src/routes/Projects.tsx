@@ -1,9 +1,10 @@
-import { Folder, Plus, Trash2 } from "lucide-react";
+import { Database, Folder, FolderOpen, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import { apiErrorMessage } from "@/api/client";
 import { useCreateProject, useDeleteProject, useProjects } from "@/api/hooks/useProjects";
+import { MetricCard } from "@/components/shared/MetricCard";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
@@ -64,13 +65,18 @@ export default function Projects() {
       )}
 
       {data && data.length > 0 && (
-        <div className="grid animate-fade-rise gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="animate-fade-rise space-y-5">
+        <div className="grid grid-cols-2 gap-4 sm:max-w-md">
+          <MetricCard icon={FolderOpen} label="Projects" value={String(data.length)} />
+          <MetricCard icon={Database} label="Saved runs" value={String(data.reduce((s, p) => s + p.run_count, 0))} />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {data.map((p) => (
-            <Card key={p.id} className="group relative transition-colors hover:border-primary">
+            <Card key={p.id} className="group relative transition-colors hover:border-[color:var(--section)]">
               <Link to={`/projects/${p.id}`} className="block">
                 <CardBody>
                   <div className="flex items-center gap-2">
-                    <Folder className="text-primary" size={18} />
+                    <Folder className="text-[color:var(--section)]" size={18} />
                     <span className="truncate font-medium text-text">{p.name}</span>
                   </div>
                   <p className="mt-3 text-sm text-text-muted">
@@ -90,6 +96,7 @@ export default function Projects() {
               </button>
             </Card>
           ))}
+        </div>
         </div>
       )}
     </div>

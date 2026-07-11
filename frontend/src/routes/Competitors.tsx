@@ -1,5 +1,14 @@
 import { ExternalLink, Link2, Swords } from "lucide-react";
 import { useState } from "react";
+import {
+  Legend,
+  PolarAngleAxis,
+  PolarGrid,
+  Radar,
+  RadarChart,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
 
 import { apiErrorMessage } from "@/api/client";
 import { useBacklinksSummary, useLinkGap } from "@/api/hooks/useBacklinks";
@@ -49,7 +58,7 @@ const linkGapCols: Column<LinkGapRow>[] = [
           href={`https://${r.domain}`}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1 font-medium text-text hover:text-primary hover:underline"
+          className="inline-flex items-center gap-1 font-medium text-text hover:text-[color:var(--section)] hover:underline"
         >
           {r.domain} <ExternalLink size={12} className="shrink-0 opacity-60" />
         </a>
@@ -74,6 +83,78 @@ const linkGapCols: Column<LinkGapRow>[] = [
   },
 ];
 
+const dollars = (cents: number | null | undefined) =>
+  cents == null ? "—" : `$${fmtInt(Math.round(cents / 100))}`;
+
+interface RadarMetric {
+  axis: string;
+  youRaw: number;
+  rivalRaw: number;
+  youDisp: string;
+  rivalDisp: string;
+}
+
+function RadarTip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: { payload: RadarMetric }[];
+}) {
+  if (!active || !payload?.length) return null;
+  const p = payload[0].payload;
+  return (
+    <div className="glass-card rounded-lg border border-border px-3 py-2 text-xs shadow-md">
+      <p className="mb-1 font-semibold text-text">{p.axis}</p>
+      <p style={{ color: "var(--section)" }}>You — {p.youDisp}</p>
+      <p className="text-text-muted">Competitor — {p.rivalDisp}</p>
+    </div>
+  );
+}
+
+/** Head-to-head radar: each axis normalized to the leader (100), so the shape
+ *  shows relative strength; the tooltip shows the real values. */
+function CompareRadar({
+  youLabel,
+  rivalLabel,
+  metrics,
+}: {
+  youLabel: string;
+  rivalLabel: string;
+  metrics: RadarMetric[];
+}) {
+  const data = metrics.map((m) => {
+    const max = Math.max(m.youRaw, m.rivalRaw, 1);
+    return { ...m, you: Math.round((m.youRaw / max) * 100), rival: Math.round((m.rivalRaw / max) * 100) };
+  });
+  return (
+    <ResponsiveContainer width="100%" height={340}>
+      <RadarChart data={data} outerRadius="70%">
+        <PolarGrid stroke="var(--border)" />
+        <PolarAngleAxis dataKey="axis" tick={{ fill: "var(--text-muted)", fontSize: 12 }} />
+        <Radar
+          name={youLabel}
+          dataKey="you"
+          stroke="var(--section)"
+          fill="var(--section)"
+          fillOpacity={0.35}
+          strokeWidth={2}
+        />
+        <Radar
+          name={rivalLabel}
+          dataKey="rival"
+          stroke="#94a3b8"
+          fill="#94a3b8"
+          fillOpacity={0.18}
+          strokeWidth={2}
+        />
+        <Legend wrapperStyle={{ fontSize: 12 }} />
+        <Tooltip content={<RadarTip />} />
+      </RadarChart>
+    </ResponsiveContainer>
+  );
+}
+
 function DomainCard({
   title, accent, authority, organic, traffic, pendingAuth, pendingOv, noData,
 }: {
@@ -84,7 +165,7 @@ function DomainCard({
   noData?: boolean;
 }) {
   return (
-    <Card className={accent ? "border-primary/40 bg-gradient-to-br from-primary-soft/50 to-surface" : undefined}>
+    <Card className={accent ? "bg-gradient-to-br from-[color:var(--section-soft)] to-surface" : undefined}>
       <CardHeader>
         <CardTitle className="truncate">{title}</CardTitle>
       </CardHeader>
@@ -181,6 +262,64 @@ export default function Competitors() {
 
       {started && !ovYou.isError && (
         <div className="animate-fade-rise space-y-5">
+          {/* Head-to-head radar */}
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                <span className="inline-flex items-center gap-2">
+                  <Swords size={16} style={{ color: "var(--section)" }} /> Head-to-head
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <CardBody>
+              {ovYou.isPending || ovRival.isPending || authYou.isPending || authRival.isPending ? (
+                <Skeleton className="h-[320px] w-full" />
+              ) : (
+                <CompareRadar
+                  youLabel={you.trim() || "You"}
+                  rivalLabel={rival.trim() || "Competitor"}
+                  metrics={[
+                    {
+                      axis: "Authority",
+                      youRaw: authYou.data?.summary.authority ?? 0,
+                      rivalRaw: authRival.data?.summary.authority ?? 0,
+                      youDisp: fmtInt(authYou.data?.summary.authority),
+                      rivalDisp: fmtInt(authRival.data?.summary.authority),
+                    },
+                    {
+                      axis: "Keywords",
+                      youRaw: ovYou.data?.organic.count ?? 0,
+                      rivalRaw: ovRival.data?.organic.count ?? 0,
+                      youDisp: fmtInt(ovYou.data?.organic.count),
+                      rivalDisp: fmtInt(ovRival.data?.organic.count),
+                    },
+                    {
+                      axis: "Traffic value",
+                      youRaw: ovYou.data?.organic.traffic_cost ?? 0,
+                      rivalRaw: ovRival.data?.organic.traffic_cost ?? 0,
+                      youDisp: dollars(ovYou.data?.organic.traffic_cost),
+                      rivalDisp: dollars(ovRival.data?.organic.traffic_cost),
+                    },
+                    {
+                      axis: "Backlinks",
+                      youRaw: authYou.data?.summary.backlinks ?? 0,
+                      rivalRaw: authRival.data?.summary.backlinks ?? 0,
+                      youDisp: fmtInt(authYou.data?.summary.backlinks),
+                      rivalDisp: fmtInt(authRival.data?.summary.backlinks),
+                    },
+                    {
+                      axis: "Ref. domains",
+                      youRaw: authYou.data?.summary.referring_domains ?? 0,
+                      rivalRaw: authRival.data?.summary.referring_domains ?? 0,
+                      youDisp: fmtInt(authYou.data?.summary.referring_domains),
+                      rivalDisp: fmtInt(authRival.data?.summary.referring_domains),
+                    },
+                  ]}
+                />
+              )}
+            </CardBody>
+          </Card>
+
           <div className="grid gap-4 lg:grid-cols-2">
             <DomainCard
               title={you.trim() || "You"} accent

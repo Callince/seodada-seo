@@ -1,4 +1,4 @@
-import { Globe, RefreshCw, Search, Swords } from "lucide-react";
+import { DollarSign, Globe, ListTree, Megaphone, RefreshCw, Search, Swords, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -16,6 +16,7 @@ import { AuthorityBadge } from "@/components/shared/AuthorityBadge";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
 import { LocationLanguagePicker } from "@/components/shared/LocationLanguagePicker";
+import { MetricCard } from "@/components/shared/MetricCard";
 import { usePersistedState } from "@/lib/persist";
 import { SaveToProject } from "@/components/shared/SaveToProject";
 import { StatCard } from "@/components/shared/StatCard";
@@ -73,7 +74,7 @@ const rankedCols: Column<RankedKeywordRow>[] = [
   },
   {
     key: "url", header: "URL", sortValue: (r) => r.url,
-    render: (r) => (r.url ? <a href={r.url} target="_blank" rel="noreferrer" className="text-text-muted hover:text-primary hover:underline">{r.url}</a> : "—"),
+    render: (r) => (r.url ? <a href={r.url} target="_blank" rel="noreferrer" className="text-text-muted hover:text-[color:var(--section)] hover:underline">{r.url}</a> : "—"),
     csvValue: (r) => r.url,
   },
 ];
@@ -183,17 +184,17 @@ function OverviewPane({ data }: { data: OverviewResponse }) {
       <div>
         <p className="mb-2 text-sm font-medium text-text">Organic</p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <StatCard label="Organic keywords" value={fmtInt(data.organic.count)} accent />
-          <StatCard label="Est. traffic" value={fmtInt(data.organic.etv == null ? null : Math.round(data.organic.etv))} />
-          <StatCard label="Traffic value" value={dollars(data.organic.traffic_cost)} />
+          <MetricCard icon={ListTree} label="Organic keywords" value={fmtInt(data.organic.count)} />
+          <MetricCard icon={TrendingUp} label="Est. traffic" value={fmtInt(data.organic.etv == null ? null : Math.round(data.organic.etv))} />
+          <MetricCard icon={DollarSign} label="Traffic value" value={dollars(data.organic.traffic_cost)} />
         </div>
       </div>
       <div>
         <p className="mb-2 text-sm font-medium text-text">Paid</p>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <StatCard label="Paid keywords" value={fmtInt(data.paid.count)} />
-          <StatCard label="Est. paid traffic" value={fmtInt(data.paid.etv == null ? null : Math.round(data.paid.etv))} />
-          <StatCard label="Paid traffic cost" value={dollars(data.paid.traffic_cost)} />
+          <MetricCard icon={Megaphone} label="Paid keywords" value={fmtInt(data.paid.count)} />
+          <MetricCard icon={TrendingUp} label="Est. paid traffic" value={fmtInt(data.paid.etv == null ? null : Math.round(data.paid.etv))} />
+          <MetricCard icon={DollarSign} label="Paid traffic cost" value={dollars(data.paid.traffic_cost)} />
         </div>
       </div>
     </div>
@@ -279,7 +280,7 @@ export default function DomainAnalytics({ embedded }: { embedded?: boolean }) {
           </form>
           <p className="mt-2.5 text-xs text-text-muted">
             Looking for competitor comparison or the keyword gap?{" "}
-            <Link to="/competitors" className="inline-flex items-center gap-1 text-primary hover:underline">
+            <Link to="/competitors" className="inline-flex items-center gap-1 text-[color:var(--section)] hover:underline">
               <Swords size={12} /> Competitor Analysis
             </Link>
           </p>
@@ -291,7 +292,7 @@ export default function DomainAnalytics({ embedded }: { embedded?: boolean }) {
       ) : (
         <div className="animate-fade-rise space-y-4">
           {/* Domain Authority strip (Backlinks API) */}
-          <Card className="bg-gradient-to-br from-primary-soft/40 to-surface">
+          <Card className="bg-gradient-to-br from-[color:var(--section-soft)] to-surface">
             <CardBody className="flex flex-wrap items-center gap-6 py-4">
               {auth.isPending ? (
                 <Skeleton className="h-20 w-20 rounded-full" />

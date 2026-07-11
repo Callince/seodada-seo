@@ -35,7 +35,7 @@ export function TabsTrigger({ value, children }: { value: string; children: Reac
       className={cn(
         "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
         active
-          ? "bg-surface text-primary shadow-sm"
+          ? "bg-surface text-[color:var(--section)] shadow-sm"
           : "text-text-muted hover:text-text",
       )}
     >

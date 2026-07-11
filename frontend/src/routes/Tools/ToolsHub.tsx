@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { TONES } from "@/components/public/landingKit";
 import { PageHeader } from "@/components/shared/states";
 import { Card, CardBody } from "@/components/ui/card";
 import { TOOL_META, type Tool } from "@/routes/Tools/AnalyzeTool";
@@ -19,11 +20,20 @@ export default function ToolsHub() {
         {ORDER.map((key) => {
           const t = TOOL_META[key];
           const Icon = t.icon;
+          const [c1, c2] = TONES[t.tone];
           return (
-            <Link key={key} to={`/tools/${key}`} className="group block focus:outline-none">
-              <Card className="h-full transition-all hover:-translate-y-0.5 hover:border-[color:var(--section)] hover:shadow-md group-focus-visible:ring-2 group-focus-visible:ring-[color:var(--section)]">
+            <Link
+              key={key}
+              to={`/tools/${key}`}
+              className="group block focus:outline-none"
+              style={{ ["--tone" as string]: c1 }}
+            >
+              <Card className="h-full transition-all hover:-translate-y-0.5 hover:border-[color:var(--tone)] hover:shadow-md group-focus-visible:ring-2 group-focus-visible:ring-[color:var(--tone)]">
                 <CardBody className="flex h-full flex-col gap-3">
-                  <span className="section-gradient grid h-11 w-11 place-items-center rounded-xl text-white shadow-glow">
+                  <span
+                    className="grid h-11 w-11 place-items-center rounded-xl text-white shadow-glow transition-transform group-hover:scale-110"
+                    style={{ background: `linear-gradient(135deg, ${c1}, ${c2})` }}
+                  >
                     <Icon size={20} />
                   </span>
                   <div className="flex-1">
@@ -32,7 +42,7 @@ export default function ToolsHub() {
                   </div>
                   <span
                     className="inline-flex items-center gap-1 text-sm font-medium"
-                    style={{ color: "var(--section)" }}
+                    style={{ color: c1 }}
                   >
                     Open tool
                     <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
