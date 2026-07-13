@@ -1,16 +1,89 @@
-import { Download, RefreshCw } from "lucide-react";
+import { Ban, CalendarClock, Download, RefreshCw } from "lucide-react";
 import { useState } from "react";
 
 import { apiErrorMessage } from "@/api/client";
-import { downloadAdminFile, useEmailLogs, useRetryEmail, type EmailLog } from "@/api/hooks/useAdmin";
+import {
+  downloadAdminFile, useCancelScheduledEmail, useEmailLogs, useRetryEmail, useScheduledEmails,
+  type EmailLog,
+} from "@/api/hooks/useAdmin";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardBody } from "@/components/ui/card";
+import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/store/toast";
 import { fmtDateTime, Modal, MiniStats } from "@/routes/admin/ui";
+
+/** Active recurring report schedules — each emails its result on run. Admins can
+ *  cancel one so it stops sending. */
+function ScheduledEmailsCard() {
+  const { data, isPending } = useScheduledEmails();
+  const cancel = useCancelScheduledEmail();
+
+  return (
+    <Card>
+      <CardHeader className="flex items-center justify-between">
+        <CardTitle className="flex items-center gap-2">
+          <CalendarClock size={16} className="text-[color:var(--section)]" />
+          Scheduled emails
+          {data && <Badge tone="neutral">{data.total}</Badge>}
+        </CardTitle>
+      </CardHeader>
+      <CardBody className="p-0">
+        {isPending ? (
+          <div className="p-4"><Skeleton className="h-24 w-full" /></div>
+        ) : !data?.items.length ? (
+          <p className="p-4 text-sm text-text-muted">No scheduled emails — recurring reports will appear here.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border text-left text-xs uppercase tracking-wider text-text-muted">
+                  <th className="py-2 pl-4 pr-4">Recipient</th>
+                  <th className="py-2 pr-4">Report</th>
+                  <th className="py-2 pr-4">Frequency</th>
+                  <th className="py-2 pr-4">Next send</th>
+                  <th className="py-2 pr-4">Owner</th>
+                  <th className="py-2 pr-4"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.items.map((s) => (
+                  <tr key={s.id} className="border-b border-border/60">
+                    <td className="py-2.5 pl-4 pr-4 font-medium text-text">{s.recipient || "—"}</td>
+                    <td className="py-2.5 pr-4 text-text-muted">
+                      {s.domain}{s.keyword ? ` · “${s.keyword}”` : ""}
+                    </td>
+                    <td className="py-2.5 pr-4 capitalize text-text-muted">{s.frequency}</td>
+                    <td className="py-2.5 pr-4 text-text-muted">{fmtDateTime(s.next_run_at)}</td>
+                    <td className="max-w-[12rem] truncate py-2.5 pr-4 text-text-muted">{s.owner_email}</td>
+                    <td className="py-2.5 pr-4 text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={cancel.isPending}
+                        onClick={() => {
+                          if (!confirm(`Cancel the scheduled report email to ${s.recipient || s.owner_email}? It will stop sending.`)) return;
+                          cancel.mutate(s.id, {
+                            onSuccess: () => toast.success("Scheduled email cancelled"),
+                            onError: (e) => toast.error(apiErrorMessage(e)),
+                          });
+                        }}
+                      >
+                        <Ban size={13} className="text-danger" /> Cancel
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </CardBody>
+    </Card>
+  );
+}
 
 export function EmailsTab() {
   const [type, setType] = useState("");
@@ -24,6 +97,7 @@ export function EmailsTab() {
 
   return (
     <div className="space-y-4">
+      <ScheduledEmailsCard />
       <MiniStats
         items={[
           { label: "Total", value: data?.total ?? "—" },
@@ -76,7 +150,7 @@ export function EmailsTab() {
                 {(data?.items ?? []).map((r) => (
                   <tr key={r.id} className="border-b border-border/60">
                     <td className="py-2.5 pl-4 pr-4">
-                      <button className="text-left hover:text-primary" onClick={() => setOpen(r)}>{r.to_email}</button>
+                      <button className="text-left hover:text-[color:var(--section)]" onClick={() => setOpen(r)}>{r.to_email}</button>
                     </td>
                     <td className="py-2.5 pr-4 text-text-muted">{r.email_type}</td>
                     <td className="max-w-xs truncate py-2.5 pr-4">{r.subject}</td>

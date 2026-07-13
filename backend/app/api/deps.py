@@ -39,6 +39,7 @@ _PATH_PERMISSIONS: list[tuple[str, str]] = [
     ("/admin/payments", "payments"),
     ("/admin/contact-submissions", "contact_submissions"),
     ("/admin/email-logs", "email_logs"),
+    ("/admin/scheduled-emails", "email_logs"),
     ("/admin/usage-history", "search_history"),
     ("/admin/settings", "website_settings"),
     ("/admin/stats", "dashboard"),

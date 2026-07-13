@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowUp, Plus, Trash2, Upload } from "lucide-react";
-import { useRef, useState } from "react";
+import { lazy, Suspense, useRef, useState } from "react";
 
 import { apiErrorMessage } from "@/api/client";
 import {
@@ -17,8 +17,11 @@ import { Select } from "@/components/ui/select";
 import { toast } from "@/store/toast";
 import { Field, Modal, ModalActions } from "@/routes/admin/ui";
 
-const AREA = "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:border-primary focus:outline-none";
+const AREA = "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:border-[color:var(--section)] focus:outline-none";
 const BLANK: WebStorySlide = { image: "", image_alt: "", heading: "", text: "", learn_more_url: "" };
+
+// CKEditor is heavy and admin-only — load its chunk only when a story opens.
+const RichEditor = lazy(() => import("@/components/ui/RichEditor").then((m) => ({ default: m.RichEditor })));
 
 /** Upload button that stores an image and calls back with its URL. */
 function ImageField({ value, onChange, label }: { value: string; onChange: (url: string) => void; label: string }) {
@@ -125,8 +128,12 @@ export function WebStoryEditor({ storyId, onClose }: { storyId: string | null; o
                 <div className="space-y-2">
                   <ImageField label="Image" value={s.image} onChange={(url) => setSlide(i, { image: url })} />
                   <Field label="Image alt text"><Input value={s.image_alt} onChange={(e) => setSlide(i, { image_alt: e.target.value })} /></Field>
-                  <Field label="Heading (HTML allowed)"><Input value={s.heading} onChange={(e) => setSlide(i, { heading: e.target.value })} /></Field>
-                  <Field label="Text (HTML allowed)"><textarea value={s.text} onChange={(e) => setSlide(i, { text: e.target.value })} rows={2} className={AREA} /></Field>
+                  <Field label="Heading"><Input value={s.heading} onChange={(e) => setSlide(i, { heading: e.target.value })} /></Field>
+                  <Field label="Text">
+                    <Suspense fallback={<div className="rounded-lg border border-border bg-surface px-3 py-6 text-center text-sm text-text-muted">Loading editor…</div>}>
+                      <RichEditor value={s.text} onChange={(html) => setSlide(i, { text: html })} />
+                    </Suspense>
+                  </Field>
                   <Field label="“Learn more” URL"><Input value={s.learn_more_url} onChange={(e) => setSlide(i, { learn_more_url: e.target.value })} placeholder="https://…" /></Field>
                 </div>
               </div>

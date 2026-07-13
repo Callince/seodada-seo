@@ -400,7 +400,9 @@ export interface BlogCategory { id: string; name: string; slug: string; sort_ord
 export interface AdminBlogDetail {
   id: string; title: string; slug: string; body_html: string; excerpt: string;
   meta_title: string; meta_description: string; meta_keywords: string; cover_image_url: string;
-  author: string; category_id: string | null; faqs: { question: string; answer: string }[];
+  image_alt: string; author: string; category_id: string | null;
+  faqs: { question: string; answer: string }[];
+  tldr: string; key_takeaways: string[]; reading_time_minutes: number; is_pillar: boolean;
   status: string; published_at: string | null; updated_at: string;
 }
 export type BlogInput = Partial<Omit<AdminBlogDetail, "id" | "updated_at" | "published_at">>;
@@ -537,6 +539,27 @@ export function useRetryEmail() {
   return useMutation({
     mutationFn: async (id: string) => (await api.post<EmailLog>(`/admin/email-logs/${id}/retry`)).data,
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "email-logs"] }),
+  });
+}
+
+export interface ScheduledEmail {
+  id: string; recipient: string; owner_email: string; domain: string; keyword: string | null;
+  frequency: string; next_run_at: string; last_run_at: string | null; last_status: string | null;
+}
+export interface ScheduledEmailList {
+  items: ScheduledEmail[]; total: number;
+}
+export function useScheduledEmails() {
+  return useQuery({
+    queryKey: ["admin", "scheduled-emails"],
+    queryFn: async () => (await api.get<ScheduledEmailList>("/admin/scheduled-emails")).data,
+  });
+}
+export function useCancelScheduledEmail() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => (await api.post<ScheduledEmail>(`/admin/scheduled-emails/${id}/cancel`)).data,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "scheduled-emails"] }),
   });
 }
 

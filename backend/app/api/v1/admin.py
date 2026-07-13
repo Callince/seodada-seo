@@ -39,6 +39,7 @@ from app.db.models import (
     Organization,
     Payment,
     Plan,
+    Schedule,
     Subscription,
     UsageLog,
     User,
@@ -75,6 +76,8 @@ from app.schemas.admin import (
     EmailLogListResponse,
     EmailLogOut,
     PaymentStatusUpdate,
+    ScheduledEmailListResponse,
+    ScheduledEmailOut,
     PlanAdminOut,
     PlanCreate,
     PlanUpdate,
@@ -789,8 +792,10 @@ async def create_blog(
     blog = Blog(
         title=body.title.strip(), slug=slug, body_html=body.body_html, excerpt=body.excerpt,
         meta_title=body.meta_title, meta_description=body.meta_description, meta_keywords=body.meta_keywords,
-        cover_image_url=body.cover_image_url, author=body.author, category_id=body.category_id or None,
-        faqs=[f.model_dump() for f in body.faqs], status=body.status,
+        cover_image_url=body.cover_image_url, image_alt=body.image_alt, author=body.author,
+        category_id=body.category_id or None, faqs=[f.model_dump() for f in body.faqs],
+        tldr=body.tldr, key_takeaways=list(body.key_takeaways),
+        reading_time_minutes=body.reading_time_minutes, is_pillar=body.is_pillar, status=body.status,
         published_at=datetime.now(timezone.utc) if body.status == "published" else None,
     )
     db.add(blog)
@@ -1154,6 +1159,57 @@ async def retry_email(
         raise HTTPException(status.HTTP_502_BAD_GATEWAY, "Retry send failed (transport not configured?).")
     await db.refresh(row)
     return row
+
+
+# ------------------------------------------------- scheduled (recurring) emails
+
+
+def _scheduled_email_out(s: Schedule, owner_email: str) -> ScheduledEmailOut:
+    p = s.params or {}
+    return ScheduledEmailOut(
+        id=s.id,
+        recipient=(p.get("email") or owner_email or "").strip(),
+        owner_email=owner_email,
+        domain=(p.get("domain") or "").strip() or "site",
+        keyword=(p.get("keyword") or None),
+        frequency=s.frequency,
+        next_run_at=s.next_run_at,
+        last_run_at=s.last_run_at,
+        last_status=s.last_status,
+    )
+
+
+@router.get("/scheduled-emails", response_model=ScheduledEmailListResponse)
+async def list_scheduled_emails(
+    db: AsyncSession = Depends(get_db_session), _: User = Depends(require_admin)
+):
+    """Active recurring report schedules platform-wide — each emails its result on run."""
+    rows = list(
+        await db.scalars(
+            select(Schedule).where(Schedule.active.is_(True)).order_by(Schedule.next_run_at.asc())
+        )
+    )
+    user_ids = {s.user_id for s in rows}
+    owners: dict[str, str] = {}
+    if user_ids:
+        owners = {u.id: u.email for u in await db.scalars(select(User).where(User.id.in_(user_ids)))}
+    items = [_scheduled_email_out(s, owners.get(s.user_id, "")) for s in rows]
+    return ScheduledEmailListResponse(items=items, total=len(items))
+
+
+@router.post("/scheduled-emails/{schedule_id}/cancel", response_model=ScheduledEmailOut)
+async def cancel_scheduled_email(
+    schedule_id: str, db: AsyncSession = Depends(get_db_session), _: User = Depends(require_admin)
+):
+    """Cancel a scheduled email — deactivate the schedule so it stops sending."""
+    s = await db.get(Schedule, schedule_id)
+    if not s:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Scheduled email not found")
+    s.active = False
+    owner = await db.get(User, s.user_id)
+    await db.commit()
+    await db.refresh(s)
+    return _scheduled_email_out(s, owner.email if owner else "")
 
 
 # ------------------------------------------------------------ usage history

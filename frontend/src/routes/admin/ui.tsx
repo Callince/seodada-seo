@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
+import { sectionVars } from "@/lib/sections";
 
 /** Shared admin form/modal primitives so the tab components stay consistent. */
 
@@ -27,30 +28,34 @@ export function Modal({
   onClose,
   children,
   wide,
+  xl,
 }: {
   title: string;
   onClose: () => void;
   children: React.ReactNode;
   wide?: boolean;
+  xl?: boolean;
 }) {
+  const width = xl ? "max-w-5xl" : wide ? "max-w-3xl" : "max-w-lg";
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 p-4 pt-[8vh]"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 pt-[7vh] backdrop-blur-sm"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
       <Card
-        className={`w-full ${wide ? "max-w-3xl" : "max-w-lg"} animate-fade-rise`}
+        className={`lp-card w-full ${width} animate-fade-rise`}
+        style={sectionVars("admin")}
         onClick={(e) => e.stopPropagation()}
       >
-        <CardHeader className="flex items-center justify-between">
+        <CardHeader className="flex items-center justify-between border-b border-[color:var(--section-soft)]">
           <CardTitle>{title}</CardTitle>
           <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close">
             <X size={16} />
           </Button>
         </CardHeader>
-        <CardBody className="max-h-[75vh] overflow-y-auto">{children}</CardBody>
+        <CardBody className="max-h-[78vh] overflow-y-auto">{children}</CardBody>
       </Card>
     </div>
   );
@@ -72,11 +77,11 @@ export function ModalActions({ onClose, loading, label }: { onClose: () => void;
 /** A labelled stat pill row used across the inbox/logs/usage tabs. */
 export function MiniStats({ items }: { items: { label: string; value: string | number; accent?: boolean }[] }) {
   return (
-    <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4" style={sectionVars("admin")}>
       {items.map((s) => (
-        <div key={s.label} className="rounded-xl border border-border bg-surface p-3">
+        <div key={s.label} className="lp-card rounded-xl border border-border p-3">
           <p className="text-xs text-text-muted">{s.label}</p>
-          <p className={`mt-0.5 text-xl font-bold ${s.accent ? "gradient-text" : "text-text"}`}>{s.value}</p>
+          <p className={`mt-0.5 text-xl font-bold ${s.accent ? "text-[color:var(--section)]" : "text-text"}`}>{s.value}</p>
         </div>
       ))}
     </div>

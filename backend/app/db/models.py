@@ -294,7 +294,12 @@ class Blog(Base):
     excerpt: Mapped[str] = mapped_column(Text, default="")
     cover_image_url: Mapped[str] = mapped_column(String(1000), default="")
     author: Mapped[str] = mapped_column(String(255), default="seodada")
+    image_alt: Mapped[str] = mapped_column(String(500), default="", server_default="")
     faqs: Mapped[list] = mapped_column(JsonType, default=list)
+    tldr: Mapped[str] = mapped_column(Text, default="", server_default="")
+    key_takeaways: Mapped[list] = mapped_column(JsonType, default=list)
+    reading_time_minutes: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    is_pillar: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
     status: Mapped[str] = mapped_column(String(20), default="draft")  # draft | published
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)

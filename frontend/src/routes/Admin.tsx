@@ -1,6 +1,5 @@
 import {
-  Activity, CreditCard, Download, Eye, FileText, Inbox, KeyRound, LayoutDashboard,
-  Mail, Pencil, Plus, Settings, ShieldCheck, Trash2, Users,
+  CreditCard, Download, Eye, KeyRound, Pencil, Plus, ShieldCheck, Trash2, TrendingUp, Users, Wallet,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -9,7 +8,6 @@ import {
   downloadAdminFile,
   useAdminBlogs,
   useAdminBlogCategories,
-  useAdminMe,
   useAdminPayments,
   useAdminPlans,
   useAdminStats,
@@ -42,24 +40,20 @@ import {
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 import { DataTable, type Column } from "@/components/shared/DataTable";
+import { MetricCard } from "@/components/shared/MetricCard";
 import { StatCard } from "@/components/shared/StatCard";
 import { TrendChart, SERIES_COLORS } from "@/components/shared/TrendChart";
-import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
+import { ErrorState } from "@/components/shared/states";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/cn";
 import { fmtCents, fmtInt } from "@/lib/format";
 import { useAuth } from "@/store/auth";
 import { toast } from "@/store/toast";
 import { BlogEditor } from "@/routes/admin/tabs/BlogEditor";
-import { ContactTab } from "@/routes/admin/tabs/ContactTab";
-import { EmailsTab } from "@/routes/admin/tabs/EmailsTab";
-import { RolesTab } from "@/routes/admin/tabs/RolesTab";
-import { UsageTab } from "@/routes/admin/tabs/UsageTab";
 import { WebStoryEditor } from "@/routes/admin/tabs/WebStoryEditor";
 import { Field, Modal, ModalActions, fmtDate, fmtDateTime, inr } from "@/routes/admin/ui";
 import type { AdminUser } from "@/types";
@@ -262,7 +256,7 @@ function Line({ left, mid, right }: { left: React.ReactNode; mid: React.ReactNod
   );
 }
 
-function UsersTab() {
+export function UsersTab() {
   const { data, isPending, isError, error, refetch } = useAdminUsers();
   const me = useAuth((s) => s.user);
   const reset = useResetUserPassword();
@@ -290,12 +284,12 @@ function UsersTab() {
   return (
     <>
       <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label="Users" value={fmtInt(data.users.length)} />
-        <StatCard label="Spend this month" value={fmtCents(data.total_month_cents)} accent />
-        <StatCard label="Spend all time" value={fmtCents(data.total_cents)} />
+        <MetricCard icon={Users} label="Users" value={fmtInt(data.users.length)} />
+        <MetricCard icon={Wallet} label="Spend this month" value={fmtCents(data.total_month_cents)} />
+        <MetricCard icon={TrendingUp} label="Spend all time" value={fmtCents(data.total_cents)} />
       </div>
       <div className="mb-3 flex justify-end">
-        <Button onClick={() => setCreating(true)} className="gradient-fill text-white shadow-glow"><Plus size={15} /> Add user</Button>
+        <Button onClick={() => setCreating(true)}><Plus size={15} /> Add user</Button>
       </div>
       <Card>
         <CardBody className="p-0">
@@ -324,7 +318,7 @@ const STATUS_COLORS: Record<string, string> = {
   paid: "#059669", created: "#F59E0B", failed: "#F43F5E", refunded: "#6366F1",
 };
 
-function OverviewTab() {
+export function OverviewTab() {
   const { data, isPending } = useAdminStats();
   if (isPending || !data) return <Skeleton className="h-48 w-full" />;
 
@@ -336,10 +330,10 @@ function OverviewTab() {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Total users" value={fmtInt(data.total_users)} />
-        <StatCard label="Active subscriptions" value={fmtInt(data.active_subscriptions)} accent />
-        <StatCard label="MRR" value={inr(data.mrr_cents)} />
-        <StatCard label="Revenue (all-time)" value={inr(data.revenue_cents)} />
+        <MetricCard icon={Users} label="Total users" value={fmtInt(data.total_users)} />
+        <MetricCard icon={CreditCard} label="Active subscriptions" value={fmtInt(data.active_subscriptions)} />
+        <MetricCard icon={Wallet} label="MRR" value={inr(data.mrr_cents)} />
+        <MetricCard icon={TrendingUp} label="Revenue (all-time)" value={inr(data.revenue_cents)} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -451,7 +445,7 @@ function PlanModal({ plan, onClose }: { plan: AdminPlan | null; onClose: () => v
         </div>
         <Field label="Features (one per line)">
           <textarea value={f.features} onChange={(e) => setF({ ...f, features: e.target.value })} rows={4}
-            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:border-primary focus:outline-none" />
+            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:border-[color:var(--section)] focus:outline-none" />
         </Field>
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={f.is_active} onChange={(e) => setF({ ...f, is_active: e.target.checked })} className="h-4 w-4 accent-[var(--primary)]" />
@@ -463,7 +457,7 @@ function PlanModal({ plan, onClose }: { plan: AdminPlan | null; onClose: () => v
   );
 }
 
-function PlansTab() {
+export function PlansTab() {
   const { data, isPending } = useAdminPlans();
   const archive = useArchivePlan();
   const [editing, setEditing] = useState<AdminPlan | null | "new">(null);
@@ -471,7 +465,7 @@ function PlansTab() {
   return (
     <>
       <div className="mb-4 flex justify-end">
-        <Button onClick={() => setEditing("new")} className="gradient-fill text-white shadow-glow">
+        <Button onClick={() => setEditing("new")}>
           <Plus size={15} /> Add plan
         </Button>
       </div>
@@ -570,7 +564,7 @@ function RefundModal({ paymentId, max, onClose }: { paymentId: string; max: numb
   );
 }
 
-function BillingTab() {
+export function BillingTab() {
   const { data: subs } = useAdminSubscriptions();
   const { data: pays } = useAdminPayments();
   const extend = useExtendSubscription();
@@ -590,7 +584,7 @@ function BillingTab() {
       <Card>
         <CardHeader className="flex items-center justify-between">
           <CardTitle>Subscriptions</CardTitle>
-          <Button size="sm" onClick={() => setAssign(true)} className="gradient-fill text-white shadow-glow"><Plus size={14} /> Assign</Button>
+          <Button size="sm" onClick={() => setAssign(true)}><Plus size={14} /> Assign</Button>
         </CardHeader>
         <CardBody className="overflow-x-auto">
           {subs?.length ? (
@@ -667,7 +661,7 @@ function BillingTab() {
 
 // ============================================================ Settings tab
 
-function SettingsTab() {
+export function SettingsTab() {
   const { data } = useWebsiteSettings();
   const update = useUpdateSettings();
   const [form, setForm] = useState<WebsiteSettings | null>(null);
@@ -690,12 +684,13 @@ function SettingsTab() {
           <Field label="Support email"><Input value={form.support_email} onChange={set("support_email")} /></Field>
           <Field label="Tagline"><Input value={form.tagline} onChange={set("tagline")} /></Field>
           <Field label="Logo URL"><Input value={form.logo_url} onChange={set("logo_url")} /></Field>
+          <Field label="Favicon URL"><Input value={form.favicon_url} onChange={set("favicon_url")} /></Field>
           <Field label="Facebook URL"><Input value={form.facebook_url} onChange={set("facebook_url")} /></Field>
           <Field label="LinkedIn URL"><Input value={form.linkedin_url} onChange={set("linkedin_url")} /></Field>
           <Field label="Instagram URL"><Input value={form.instagram_url} onChange={set("instagram_url")} /></Field>
           <Field label="YouTube URL"><Input value={form.youtube_url} onChange={set("youtube_url")} /></Field>
           <div className="sm:col-span-2">
-            <Button type="submit" loading={update.isPending} className="gradient-fill text-white shadow-glow">
+            <Button type="submit" loading={update.isPending}>
               Save settings
             </Button>
           </div>
@@ -760,7 +755,7 @@ function BlogsCard() {
     <Card>
       <CardHeader className="flex items-center justify-between">
         <CardTitle>Blog posts ({blogs?.length ?? 0})</CardTitle>
-        <Button size="sm" onClick={() => setEditorId("new")} className="gradient-fill text-white shadow-glow"><Plus size={14} /> New post</Button>
+        <Button size="sm" onClick={() => setEditorId("new")}><Plus size={14} /> New post</Button>
       </CardHeader>
       <CardBody className="overflow-x-auto p-0">
         <table className="w-full text-sm">
@@ -773,7 +768,7 @@ function BlogsCard() {
             {(blogs ?? []).map((r) => (
               <tr key={r.id} className="border-b border-border/60">
                 <td className="max-w-xs truncate py-2.5 pl-4 pr-4">
-                  <button className="font-medium text-text hover:text-primary" onClick={() => setEditorId(r.id)}>{r.title}</button>
+                  <button className="font-medium text-text hover:text-[color:var(--section)]" onClick={() => setEditorId(r.id)}>{r.title}</button>
                 </td>
                 <td className="py-2.5 pr-4"><Badge tone={r.status === "published" ? "success" : "neutral"}>{r.status}</Badge></td>
                 <td className="py-2.5 pr-4 text-text-muted">{fmtDate(r.published_at)}</td>
@@ -807,7 +802,7 @@ function WebStoriesCard() {
     <Card>
       <CardHeader className="flex items-center justify-between">
         <CardTitle>Web stories ({stories?.length ?? 0})</CardTitle>
-        <Button size="sm" onClick={() => setEditorId("new")} className="gradient-fill text-white shadow-glow"><Plus size={14} /> New story</Button>
+        <Button size="sm" onClick={() => setEditorId("new")}><Plus size={14} /> New story</Button>
       </CardHeader>
       <CardBody className="overflow-x-auto p-0">
         <table className="w-full text-sm">
@@ -820,7 +815,7 @@ function WebStoriesCard() {
             {(stories ?? []).map((r) => (
               <tr key={r.id} className="border-b border-border/60">
                 <td className="max-w-xs truncate py-2.5 pl-4 pr-4">
-                  <button className="font-medium text-text hover:text-primary" onClick={() => setEditorId(r.id)}>{r.title}</button>
+                  <button className="font-medium text-text hover:text-[color:var(--section)]" onClick={() => setEditorId(r.id)}>{r.title}</button>
                 </td>
                 <td className="py-2.5 pr-4"><Badge tone={r.status === "published" ? "success" : "neutral"}>{r.status}</Badge></td>
                 <td className="py-2.5 pr-4 text-text-muted">{fmtDate(r.published_at)}</td>
@@ -844,7 +839,7 @@ function WebStoriesCard() {
   );
 }
 
-function ContentTab() {
+export function ContentTab() {
   return (
     <div className="space-y-5">
       <CategoriesCard />
@@ -854,60 +849,3 @@ function ContentTab() {
   );
 }
 
-// ============================================================ shell
-
-const TABS = [
-  { key: "overview", label: "Overview", icon: LayoutDashboard, Comp: OverviewTab, perm: "dashboard" },
-  { key: "users", label: "Users", icon: Users, Comp: UsersTab, perm: "user_management" },
-  { key: "content", label: "Content", icon: FileText, Comp: ContentTab, perm: "content_management" },
-  { key: "plans", label: "Plans", icon: CreditCard, Comp: PlansTab, perm: "subscription_management" },
-  { key: "billing", label: "Billing", icon: CreditCard, Comp: BillingTab, perm: "payments" },
-  { key: "contact", label: "Contact", icon: Inbox, Comp: ContactTab, perm: "contact_submissions" },
-  { key: "emails", label: "Emails", icon: Mail, Comp: EmailsTab, perm: "email_logs" },
-  { key: "usage", label: "Usage", icon: Activity, Comp: UsageTab, perm: "search_history" },
-  { key: "roles", label: "Roles", icon: ShieldCheck, Comp: RolesTab, perm: "manage_roles" },
-  { key: "settings", label: "Settings", icon: Settings, Comp: SettingsTab, perm: "website_settings" },
-] as const;
-
-export default function Admin() {
-  const isAdmin = useAuth((s) => s.user?.is_admin);
-  const { data: me } = useAdminMe();
-  const [tab, setTab] = useState<(typeof TABS)[number]["key"]>("overview");
-
-  // Show every tab until permissions load, then narrow to what this admin holds.
-  const visibleTabs = TABS.filter((t) => !me || me.is_super || me.permissions.includes(t.perm));
-  useEffect(() => {
-    if (visibleTabs.length && !visibleTabs.some((t) => t.key === tab)) setTab(visibleTabs[0].key);
-  }, [me]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (!isAdmin) {
-    return (
-      <EmptyState
-        title="Admin access required"
-        hint="Your account is not a platform admin. Ask an admin to grant you access from Roles."
-      />
-    );
-  }
-
-  const Active = (visibleTabs.find((t) => t.key === tab) ?? visibleTabs[0])?.Comp ?? OverviewTab;
-  return (
-    <div className="space-y-5">
-      <PageHeader title="Admin" subtitle="Platform control — users, content, billing, roles, and site config." />
-      <div className="flex flex-wrap gap-1 border-b border-border">
-        {visibleTabs.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={cn(
-              "flex items-center gap-1.5 border-b-2 px-3.5 py-2 text-sm font-medium transition-colors",
-              tab === t.key ? "border-primary text-primary" : "border-transparent text-text-muted hover:text-text",
-            )}
-          >
-            <t.icon size={15} /> {t.label}
-          </button>
-        ))}
-      </div>
-      <Active />
-    </div>
-  );
-}

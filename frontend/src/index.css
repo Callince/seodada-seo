@@ -623,7 +623,8 @@ body {
 }
 
 /* CKEditor — give the editable a usable height and map its chrome to tokens. */
-.rich-editor .ck-editor__editable { min-height: 260px; }
+.rich-editor .ck-editor__editable { min-height: 420px; }
+.rich-editor .ck.ck-word-count { padding: 2px 0; display: flex; gap: 1rem; }
 .rich-editor .ck.ck-editor__main > .ck-editor__editable {
   background: var(--surface);
   border-color: var(--border);

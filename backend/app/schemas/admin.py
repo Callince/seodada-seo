@@ -196,6 +196,7 @@ class AdminBlogOut(BaseModel):
     status: str
     author: str
     category_id: str | None = None
+    is_pillar: bool = False
     published_at: datetime | None = None
     updated_at: datetime
 
@@ -349,9 +350,14 @@ class AdminBlogDetail(BaseModel):
     meta_description: str
     meta_keywords: str
     cover_image_url: str
+    image_alt: str = ""
     author: str
     category_id: str | None = None
     faqs: list[FaqItem] = []
+    tldr: str = ""
+    key_takeaways: list[str] = []
+    reading_time_minutes: int = 0
+    is_pillar: bool = False
     status: str
     published_at: datetime | None = None
     updated_at: datetime
@@ -366,9 +372,14 @@ class BlogCreate(BaseModel):
     meta_description: str = ""
     meta_keywords: str = ""
     cover_image_url: str = ""
+    image_alt: str = ""
     author: str = "seodada"
     category_id: str | None = None
     faqs: list[FaqItem] = []
+    tldr: str = ""
+    key_takeaways: list[str] = []
+    reading_time_minutes: int = 0
+    is_pillar: bool = False
     status: str = Field(default="draft", pattern="^(published|draft)$")
 
 
@@ -381,9 +392,14 @@ class BlogUpdate(BaseModel):
     meta_description: str | None = None
     meta_keywords: str | None = None
     cover_image_url: str | None = None
+    image_alt: str | None = None
     author: str | None = None
     category_id: str | None = None
     faqs: list[FaqItem] | None = None
+    tldr: str | None = None
+    key_takeaways: list[str] | None = None
+    reading_time_minutes: int | None = None
+    is_pillar: bool | None = None
     status: str | None = Field(default=None, pattern="^(published|draft)$")
 
 
@@ -448,6 +464,26 @@ class EmailLogListResponse(BaseModel):
     failed_count: int
     today_count: int
     types: list[str]
+
+
+# ------------------------------------------------- scheduled (recurring) emails
+
+class ScheduledEmailOut(BaseModel):
+    """An active recurring report schedule — it emails its result on each run."""
+    id: str
+    recipient: str
+    owner_email: str
+    domain: str
+    keyword: str | None = None
+    frequency: str
+    next_run_at: datetime
+    last_run_at: datetime | None = None
+    last_status: str | None = None
+
+
+class ScheduledEmailListResponse(BaseModel):
+    items: list[ScheduledEmailOut]
+    total: int
 
 
 # ------------------------------------------------------------ usage history
