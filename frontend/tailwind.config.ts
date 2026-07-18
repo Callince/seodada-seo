@@ -30,11 +30,12 @@ export default {
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
       },
       borderRadius: {
-        // Premium SaaS scale — large, soft corners (cards at 20px).
-        md: "8px",
-        lg: "12px",
-        xl: "16px",
-        "2xl": "20px",
+        // Aperture scale (DESIGN_SYSTEM §3). Rungs step down when nested:
+        // an 18px card holds a 14px panel holds a 10px control.
+        md: "var(--r-md)",    /* 10px — input, button        */
+        lg: "var(--r-lg)",    /* 14px — nested panel         */
+        xl: "var(--r-xl)",    /* 18px — card, the signature  */
+        "2xl": "var(--r-2xl)",/* 24px — hero panel, modal    */
       },
       boxShadow: {
         // Soft, neutral elevation (kept gentle for the rounded soft-UI feel).

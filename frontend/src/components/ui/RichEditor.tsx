@@ -54,8 +54,11 @@ import {
   type UploadAdapter,
   type UploadResponse,
 } from "ckeditor5";
-import "ckeditor5/ckeditor5.css";
-import { useRef } from "react";
+// NOT a static `import "ckeditor5/ckeditor5.css"`: Rollup hoists CSS out of
+// lazy chunks into the eager bundle, so that shipped a 209 KB render-blocking
+// stylesheet to every visitor — including the landing page, which has no
+// editor. Loaded at runtime below so it arrives only with the editor itself.
+import { useEffect, useRef } from "react";
 
 import { api } from "@/api/client";
 import { assetUrl } from "@/api/hooks/useContentPublic";
@@ -133,8 +136,24 @@ const CONFIG: EditorConfig = {
 
 /** Rich-text (HTML) editor for admin content. Emits HTML via onChange, and shows
  *  a live word/character count under the editor. */
+/** Pull in CKEditor's stylesheet only when an editor actually mounts.
+ *  Idempotent — the module-level flag keeps repeat mounts to one <link>. */
+let ckStylesRequested = false;
+function useCkeditorStyles() {
+  useEffect(() => {
+    if (ckStylesRequested) return;
+    ckStylesRequested = true;
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    // Vite rewrites this to the hashed asset URL at build time.
+    link.href = new URL("ckeditor5/ckeditor5.css", import.meta.url).href;
+    document.head.appendChild(link);
+  }, []);
+}
+
 export function RichEditor({ value, onChange }: { value: string; onChange: (html: string) => void }) {
   const countRef = useRef<HTMLDivElement>(null);
+  useCkeditorStyles();
 
   return (
     <div className="rich-editor text-text">

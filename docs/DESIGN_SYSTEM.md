@@ -75,6 +75,20 @@ OKLCH is supported in every current browser (Chrome 111+, Safari 15.4+, Firefox
 113+). Hex fallbacks are listed for tooling that needs them, but **CSS should use
 the OKLCH form.**
 
+> **Caveat — Tailwind arbitrary values (v3.4).** Two silent-failure traps bit
+> during implementation, both of which compile without error and render nothing:
+> - `shadow-[var(--lift-1)]` is read as a shadow **color** (Tailwind's
+>   ambiguity heuristic emits `--tw-shadow-color`), so the elevation vanishes.
+>   Use the type hint: **`shadow-[shadow:var(--lift-1)]`**.
+> - `duration-[--dur-1]` / `ease-[--ease]` are v4 shorthand. In v3 they emit
+>   invalid CSS. Use **`duration-[var(--dur-1)]`**.
+>
+> More generally: the plain CSS classes in `index.css` (`.glass-card`,
+> `.section-gradient`, `.gradient-fill`) are **not** Tailwind utilities, so a
+> `group-hover:` or `md:` prefix on them generates nothing. Always verify a new
+> arbitrary value by reading `getComputedStyle` in the browser — it is the only
+> reliable check.
+
 > **Caveat — relative color syntax.** Several tokens below use
 > `oklch(from var(--x) L c h)` to derive a variant from another token. That is
 > CSS Color 5 relative colors, which landed later than OKLCH itself (Chrome
@@ -527,7 +541,7 @@ shape is a bug even if it looks the same.
 }
 .field__control {
   display: flex; align-items: center; gap: var(--s-2);
-  height: 2.75rem; padding-inline: var(--s-3);
+  height: 2.5rem; padding-inline: var(--s-3);   /* matches .btn — see note */
   background: var(--z2);
   border: 1px solid var(--hairline);
   border-radius: var(--r-md);
@@ -556,6 +570,10 @@ shape is a bug even if it looks the same.
   lifts toward you as you engage it. Small, and nobody does it.
 - Error text replaces hint text in the same node, so layout never shifts.
 - Never clear a user's input on a validation failure.
+- **Height is 2.5rem, matching `.btn`.** An earlier draft specced 2.75rem, which
+  is fine in isolation but misaligns against the button it sits beside in every
+  analysis form. Controls that share a row share a height — the spec serves the
+  layout, not the other way round.
 
 ### 6.3 Card
 
@@ -594,7 +612,10 @@ shape is a bug even if it looks the same.
   width: 2.5rem; height: 2.5rem; border-radius: var(--r-md);
   background: var(--section-soft); color: var(--section-ink);
 }
-.card__title { font: 600 var(--text-lg)/1.3 var(--font-sans); letter-spacing: -.01em; }
+/* --text-lg on marketing/standalone cards; --text-md in dense data grids,
+   where 18px titles crowd the metrics they're supposed to label. The shared
+   <CardTitle> primitive ships at --text-md for that reason. */
+.card__title { font: 600 var(--text-md)/1.3 var(--font-sans); letter-spacing: -.01em; }
 .card__sub   { margin-top: 2px; font-size: var(--text-xs); color: var(--ink-muted); }
 .card__body  { padding: 0 var(--s-5) var(--s-5); }
 .card__foot  {
