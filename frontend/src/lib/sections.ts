@@ -90,5 +90,6 @@ export function sectionVars(id: ModuleId): CSSProperties {
   return {
     ["--section" as string]: `var(--sec-${id})`,
     ["--section-soft" as string]: `var(--sec-${id}-soft)`,
+    ["--section-ink" as string]: `var(--sec-${id}-ink)`,
   } as CSSProperties;
 }

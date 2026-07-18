@@ -10,51 +10,87 @@
    #0ea5e9 accent. Single source of visual truth; mapped in tailwind.config.ts.
    ========================================================================== */
 :root {
-  /* seodada — light */
-  --app-bg: #f7f9fc;
+  /* ---- APERTURE (see docs/DESIGN_SYSTEM.md) -------------------------------
+     Every value is authored in OKLCH and emitted as hex here for browser
+     reach. Two invariants make the system work — don't hand-tweak past them:
+       1. The Signal Spectrum is one perceptual ramp (buried -> visible) that
+          passes THROUGH the logo blue: --signal-2 == the old #1d7dbd.
+       2. Module accents share one lightness/chroma (L=.62 C=.15 light,
+          L=.74 C=.14 dark); only hue varies, so no module out-shouts another.
+     Light-mode accents measure 3.4-3.9:1 on --surface: fine for icons, chips
+     and large numerals, NOT for small text. Use the `-ink` variant (L=.45)
+     whenever an accent has to carry body copy. -------------------------- */
+  --app-bg: #f4f7fb;
   --surface: #ffffff;
-  --surface-2: #eef3fb;
-  --border: #e2e8f2;
-  --text: #131a30;
-  --text-muted: #5b6b8c;
-  --primary: #1d7dbd;      /* seodada primary blue (from the logo) */
-  --primary-soft: #e7f2fb;
-  --accent: #2e3f87;       /* deep brand blue */
-  --success: #16a34a;
-  --warning: #f59e0b;
-  --danger: #ef476f;       /* seodada danger */
-  --info: #1d7dbd;
-  --ring: 29 125 189;
+  --surface-2: #f0f4f9;
+  --border: #dae0e7;
+  --text: #0d1624;         /* 17.2:1 on canvas */
+  --text-muted: #535e6f;   /*  5.8:1 on canvas */
+  --primary: #0075b9;      /* = --signal-2, the logo blue in OKLCH */
+  --primary-soft: #e1f5ff;
+  --accent: #184c8d;
+  --success: #0fa05c;
+  --warning: #de9300;
+  --danger: #d33a3c;
+  --info: #00a2ce;
+  --ring: 0 117 185;       /* rgb triplet — tailwind wraps it */
 
-  /* Brand gradient: deep blue -> primary blue (matches the logo) */
-  --grad-a: #2e3f87;
-  --grad-b: #245aa0;
-  --grad-c: #1d7dbd;
+  /* Signal Spectrum — the visibility ramp. Any 0-100 score, rank or citation
+     rate maps onto THIS scale. Never invent a second one. */
+  --signal-0: #1b295a;     /* buried    */
+  --signal-1: #184c8d;     /* faint     */
+  --signal-2: #0075b9;     /* present   */
+  --signal-3: #00a2ce;     /* strong    */
+  --signal-4: #3bcddc;     /* prominent */
+  --signal-5: #76efe7;     /* peak      */
 
-  /* Marketing footer — deep brand navy on both themes (seodada). */
-  --footer: #0b1229;
-  --footer-text: #94a4c8;
+  /* Brand gradient — three consecutive spectrum stops. */
+  --grad-a: #184c8d;
+  --grad-b: #0075b9;
+  --grad-c: #1db8ce;
 
-  /* ---- Per-module accents (light). Each module gets its own hue so pages read
-     as distinct while sharing the SEOdada system. `-soft` derives via
-     color-mix, so overriding the base in .dark auto-updates the tint. ------- */
-  --sec-overview: var(--primary);   /* Dashboard / All-in-One */
-  --sec-keywords: #8b5cf6;          /* Keyword Research — purple */
-  --sec-serp: #6366f1;              /* SERP — indigo */
-  --sec-domains: #f59e0b;           /* Domain Analytics — gold */
-  --sec-competitors: #ec4899;       /* Competitors — pink */
-  --sec-local: #14b8a6;             /* Local — teal */
-  --sec-audit: #ef4444;             /* Site Audit — red */
-  --sec-onpage: #f97316;            /* On-Page — orange */
-  --sec-content: #a855f7;           /* Content — violet */
-  --sec-report: #3b82f6;            /* Site Report — professional blue */
-  --sec-rank: #10b981;              /* Rank Tracking — growth green */
-  --sec-backlinks: #06b6d4;         /* Backlinks — cyan */
-  --sec-aivis: #7c3aed;             /* AI Visibility — AI purple */
-  --sec-schedules: #0ea5e9;         /* Schedules — sky */
-  --sec-manage: #64748b;            /* Projects / Billing — slate */
-  --sec-tools: #6b7280;             /* Free tools — gray */
-  --sec-admin: #334155;             /* Admin — enterprise slate */
+  /* Marketing footer — deep spectrum floor on both themes. */
+  --footer: #0e1b2d;
+  --footer-text: #8b9aab;
+
+  /* ---- Per-module accents (light) — L=.62 C=.15, hue only. `-soft` derives
+     via color-mix, so overriding the base in .dark auto-updates the tint.
+     `-ink` is the text-safe variant at L=.45. ---------------------------- */
+  --sec-overview: #008ed8;
+  --sec-keywords: #8972d8;
+  --sec-serp: #5f80e0;
+  --sec-domains: #b97600;
+  --sec-competitors: #c65b93;
+  --sec-local: #00a281;
+  --sec-audit: #d15c56;
+  --sec-onpage: #cb6620;
+  --sec-content: #ad65be;
+  --sec-report: #2f8adc;
+  --sec-rank: #0fa05c;
+  --sec-backlinks: #009eb1;
+  --sec-aivis: #956ed2;
+  --sec-schedules: #0094ce;
+  --sec-manage: #2f8adc;
+  --sec-tools: #008fd6;
+  --sec-admin: #4087de;
+
+  --sec-overview-ink: #005aa0;
+  --sec-keywords-ink: #5a3fa0;
+  --sec-serp-ink: #324ca7;
+  --sec-domains-ink: #834300;
+  --sec-competitors-ink: #8d2661;
+  --sec-local-ink: #006e50;
+  --sec-audit-ink: #972527;
+  --sec-onpage-ink: #923100;
+  --sec-content-ink: #783288;
+  --sec-report-ink: #0056a4;
+  --sec-rank-ink: #006b2c;
+  --sec-backlinks-ink: #00697c;
+  --sec-aivis-ink: #643b9a;
+  --sec-schedules-ink: #006097;
+  --sec-manage-ink: #0056a4;
+  --sec-tools-ink: #005b9f;
+  --sec-admin-ink: #0053a5;
 
   --sec-overview-soft: var(--primary-soft);
   --sec-keywords-soft: color-mix(in srgb, var(--sec-keywords) 12%, transparent);
@@ -78,50 +114,94 @@
      component (page header, stat cards, inputs, sidebar) reads these. */
   --section: var(--primary);
   --section-soft: var(--primary-soft);
+  /* Text-safe variant of the active accent. Use this — never --section — when
+     an accent has to carry small text on a light surface (see DESIGN_SYSTEM §1.3). */
+  --section-ink: var(--primary);
+
+  /* Competitor-overlay chart series (rival 1..3). CVD-validated against the
+     keywords-purple section color per mode (dataviz validator). */
+  --chart-rival-1: #f59e0b;
+  --chart-rival-2: #0ea5e9;
+  --chart-rival-3: #ec4899;
 }
 
 .dark {
-  /* seodada — dark (futuristic navy) */
-  --app-bg: #060a1a;
-  --surface: #0c1330;
-  --surface-2: #131c3f;
-  --border: #24305c;
-  --text: #e9f0fc;
-  --text-muted: #94a4c8;
-  --primary: #5a9be8;      /* brighter ocean for contrast on navy */
-  --primary-soft: #14224c;
-  --accent: #22d3ee;       /* neon cyan */
-  --success: #34d399;
-  --warning: #fbbf24;
-  --danger: #fb7185;
-  --info: #60a5fa;
-  --ring: 90 155 232;
+  /* ---- APERTURE dark. Depth inverts: surfaces get LIGHTER as they rise and
+     elevation is carried by glow rather than shadow. The spectrum brightens
+     across the board — dark mode is where luminance-as-meaning reads best.
+     Accents measure 7.7-8.6:1 here, so `-ink` == the accent itself. ------- */
+  --app-bg: #080d16;
+  --surface: #0f1621;
+  --surface-2: #192230;
+  --border: #283345;
+  --text: #e4ecf5;         /* 17.2:1 */
+  --text-muted: #91a0b1;   /*  7.7:1 */
+  --primary: #3bcddc;      /* = --signal-4; 10.5:1 on canvas */
+  --primary-soft: #02263e;
+  --accent: #4cdbe3;
+  --success: #55c483;
+  --warning: #f2af48;
+  --danger: #f2716a;
+  --info: #22b5e1;
+  --ring: 59 205 220;
 
-  --grad-a: #3a56b8;
-  --grad-b: #0f74b2;
-  --grad-c: #22d3ee;
+  --signal-0: #263561;
+  --signal-1: #2d5b97;
+  --signal-2: #2687c7;
+  --signal-3: #22b5e1;
+  --signal-4: #4ddae9;
+  --signal-5: #80f9f1;
 
-  --footer: #05091a;
-  --footer-text: #8493b8;
+  --grad-a: #2d5b97;
+  --grad-b: #2687c7;
+  --grad-c: #4ddae9;
 
-  /* Per-module accents (dark) — brighter for contrast on navy. `-soft` tints
-     and `--section` inherit automatically from these + --primary. */
-  --sec-keywords: #a78bfa;
-  --sec-serp: #818cf8;
-  --sec-domains: #fbbf24;
-  --sec-competitors: #f472b6;
-  --sec-local: #2dd4bf;
-  --sec-audit: #f87171;
-  --sec-onpage: #fb923c;
-  --sec-content: #c084fc;
-  --sec-report: #60a5fa;
-  --sec-rank: #34d399;
-  --sec-backlinks: #22d3ee;
-  --sec-aivis: #a78bfa;
-  --sec-schedules: #38bdf8;
-  --sec-manage: #94a3b8;
-  --sec-tools: #9ca3af;
-  --sec-admin: #94a3b8;
+  --footer: #04070f;
+  --footer-text: #798898;
+
+  /* Per-module accents (dark) — L=.74 C=.14, hue only. `-soft` tints and
+     `--section` inherit automatically from these + --primary. */
+  --sec-overview: #4fb4fc;
+  --sec-keywords: #ad99fb;
+  --sec-serp: #85a6ff;
+  --sec-domains: #de9c31;
+  --sec-competitors: #ec84b7;
+  --sec-local: #00c7a6;
+  --sec-audit: #f7857d;
+  --sec-onpage: #f08e54;
+  --sec-content: #d28ce1;
+  --sec-report: #60b0ff;
+  --sec-rank: #55c483;
+  --sec-backlinks: #00c3d5;
+  --sec-aivis: #b995f6;
+  --sec-schedules: #25baf2;
+  --sec-manage: #60b0ff;
+  --sec-tools: #47b5fa;
+  --sec-admin: #6badff;
+
+  /* Bright enough to carry text as-is — keeps `-ink` usable in both themes. */
+  --sec-overview-ink: #4fb4fc;
+  --sec-keywords-ink: #ad99fb;
+  --sec-serp-ink: #85a6ff;
+  --sec-domains-ink: #de9c31;
+  --sec-competitors-ink: #ec84b7;
+  --sec-local-ink: #00c7a6;
+  --sec-audit-ink: #f7857d;
+  --sec-onpage-ink: #f08e54;
+  --sec-content-ink: #d28ce1;
+  --sec-report-ink: #60b0ff;
+  --sec-rank-ink: #55c483;
+  --sec-backlinks-ink: #00c3d5;
+  --sec-aivis-ink: #b995f6;
+  --sec-schedules-ink: #25baf2;
+  --sec-manage-ink: #60b0ff;
+  --sec-tools-ink: #47b5fa;
+  --sec-admin-ink: #6badff;
+
+  /* Competitor chart series — darker steps for the dark lightness band. */
+  --chart-rival-1: #d97706;
+  --chart-rival-2: #0284c7;
+  --chart-rival-3: #db2777;
 }
 
 * {
@@ -550,6 +630,11 @@ body {
   line-height: 1.75;
 }
 .pillar-prose > section { padding: 0; }
+/* TOC anchor jumps land below the fixed public header, and glide there. */
+.pillar-prose h2, .pillar-prose h3 { scroll-margin-top: 96px; }
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
 .pillar-prose h2 {
   color: var(--text);
   font-size: 1.6rem;
