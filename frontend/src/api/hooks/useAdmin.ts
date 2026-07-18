@@ -20,6 +20,7 @@ export interface AdminUpdateUserInput {
   role?: "member" | "owner";
   password?: string;
   is_active?: boolean;
+  unlimited_usage?: boolean;
   org_name?: string;
 }
 
@@ -56,6 +57,26 @@ export function useAdminStats() {
   return useQuery({
     queryKey: ["admin", "stats"],
     queryFn: async () => (await api.get<AdminStats>("/admin/stats")).data,
+  });
+}
+
+/** Live DataForSEO account balance. Amounts are USD cents (DataForSEO bills in
+ *  dollars — unlike the INR revenue figures elsewhere in admin). */
+export interface DfsAccount {
+  login: string | null;
+  balance_cents: number;
+  spent_total_cents: number;
+  limit_minute: number | null;
+  from_cache: boolean;
+  error: string | null;
+}
+
+export function useDfsAccount() {
+  return useQuery({
+    queryKey: ["admin", "dfs-account"],
+    queryFn: async () => (await api.get<DfsAccount>("/admin/dfs-account")).data,
+    // The backend caches upstream for 5 min; match it so tab-switches are free.
+    staleTime: 5 * 60_000,
   });
 }
 
@@ -250,6 +271,7 @@ export interface AdminWebStory {
   title: string;
   slug: string;
   status: string;
+  category_id: string | null;
   published_at: string | null;
 }
 
@@ -462,12 +484,36 @@ export interface WebStorySlide {
 }
 export interface AdminWebStoryDetail {
   id: string; title: string; slug: string; meta_description: string; cover_image_url: string;
+  category_id: string | null;
   slides: WebStorySlide[]; status: string; published_at: string | null;
 }
 export type WebStoryInput = {
   title?: string; slug?: string; meta_description?: string; cover_image_url?: string;
+  category_id?: string | null;
   slides?: WebStorySlide[]; status?: string;
 };
+
+export interface WebStoryCategory { id: string; name: string; slug: string; sort_order: number }
+
+export function useAdminWebstoryCategories() {
+  return useQuery({ queryKey: ["admin", "webstory-categories"], queryFn: async () => (await api.get<WebStoryCategory[]>("/admin/webstory-categories")).data });
+}
+function useInvalidateWebstoryCategories() {
+  const qc = useQueryClient();
+  return () => qc.invalidateQueries({ queryKey: ["admin", "webstory-categories"] });
+}
+export function useCreateWebstoryCategory() {
+  const inv = useInvalidateWebstoryCategories();
+  return useMutation({ mutationFn: async (body: { name: string; sort_order?: number }) => (await api.post<WebStoryCategory>("/admin/webstory-categories", body)).data, onSuccess: inv });
+}
+export function useUpdateWebstoryCategory() {
+  const inv = useInvalidateWebstoryCategories();
+  return useMutation({ mutationFn: async ({ id, ...b }: { id: string; name?: string; sort_order?: number }) => (await api.patch<WebStoryCategory>(`/admin/webstory-categories/${id}`, b)).data, onSuccess: inv });
+}
+export function useDeleteWebstoryCategory() {
+  const inv = useInvalidateWebstoryCategories();
+  return useMutation({ mutationFn: async (id: string) => { await api.delete(`/admin/webstory-categories/${id}`); }, onSuccess: inv });
+}
 
 export function useAdminWebstoryDetail(id: string | null) {
   return useQuery({

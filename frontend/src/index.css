@@ -465,35 +465,38 @@ body {
    dark-blue #2E3F87 → primary-blue #1D7DBD.
    ========================================================================== */
 .lp {
-  --primary: #1d7dbd;
-  --primary-soft: #e7f2fb;
-  --accent: #2e3f87;
+  /* Aperture, landing scope. The marketing page runs a slightly warmer,
+     higher-contrast cut of the same system — but it is the SAME system, so
+     the accent palette below is just consecutive stops of the Signal
+     Spectrum rather than a second set of brand blues. */
+  --primary: var(--signal-2);
+  --primary-soft: #e1f5ff;
+  --accent: var(--signal-1);
 
-  /* Brand gradient, derived from the logo and enriched with a cyan tip so it
-     reads as motion (deep indigo → azure → cyan) instead of a flat blue. */
-  --grad-a: #2e3f87;
-  --grad-b: #1d7dbd;
-  --grad-c: #22c3ee;
-  --ring: 29 125 189;
+  /* Brand gradient = three consecutive spectrum stops, so the gradient reads
+     as light increasing (buried -> visible) rather than as decoration. */
+  --grad-a: var(--signal-1);
+  --grad-b: var(--signal-2);
+  --grad-c: var(--signal-4);
+  --ring: 0 117 185;
 
-  /* Extra accent palette — all analogous to the logo blues, used to add
-     hierarchy/variety without clashing (cyan/sky are cooler siblings; violet
-     bridges toward the deep indigo). */
-  --lp-indigo: #2e3f87;
-  --lp-blue: #1d7dbd;
-  --lp-cyan: #06b6d4;
-  --lp-sky: #38bdf8;
-  --lp-violet: #6366f1;
-  --lp-emerald: #10b981;
+  /* Landing accent palette — spectrum stops plus two module accents, all at
+     the Aperture lightness band so none out-shouts another. */
+  --lp-indigo: var(--signal-1);
+  --lp-blue: var(--signal-2);
+  --lp-cyan: var(--signal-3);
+  --lp-sky: var(--signal-4);
+  --lp-violet: var(--sec-aivis);
+  --lp-emerald: var(--sec-rank);
 
   /* Blue-tinted neutrals + reusable alpha fills. Tailwind's `/opacity`
      modifier can't work on these var-based hex tokens, so anything that needs
      translucency uses these explicit color-mix vars instead. */
-  --border: #e4ecf6;
-  --lp-tint: #eef4fb;
-  --lp-panel: #f3f7fc;
+  --border: #dfe7f0;
+  --lp-tint: #eff4fa;
+  --lp-panel: #f4f8fc;
   --lp-glass: color-mix(in srgb, #ffffff 85%, transparent);
-  --lp-primary-border: color-mix(in srgb, #1d7dbd 22%, transparent);
+  --lp-primary-border: color-mix(in srgb, var(--signal-2) 22%, transparent);
 }
 .lp .gradient-text-anim {
   background-image: linear-gradient(100deg, #2e3f87, #1d7dbd, #22c3ee, #1d7dbd, #2e3f87);
@@ -502,10 +505,10 @@ body {
 /* Colourised icon tiles — break the single-blue monotony across the feature
    bento while staying inside the analogous brand family. Text shades meet the
    3:1 large-glyph contrast bar on white. */
-.lp-tone-blue { background: color-mix(in srgb, #1d7dbd 13%, transparent); color: #1a6fa6; }
-.lp-tone-cyan { background: color-mix(in srgb, #06b6d4 15%, transparent); color: #0e7490; }
-.lp-tone-violet { background: color-mix(in srgb, #6366f1 14%, transparent); color: #4f46e5; }
-.lp-tone-emerald { background: color-mix(in srgb, #10b981 15%, transparent); color: #047857; }
+.lp-tone-blue { background: color-mix(in srgb, var(--signal-2) 13%, transparent); color: #005aa0; }
+.lp-tone-cyan { background: color-mix(in srgb, var(--signal-3) 15%, transparent); color: #00697c; }
+.lp-tone-violet { background: color-mix(in srgb, var(--sec-aivis) 14%, transparent); color: #643b9a; }
+.lp-tone-emerald { background: color-mix(in srgb, var(--sec-rank) 15%, transparent); color: #006b2c; }
 
 /* Animated soft mesh-gradient / aurora hero backdrop (light). */
 .lp-mesh {

@@ -1,8 +1,9 @@
-import { ArrowDown, ArrowUp, Plus, Trash2, Upload } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowUp, Plus, Trash2, Upload } from "lucide-react";
 import { lazy, Suspense, useRef, useState } from "react";
 
 import { apiErrorMessage } from "@/api/client";
 import {
+  useAdminWebstoryCategories,
   useAdminWebstoryDetail,
   useCreateWebstory,
   useUpdateWebstory,
@@ -12,10 +13,11 @@ import {
 } from "@/api/hooks/useAdmin";
 import { assetUrl } from "@/api/hooks/useContentPublic";
 import { Button } from "@/components/ui/button";
+import { Card, CardBody } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { toast } from "@/store/toast";
-import { Field, Modal, ModalActions } from "@/routes/admin/ui";
+import { Field } from "@/routes/admin/ui";
 
 const AREA = "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:border-[color:var(--section)] focus:outline-none";
 const BLANK: WebStorySlide = { image: "", image_alt: "", heading: "", text: "", learn_more_url: "" };
@@ -47,6 +49,7 @@ function ImageField({ value, onChange, label }: { value: string; onChange: (url:
 export function WebStoryEditor({ storyId, onClose }: { storyId: string | null; onClose: () => void }) {
   const editing = !!storyId;
   const { data: existing, isPending: loading } = useAdminWebstoryDetail(storyId);
+  const { data: categories } = useAdminWebstoryCategories();
   const create = useCreateWebstory();
   const update = useUpdateWebstory();
 
@@ -58,13 +61,18 @@ export function WebStoryEditor({ storyId, onClose }: { storyId: string | null; o
       slug: seed?.slug ?? "",
       meta_description: seed?.meta_description ?? "",
       cover_image_url: seed?.cover_image_url ?? "",
+      category_id: seed?.category_id ?? null,
       status: seed?.status ?? "draft",
       slides: seed?.slides ?? [{ ...BLANK }],
     });
   }
 
   if (editing && loading && !f) {
-    return <Modal title="Edit story" onClose={onClose} wide><p className="text-sm text-text-muted">Loading…</p></Modal>;
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-text-muted">Loading…</p>
+      </div>
+    );
   }
   if (!f) return null;
 
@@ -87,16 +95,31 @@ export function WebStoryEditor({ storyId, onClose }: { storyId: string | null; o
       onSuccess: () => { toast.success(editing ? "Story updated" : "Story created"); onClose(); },
       onError: (err: unknown) => toast.error(apiErrorMessage(err)),
     };
-    if (editing) update.mutate({ id: storyId!, ...f }, opts);
-    else create.mutate(f, opts);
+    const body: WebStoryInput = { ...f, category_id: f.category_id || null };
+    if (editing) update.mutate({ id: storyId!, ...body }, opts);
+    else create.mutate(body, opts);
   };
 
   return (
-    <Modal title={editing ? "Edit web story" : "New web story"} onClose={onClose} wide>
-      <form onSubmit={submit} className="space-y-3">
+    <div className="space-y-4">
+      {/* Title comes from the route's AdminSection header — don't duplicate it here. */}
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="sm" onClick={onClose}>
+          <ArrowLeft size={14} /> Back
+        </Button>
+      </div>
+      <Card>
+        <CardBody>
+          <form onSubmit={submit} className="space-y-3">
         <Field label="Title"><Input value={f.title ?? ""} onChange={(e) => set("title", e.target.value)} required /></Field>
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Slug (blank = from title)"><Input value={f.slug ?? ""} onChange={(e) => set("slug", e.target.value)} placeholder="my-story" /></Field>
+          <Field label="Category">
+            <Select value={f.category_id ?? ""} onChange={(e) => set("category_id", e.target.value || null)} className="w-full">
+              <option value="">— none —</option>
+              {(categories ?? []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </Select>
+          </Field>
           <Field label="Status">
             <Select value={f.status ?? "draft"} onChange={(e) => set("status", e.target.value)} className="w-full">
               <option value="draft">Draft</option>
@@ -142,8 +165,13 @@ export function WebStoryEditor({ storyId, onClose }: { storyId: string | null; o
           </div>
         </div>
 
-        <ModalActions onClose={onClose} loading={busy} label={editing ? "Save story" : "Create story"} />
-      </form>
-    </Modal>
+        <div className="flex justify-end gap-2 pt-1">
+          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button type="submit" loading={busy}>{editing ? "Save story" : "Create story"}</Button>
+        </div>
+          </form>
+        </CardBody>
+      </Card>
+    </div>
   );
 }

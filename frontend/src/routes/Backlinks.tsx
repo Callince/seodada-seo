@@ -17,6 +17,7 @@ import { AreaChart, type Tone } from "@/components/public/landingKit";
 import { AuthorityBadge } from "@/components/shared/AuthorityBadge";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
+import { ExcelButton } from "@/components/shared/ExcelButton";
 import { SaveToProject } from "@/components/shared/SaveToProject";
 import { StatCard } from "@/components/shared/StatCard";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
@@ -327,6 +328,79 @@ export default function Backlinks() {
   const s = summary.data?.summary;
   const freeOnly = summary.data?.source === "openpagerank";
 
+  const buildExcel = () => {
+    const kv = (metric: string, value: unknown) => ({ metric, value: value ?? null });
+    const summaryRows = s
+      ? [
+          kv("Authority", s.authority),
+          kv("Backlinks", s.backlinks),
+          kv("Referring domains", s.referring_domains),
+          kv("Dofollow", s.dofollow),
+          kv("Nofollow", s.nofollow),
+          kv("Broken backlinks", s.broken_backlinks),
+          kv("Referring IPs", s.referring_ips),
+          kv("Spam score", spam.data?.spam_score),
+        ]
+      : [];
+    return {
+      summary: {
+        Report: "Backlink Intelligence",
+        Target: submitted,
+        Generated: new Date().toLocaleString(),
+      },
+      sheets: [
+        {
+          name: "Summary",
+          columns: [
+            { header: "Metric", key: "metric", width: 24 },
+            { header: "Value", key: "value", width: 18 },
+          ],
+          rows: summaryRows as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Backlinks",
+          columns: [
+            { header: "Referring domain", key: "domain_from", width: 28 },
+            { header: "Referring page", key: "url_from", width: 60 },
+            { header: "Anchor", key: "anchor", width: 30 },
+            { header: "Type", key: "type", width: 10 },
+            { header: "DR", key: "domain_from_rank", width: 8 },
+            { header: "Links to", key: "url_to", width: 60 },
+            { header: "First seen", key: "first_seen", width: 14 },
+          ],
+          rows: ((results.backlinks as BacklinksListResponse | undefined)?.rows ?? []).map(
+            (r) => ({ ...r, type: r.dofollow ? "dofollow" : "nofollow" }),
+          ) as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Referring domains",
+          columns: [
+            { header: "Domain", key: "domain", width: 32 },
+            { header: "Authority", key: "authority", width: 12 },
+            { header: "Backlinks", key: "backlinks", width: 12 },
+            { header: "Ref. pages", key: "referring_pages", width: 12 },
+            { header: "First seen", key: "first_seen", width: 14 },
+          ],
+          rows: ((results.referring as ReferringDomainsResponse | undefined)?.rows ??
+            []) as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Anchors",
+          columns: [
+            { header: "Anchor text", key: "anchor", width: 40 },
+            { header: "Backlinks", key: "backlinks", width: 12 },
+            { header: "Ref. domains", key: "referring_domains", width: 14 },
+            { header: "Type", key: "type", width: 10 },
+          ],
+          rows: ((results.anchors as AnchorsResponse | undefined)?.rows ?? []).map((r) => ({
+            ...r,
+            type: r.dofollow ? "dofollow" : "nofollow",
+          })) as unknown as Record<string, unknown>[],
+        },
+      ],
+    };
+  };
+
   return (
     <div>
       <PageHeader
@@ -408,6 +482,7 @@ export default function Backlinks() {
             </Tabs>
             <div className="flex items-center gap-2">
               <CacheBadge meta={meta} />
+              <ExcelButton filename={`backlinks-${submitted}`} build={buildExcel} />
               {!!current && (
                 <SaveToProject
                   module={`backlinks.${tab}`}

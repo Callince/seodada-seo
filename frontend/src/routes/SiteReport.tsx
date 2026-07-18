@@ -8,6 +8,7 @@ import { useCreateSchedule } from "@/api/hooks/useSchedules";
 import { AiAdvisor } from "@/components/shared/AiAdvisor";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
+import { ExcelButton } from "@/components/shared/ExcelButton";
 import { LocationLanguagePicker } from "@/components/shared/LocationLanguagePicker";
 import { MetricCard } from "@/components/shared/MetricCard";
 import { ScoreGauge } from "@/components/shared/ScoreGauge";
@@ -166,6 +167,88 @@ function Report({ data }: { data: SiteReportResponse }) {
     top_keywords: data.top_keywords.slice(0, 10),
     competitors: data.competitors.slice(0, 5),
   };
+
+  const buildExcel = () => {
+    const kv = (metric: string, value: unknown) => ({ metric, value: value ?? null });
+    const overviewRows = [
+      kv("Site health score", data.health_score),
+      kv("Organic keywords", org.count),
+      kv("Est. organic traffic", org.etv),
+      kv("Traffic value", org.traffic_cost),
+      kv("Paid keywords", data.overview.paid.count),
+      ...(data.ranking
+        ? [kv(`Rank for "${data.ranking.keyword}"`, data.ranking.found ? data.ranking.position : "Not found")]
+        : []),
+      kv("Pages analyzed", data.pages.length),
+    ];
+    return {
+      summary: {
+        Report: "Site Report",
+        Domain: data.domain,
+        Keyword: data.keyword ?? undefined,
+        Generated: new Date().toLocaleString(),
+      },
+      sheets: [
+        {
+          name: "Overview",
+          columns: [
+            { header: "Metric", key: "metric", width: 28 },
+            { header: "Value", key: "value", width: 18 },
+          ],
+          rows: overviewRows as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Top pages",
+          columns: [
+            { header: "URL", key: "url", width: 60 },
+            { header: "Content score", key: "content_score", width: 14 },
+            { header: "Words", key: "word_count", width: 10 },
+            { header: "Title", key: "title", width: 50 },
+            { header: "Issues", key: "issues", width: 60 },
+            { header: "Top fix", key: "recommendation", width: 60 },
+          ],
+          rows: data.pages.map((p) => ({
+            ...p,
+            issues: p.issues.join("; "),
+          })) as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Top keywords",
+          columns: [
+            { header: "Keyword", key: "keyword", width: 40 },
+            { header: "Position", key: "position", width: 10 },
+            { header: "Volume", key: "search_volume", width: 12 },
+            { header: "ETV", key: "etv", width: 12 },
+            { header: "URL", key: "url", width: 60 },
+          ],
+          rows: data.top_keywords as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Competitors",
+          columns: [
+            { header: "Domain", key: "domain", width: 32 },
+            { header: "Shared keywords", key: "common_keywords", width: 16 },
+            { header: "Total keywords", key: "keywords_count", width: 16 },
+            { header: "Avg position", key: "avg_position", width: 14 },
+            { header: "ETV", key: "etv", width: 12 },
+          ],
+          rows: data.competitors as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Findings & recommendations",
+          columns: [
+            { header: "Type", key: "type", width: 16 },
+            { header: "Item", key: "item", width: 90 },
+          ],
+          rows: [
+            ...data.findings.map((f) => ({ type: "Finding", item: f })),
+            ...data.recommendations.map((r) => ({ type: "Recommendation", item: r })),
+          ] as unknown as Record<string, unknown>[],
+        },
+      ],
+    };
+  };
+
   return (
     <div className="animate-fade-rise space-y-5">
       <div className="flex items-center justify-between">
@@ -175,6 +258,7 @@ function Report({ data }: { data: SiteReportResponse }) {
         </h2>
         <div className="flex items-center gap-2">
           <CacheBadge meta={data.meta} />
+          <ExcelButton filename={`report-${data.domain}`} build={buildExcel} />
           <Button variant="ghost" size="sm" onClick={() => window.print()}>
             <Printer size={15} /> Print / PDF
           </Button>

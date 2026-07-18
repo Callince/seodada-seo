@@ -1,27 +1,33 @@
-import { lazy } from "react";
+import { Suspense, lazy } from "react";
 import { Navigate, createBrowserRouter } from "react-router-dom";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { AdminShell } from "@/routes/admin/AdminShell";
 import { AdminSection } from "@/routes/admin/sections/_shared";
 import AdminLogin from "@/routes/admin/AdminLogin";
-import Blog from "@/routes/public/Blog";
-import BlogPost from "@/routes/public/BlogPost";
-import Contact from "@/routes/public/Contact";
-import ContentPage from "@/routes/public/ContentPage";
-import Features from "@/routes/public/Features";
-import Landing from "@/routes/public/Landing";
-import PillarGuide from "@/routes/public/PillarGuide";
 import ForgotPassword from "@/routes/ForgotPassword";
 import Login from "@/routes/Login";
 import OAuthCallback from "@/routes/OAuthCallback";
 import ResetPassword from "@/routes/ResetPassword";
-import { PublicShell } from "@/routes/public/PublicShell";
-import Pricing from "@/routes/public/Pricing";
-import WebStories from "@/routes/public/WebStories";
-import WebStoryViewer from "@/routes/public/WebStoryViewer";
 import Register from "@/routes/Register";
 import { useAuth } from "@/store/auth";
+
+// Public marketing site — lazy, so logged-in users never download the landing
+// page, blog, or pricing copy in the main bundle.
+const PublicShell = lazy(() =>
+  import("@/routes/public/PublicShell").then((m) => ({ default: m.PublicShell })),
+);
+const Landing = lazy(() => import("@/routes/public/Landing"));
+const Features = lazy(() => import("@/routes/public/Features"));
+const FreeTools = lazy(() => import("@/routes/public/FreeTools"));
+const Pricing = lazy(() => import("@/routes/public/Pricing"));
+const ContentPage = lazy(() => import("@/routes/public/ContentPage"));
+const Contact = lazy(() => import("@/routes/public/Contact"));
+const Blog = lazy(() => import("@/routes/public/Blog"));
+const BlogPost = lazy(() => import("@/routes/public/BlogPost"));
+const WebStories = lazy(() => import("@/routes/public/WebStories"));
+const WebStoryViewer = lazy(() => import("@/routes/public/WebStoryViewer"));
+const PillarGuide = lazy(() => import("@/routes/public/PillarGuide"));
 
 const Dashboard = lazy(() => import("@/routes/Dashboard"));
 const Workspace = lazy(() => import("@/routes/Workspace"));
@@ -37,13 +43,18 @@ const SiteReport = lazy(() => import("@/routes/SiteReport"));
 const Schedules = lazy(() => import("@/routes/Schedules"));
 const Projects = lazy(() => import("@/routes/Projects"));
 const ProjectDetail = lazy(() => import("@/routes/ProjectDetail"));
-// Admin sections (share one lazy chunk from routes/Admin.tsx)
-const AdminOverview = lazy(() => import("@/routes/Admin").then((m) => ({ default: m.OverviewTab })));
-const AdminUsers = lazy(() => import("@/routes/Admin").then((m) => ({ default: m.UsersTab })));
-const AdminContent = lazy(() => import("@/routes/Admin").then((m) => ({ default: m.ContentTab })));
-const AdminPlans = lazy(() => import("@/routes/Admin").then((m) => ({ default: m.PlansTab })));
-const AdminBillingSec = lazy(() => import("@/routes/Admin").then((m) => ({ default: m.BillingTab })));
-const AdminSettings = lazy(() => import("@/routes/Admin").then((m) => ({ default: m.SettingsTab })));
+// Admin sections (one lazy chunk per tab from routes/admin/)
+const AdminOverview = lazy(() => import("@/routes/admin/OverviewTab").then((m) => ({ default: m.OverviewTab })));
+const AdminUsers = lazy(() => import("@/routes/admin/UsersTab").then((m) => ({ default: m.UsersTab })));
+const AdminBlogCategories = lazy(() => import("@/routes/admin/content/BlogCategoriesPage").then((m) => ({ default: m.BlogCategoriesPage })));
+const AdminBlogs = lazy(() => import("@/routes/admin/content/BlogsPage").then((m) => ({ default: m.BlogsPage })));
+const AdminBlogEdit = lazy(() => import("@/routes/admin/content/BlogEditPage").then((m) => ({ default: m.BlogEditPage })));
+const AdminStoryCategories = lazy(() => import("@/routes/admin/content/StoryCategoriesPage").then((m) => ({ default: m.StoryCategoriesPage })));
+const AdminStories = lazy(() => import("@/routes/admin/content/StoriesPage").then((m) => ({ default: m.StoriesPage })));
+const AdminStoryEdit = lazy(() => import("@/routes/admin/content/StoryEditPage").then((m) => ({ default: m.StoryEditPage })));
+const AdminPlans = lazy(() => import("@/routes/admin/PlansTab").then((m) => ({ default: m.PlansTab })));
+const AdminBillingSec = lazy(() => import("@/routes/admin/BillingTab").then((m) => ({ default: m.BillingTab })));
+const AdminSettings = lazy(() => import("@/routes/admin/SettingsTab").then((m) => ({ default: m.SettingsTab })));
 const AdminContact = lazy(() => import("@/routes/admin/tabs/ContactTab").then((m) => ({ default: m.ContactTab })));
 const AdminEmails = lazy(() => import("@/routes/admin/tabs/EmailsTab").then((m) => ({ default: m.EmailsTab })));
 const AdminUsage = lazy(() => import("@/routes/admin/tabs/UsageTab").then((m) => ({ default: m.UsageTab })));
@@ -68,11 +79,18 @@ export const router = createBrowserRouter([
   { path: "/oauth", element: <OAuthCallback /> },
 
   // Public marketing site — copy migrated from the seodada templates.
+  // PublicShell and its pages are lazy; the Suspense here covers the shell,
+  // and the one inside PublicShell covers per-page navigation.
   {
-    element: <PublicShell />,
+    element: (
+      <Suspense fallback={<div className="min-h-screen" />}>
+        <PublicShell />
+      </Suspense>
+    ),
     children: [
       { path: "/", element: <Landing /> },
       { path: "/features", element: <Features /> },
+      { path: "/free-tools", element: <FreeTools /> },
       { path: "/pricing", element: <Pricing /> },
       { path: "/about", element: <ContentPage slug="about" title="About seodada" /> },
       { path: "/help", element: <ContentPage slug="help" title="Help center" /> },
@@ -133,7 +151,15 @@ export const router = createBrowserRouter([
     children: [
       { path: "/admin", element: <AdminSection perm="dashboard" title="Overview" subtitle="Platform health — users, revenue, and recent activity."><AdminOverview /></AdminSection> },
       { path: "/admin/users", element: <AdminSection perm="user_management" title="Users" subtitle="Accounts, spend, and access."><AdminUsers /></AdminSection> },
-      { path: "/admin/content", element: <AdminSection perm="content_management" title="Content" subtitle="Blog posts, categories, and web stories."><AdminContent /></AdminSection> },
+      { path: "/admin/content", element: <Navigate to="/admin/content/blogs" replace /> },
+      { path: "/admin/content/blog-categories", element: <AdminSection perm="content_management" title="Blog categories" subtitle="Organise posts into categories."><AdminBlogCategories /></AdminSection> },
+      { path: "/admin/content/blogs", element: <AdminSection perm="content_management" title="Blogs" subtitle="Blog posts and their publish state."><AdminBlogs /></AdminSection> },
+      { path: "/admin/content/blogs/new", element: <AdminSection perm="content_management" title="New post" subtitle="Create a blog post."><AdminBlogEdit /></AdminSection> },
+      { path: "/admin/content/blogs/:id", element: <AdminSection perm="content_management" title="Edit post" subtitle="Update a blog post."><AdminBlogEdit /></AdminSection> },
+      { path: "/admin/content/story-categories", element: <AdminSection perm="content_management" title="Story categories" subtitle="Organise web stories into categories."><AdminStoryCategories /></AdminSection> },
+      { path: "/admin/content/stories", element: <AdminSection perm="content_management" title="Stories" subtitle="Web stories and their publish state."><AdminStories /></AdminSection> },
+      { path: "/admin/content/stories/new", element: <AdminSection perm="content_management" title="New story" subtitle="Create a web story."><AdminStoryEdit /></AdminSection> },
+      { path: "/admin/content/stories/:id", element: <AdminSection perm="content_management" title="Edit story" subtitle="Update a web story."><AdminStoryEdit /></AdminSection> },
       { path: "/admin/plans", element: <AdminSection perm="subscription_management" title="Plans" subtitle="Subscription plans and pricing."><AdminPlans /></AdminSection> },
       { path: "/admin/billing", element: <AdminSection perm="payments" title="Billing" subtitle="Subscriptions, payments, and refunds."><AdminBillingSec /></AdminSection> },
       { path: "/admin/contact", element: <AdminSection perm="contact_submissions" title="Contact" subtitle="Inbound messages from the contact form."><AdminContact /></AdminSection> },

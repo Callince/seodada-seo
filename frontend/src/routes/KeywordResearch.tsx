@@ -13,8 +13,9 @@ import {
 import { AreaChart, ScoreRing } from "@/components/public/landingKit";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
+import { ExcelButton } from "@/components/shared/ExcelButton";
 import { KeywordTable } from "@/components/shared/KeywordTable";
-import { LocationLanguagePicker } from "@/components/shared/LocationLanguagePicker";
+import { LocationLanguagePicker, locationLabel } from "@/components/shared/LocationLanguagePicker";
 import { MetricCard } from "@/components/shared/MetricCard";
 import { usePersistedState } from "@/lib/persist";
 import { SaveToProject } from "@/components/shared/SaveToProject";
@@ -485,6 +486,56 @@ export default function KeywordResearch({ embedded }: { embedded?: boolean }) {
   const saveResult =
     tab === "trends" ? (current as TrendsBundle | undefined)?.trends : current;
 
+  const buildExcel = () => {
+    const kwCols = [
+      { header: "Keyword", key: "keyword", width: 40 },
+      { header: "Volume", key: "search_volume", width: 12 },
+      { header: "CPC", key: "cpc", width: 10 },
+      { header: "Competition", key: "competition", width: 12 },
+      { header: "Difficulty", key: "keyword_difficulty", width: 12 },
+      { header: "Intent", key: "intent", width: 14 },
+    ];
+    const listSheet = (name: string, t: TabKey) => ({
+      name,
+      columns: kwCols,
+      rows: ((results[t] as KeywordListResponse | undefined)?.rows ??
+        []) as unknown as Record<string, unknown>[],
+    });
+    const overviewRows = (results.overview as VolumeResponse | undefined)?.rows ?? [];
+    return {
+      summary: {
+        Report: "Keyword Research",
+        Keyword: submitted,
+        Market: locationLabel(loc.location_code),
+        Generated: new Date().toLocaleString(),
+      },
+      sheets: [
+        {
+          name: "Overview",
+          columns: [
+            { header: "Keyword", key: "keyword", width: 40 },
+            { header: "Volume", key: "search_volume", width: 12 },
+            { header: "CPC", key: "cpc", width: 10 },
+            { header: "Competition", key: "competition", width: 12 },
+          ],
+          rows: overviewRows as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Monthly volume",
+          columns: [
+            { header: "Year", key: "year", width: 8 },
+            { header: "Month", key: "month", width: 8 },
+            { header: "Volume", key: "volume", width: 12 },
+          ],
+          rows: (overviewRows[0]?.monthly_searches ?? []) as unknown as Record<string, unknown>[],
+        },
+        listSheet("Long-tail", "longtail"),
+        listSheet("Related", "related"),
+        listSheet("Ideas", "ideas"),
+      ],
+    };
+  };
+
   return (
     <div>
       {!embedded && (
@@ -541,6 +592,7 @@ export default function KeywordResearch({ embedded }: { embedded?: boolean }) {
             </Tabs>
             <div className="flex items-center gap-2">
               <CacheBadge meta={meta} />
+              <ExcelButton filename={`keywords-${submitted}`} build={buildExcel} />
               {!!saveResult && (
                 <SaveToProject
                   module={TAB_MODULES[tab]}

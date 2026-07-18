@@ -6,6 +6,7 @@ import { apiErrorMessage } from "@/api/client";
 import { ScoreRing, type Tone } from "@/components/public/landingKit";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
+import { ExcelButton } from "@/components/shared/ExcelButton";
 import { MetricCard } from "@/components/shared/MetricCard";
 import { SaveToProject } from "@/components/shared/SaveToProject";
 import { ScoreGauge } from "@/components/shared/ScoreGauge";
@@ -511,6 +512,85 @@ function OnPageReport({
   tab: string;
   onTab: (t: string) => void;
 }) {
+  const buildExcel = () => {
+    const b = data.benchmark;
+    const scoreRows = [
+      { metric: "Content score", score: data.content_score, max: 100, status: null, note: null },
+      { metric: "Technical score", score: data.technical_score, max: 100, status: null, note: null },
+      { metric: "Word count", score: data.word_count, max: null, status: null, note: null },
+      { metric: "Readability (Flesch-Kincaid)", score: data.readability.flesch_kincaid, max: null, status: null, note: null },
+      { metric: "Readability (ARI)", score: data.readability.ari, max: null, status: null, note: null },
+      ...data.subscores.map((s) => ({
+        metric: s.label, score: s.score, max: s.max, status: s.status, note: s.note,
+      })),
+    ];
+    return {
+      summary: {
+        Report: "On-Page Analysis",
+        URL: data.url,
+        "Target keyword": keyword.trim() || undefined,
+        Generated: new Date().toLocaleString(),
+      },
+      sheets: [
+        {
+          name: "Scores",
+          columns: [
+            { header: "Metric", key: "metric", width: 30 },
+            { header: "Score", key: "score", width: 10 },
+            { header: "Max", key: "max", width: 8 },
+            { header: "Status", key: "status", width: 10 },
+            { header: "Note", key: "note", width: 60 },
+          ],
+          rows: scoreRows as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Issues & recommendations",
+          columns: [
+            { header: "Type", key: "type", width: 16 },
+            { header: "Item", key: "item", width: 90 },
+          ],
+          rows: [
+            ...data.issues.map((i) => ({ type: "Issue", item: i })),
+            ...data.recommendations.map((r) => ({ type: "Recommendation", item: r })),
+          ] as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Keyword density",
+          columns: [
+            { header: "Term", key: "keyword", width: 32 },
+            { header: "Count", key: "frequency", width: 10 },
+            { header: "Density %", key: "density", width: 12 },
+          ],
+          rows: data.keyword_density as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Benchmark",
+          columns: [
+            { header: "Metric", key: "metric", width: 20 },
+            { header: "You", key: "you", width: 12 },
+            { header: "Top median", key: "median", width: 12 },
+            { header: "Top max", key: "max", width: 12 },
+          ],
+          rows: (b
+            ? [
+                { metric: "Word count", you: b.word_count.you, median: b.word_count.median, max: b.word_count.max },
+                { metric: "Headings", you: b.headings.you, median: b.headings.median, max: null },
+              ]
+            : []) as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Content gap",
+          columns: [
+            { header: "Term", key: "term", width: 28 },
+            { header: "Competitors using", key: "competitors_using", width: 18 },
+            { header: "Your count", key: "your_count", width: 12 },
+          ],
+          rows: (b?.missing_terms ?? []) as unknown as Record<string, unknown>[],
+        },
+      ],
+    };
+  };
+
   const sections = [
     { key: "overview", label: "Overview", show: data.subscores.length > 0 || data.recommendations.length > 0 },
     { key: "keyword", label: "Keyword", show: !!data.keyword_analysis || data.keyword_density.length > 0 },
@@ -535,6 +615,16 @@ function OnPageReport({
         </h2>
         <div className="flex items-center gap-2">
           <CacheBadge meta={data.meta} />
+          <ExcelButton
+            filename={`onpage-${(() => {
+              try {
+                return new URL(data.url).hostname;
+              } catch {
+                return data.url;
+              }
+            })()}`}
+            build={buildExcel}
+          />
           <SaveToProject
             module="onpage"
             params={{ url: data.url, target_keyword: keyword.trim() || undefined }}

@@ -15,7 +15,8 @@ import { AreaChart } from "@/components/public/landingKit";
 import { AuthorityBadge } from "@/components/shared/AuthorityBadge";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
-import { LocationLanguagePicker } from "@/components/shared/LocationLanguagePicker";
+import { ExcelButton } from "@/components/shared/ExcelButton";
+import { LocationLanguagePicker, locationLabel } from "@/components/shared/LocationLanguagePicker";
 import { MetricCard } from "@/components/shared/MetricCard";
 import { usePersistedState } from "@/lib/persist";
 import { SaveToProject } from "@/components/shared/SaveToProject";
@@ -254,6 +255,106 @@ export default function DomainAnalytics({ embedded }: { embedded?: boolean }) {
   const isPending = pendingTab === tab;
   const meta = (current as { meta?: Meta } | undefined)?.meta;
 
+  const buildExcel = () => {
+    const ov = results.overview as OverviewResponse | undefined;
+    const s = auth.data?.summary;
+    const w = (results.whois as WhoisResponse | undefined)?.whois;
+    const kv = (metric: string, value: unknown) => ({ metric, value: value ?? null });
+    const overviewRows = [
+      ...(s
+        ? [
+            kv("Authority", s.authority),
+            kv("Backlinks", s.backlinks),
+            kv("Referring domains", s.referring_domains),
+            kv("Dofollow links", s.dofollow),
+          ]
+        : []),
+      ...(ov
+        ? [
+            kv("Organic keywords", ov.organic.count),
+            kv("Est. organic traffic", ov.organic.etv),
+            kv("Organic traffic value", ov.organic.traffic_cost),
+            kv("Paid keywords", ov.paid.count),
+            kv("Est. paid traffic", ov.paid.etv),
+            kv("Paid traffic cost", ov.paid.traffic_cost),
+          ]
+        : []),
+    ];
+    const whoisRows = w
+      ? [
+          kv("Registrar", w.registrar),
+          kv("Created", w.created),
+          kv("Expires", w.expires),
+          kv("Last updated", w.updated),
+          kv("First seen", w.first_seen),
+          kv("EPP status", w.epp_status_codes.join("; ")),
+        ]
+      : [];
+    return {
+      summary: {
+        Report: "Domain Analytics",
+        Domain: submitted,
+        Market: locationLabel(loc.location_code),
+        Generated: new Date().toLocaleString(),
+      },
+      sheets: [
+        {
+          name: "Overview",
+          columns: [
+            { header: "Metric", key: "metric", width: 26 },
+            { header: "Value", key: "value", width: 20 },
+          ],
+          rows: overviewRows as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Ranked keywords",
+          columns: [
+            { header: "Keyword", key: "keyword", width: 40 },
+            { header: "Position", key: "position", width: 10 },
+            { header: "Volume", key: "search_volume", width: 12 },
+            { header: "Est. traffic", key: "etv", width: 12 },
+            { header: "URL", key: "url", width: 60 },
+          ],
+          rows: ((results.ranked as RankedKeywordsResponse | undefined)?.rows ??
+            []) as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "History",
+          columns: [
+            { header: "Month", key: "month", width: 12 },
+            { header: "Keywords", key: "keywords", width: 12 },
+            { header: "Est. traffic", key: "etv", width: 12 },
+            { header: "Top 3 positions", key: "top3", width: 14 },
+          ],
+          rows: ((results.history as DomainHistoryResponse | undefined)?.rows ?? []).map((r) => ({
+            month: fmtMonth(r),
+            keywords: r.keywords,
+            etv: r.etv,
+            top3: r.top3,
+          })) as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Tech stack",
+          columns: [
+            { header: "Group", key: "group", width: 20 },
+            { header: "Category", key: "category", width: 28 },
+            { header: "Technology", key: "name", width: 28 },
+          ],
+          rows: ((results.tech as TechnologiesResponse | undefined)?.profile.rows ??
+            []) as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "WHOIS",
+          columns: [
+            { header: "Field", key: "metric", width: 20 },
+            { header: "Value", key: "value", width: 40 },
+          ],
+          rows: whoisRows as unknown as Record<string, unknown>[],
+        },
+      ],
+    };
+  };
+
   return (
     <div>
       {!embedded && (
@@ -330,6 +431,7 @@ export default function DomainAnalytics({ embedded }: { embedded?: boolean }) {
             </Tabs>
             <div className="flex items-center gap-2">
               <CacheBadge meta={meta} />
+              <ExcelButton filename={`domain-${submitted}`} build={buildExcel} />
               {!!current && (
                 <SaveToProject
                   module={TAB_MODULES[tab]}

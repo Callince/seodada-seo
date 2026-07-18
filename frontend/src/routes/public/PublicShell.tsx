@@ -1,8 +1,7 @@
-import { ArrowRight, FileSearch, Menu, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Menu, X } from "lucide-react";
+import { Suspense, useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 
-import { NAV_TOOLS } from "@/content/features";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { useAuth } from "@/store/auth";
@@ -27,12 +26,8 @@ const BRAND = {
     "M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z",
 } as const;
 
-/** The nav "Tools" mega-menu draws from the unified feature catalog — the
- *  merge of the data-for-seo intelligence suite and the seodada on-page tools.
- *  Each maps to the closest app route (visitors are bounced to /login). */
-const TOOLS = NAV_TOOLS;
-
 const NAV = [
+  { to: "/free-tools", label: "Tools" },
   { to: "/features", label: "Features" },
   { to: "/pricing", label: "Pricing" },
   { to: "/blog", label: "Blog" },
@@ -63,6 +58,7 @@ const FOOTER_COLS: { title: string; links: { to: string; label: string; external
   {
     title: "Resources",
     links: [
+      { to: "/free-tools", label: "Free SEO Tools" },
       { to: "/content", label: "Content Checker Tool" },
       { to: "/guides/technical-seo", label: "Technical SEO Guide" },
       { to: "/blog", label: "Blog" },
@@ -99,7 +95,6 @@ function Logo() {
 
 export function PublicShell() {
   const [open, setOpen] = useState(false);
-  const [toolsOpen, setToolsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const authed = useAuth((s) => !!s.accessToken);
   const { pathname } = useLocation();
@@ -112,10 +107,9 @@ export function PublicShell() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close menus on route change.
+  // Close the mobile menu on route change.
   useEffect(() => {
     setOpen(false);
-    setToolsOpen(false);
   }, [pathname]);
 
   return (
@@ -137,50 +131,6 @@ export function PublicShell() {
                 : "bg-[color-mix(in_srgb,var(--surface)_65%,transparent)] px-2.5 py-2 shadow-md",
             )}
           >
-            {/* Tools mega-dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setToolsOpen(true)}
-              onMouseLeave={() => setToolsOpen(false)}
-            >
-              <button
-                className="flex items-center gap-1 rounded-full px-3.5 py-2 text-sm font-medium tracking-wide text-text-muted transition-colors hover:text-text"
-                onClick={() => setToolsOpen((o) => !o)}
-                aria-expanded={toolsOpen}
-              >
-                <FileSearch size={15} /> Tools
-              </button>
-              {toolsOpen && (
-                <div className="absolute left-1/2 top-full w-[32rem] -translate-x-1/2 pt-3">
-                  <div className="rounded-3xl border border-border bg-surface p-2 lp-shadow-lg">
-                    <div className="grid grid-cols-2 gap-1">
-                      {TOOLS.map((t) => (
-                        <Link
-                          key={t.title}
-                          to={t.to}
-                          className="group flex items-start gap-3 rounded-xl p-3 transition-colors hover:bg-surface-2"
-                        >
-                          <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary transition-colors group-hover:gradient-fill group-hover:text-white">
-                            <t.icon size={17} />
-                          </span>
-                          <span>
-                            <span className="block text-sm font-semibold text-text">{t.title}</span>
-                            <span className="block text-xs text-text-muted">{t.desc}</span>
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
-                    <Link
-                      to="/features"
-                      className="mt-1 flex items-center justify-center gap-1.5 rounded-xl bg-surface-2 py-2.5 text-sm font-semibold text-primary hover:bg-border"
-                    >
-                      See all features <ArrowRight size={14} />
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {NAV.map((n) => (
               <NavLink
                 key={n.to}
@@ -236,19 +186,6 @@ export function PublicShell() {
         {open && (
           <div className="pointer-events-auto mx-auto mt-2 max-h-[75vh] w-full max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-3 lp-shadow-lg md:hidden">
             <div className="flex flex-col gap-1">
-              <p className="px-3 pt-2 text-xs font-semibold uppercase tracking-wider text-text-muted">
-                Tools
-              </p>
-              {TOOLS.map((t) => (
-                <Link
-                  key={t.title}
-                  to={t.to}
-                  className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-text-muted hover:bg-surface-2 hover:text-text"
-                >
-                  <t.icon size={15} className="text-primary" /> {t.title}
-                </Link>
-              ))}
-              <div className="my-1 h-px bg-border" />
               {NAV.map((n) => (
                 <Link
                   key={n.to}
@@ -278,7 +215,9 @@ export function PublicShell() {
       {/* Every public page draws its own full-bleed dark hero (with built-in
           top padding to clear the fixed header), so main needs no top pad. */}
       <main className="flex-1">
-        <Outlet />
+        <Suspense fallback={<div className="min-h-[60vh]" />}>
+          <Outlet />
+        </Suspense>
       </main>
 
       {/* ===== Footer — matches seodada.com ===== */}

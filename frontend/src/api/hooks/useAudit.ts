@@ -14,7 +14,7 @@ export function useStartAudit() {
   });
 }
 
-/** Polls crawl status every 5s until the crawl reports finished. */
+/** Polls crawl status every 3s until the crawl reports finished. */
 export function useAuditStatus(taskId: string | null) {
   return useQuery({
     queryKey: ["audit", taskId],

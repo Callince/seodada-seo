@@ -40,3 +40,26 @@ export function useTracked() {
     staleTime: 30_000,
   });
 }
+
+/** Stop tracking a keyword. Destructive — this deletes its position history and
+ *  stops the daily auto-recheck, because tracking is derived from the snapshots. */
+export function useUntrack() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (it: {
+      keyword: string;
+      domain: string;
+      location_code: number;
+      language_code: string;
+      device: string;
+    }) => {
+      await api.delete("/rank/tracked", { params: it });
+    },
+    onSuccess: (_d, it) => {
+      qc.invalidateQueries({ queryKey: ["rank", "tracked"] });
+      toast.info(`Stopped tracking “${it.keyword}”.`);
+    },
+    onError: (e) => toast.error(apiErrorMessage(e)),
+  });
+}
+

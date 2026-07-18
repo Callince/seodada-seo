@@ -1,4 +1,4 @@
-import { Plus, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Upload } from "lucide-react";
 import { lazy, Suspense, useRef, useState } from "react";
 
 import { apiErrorMessage } from "@/api/client";
@@ -12,10 +12,11 @@ import {
 } from "@/api/hooks/useAdmin";
 import { assetUrl } from "@/api/hooks/useContentPublic";
 import { Button } from "@/components/ui/button";
+import { Card, CardBody } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { toast } from "@/store/toast";
-import { Field, Modal, ModalActions } from "@/routes/admin/ui";
+import { Field } from "@/routes/admin/ui";
 
 const AREA = "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:border-[color:var(--section)] focus:outline-none";
 
@@ -62,7 +63,11 @@ export function BlogEditor({ blogId, onClose }: { blogId: string | null; onClose
   }
 
   if (editing && loading && !f) {
-    return <Modal title="Edit post" onClose={onClose} xl><p className="text-sm text-text-muted">Loading…</p></Modal>;
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-text-muted">Loading…</p>
+      </div>
+    );
   }
   if (!f) return null;
 
@@ -93,8 +98,16 @@ export function BlogEditor({ blogId, onClose }: { blogId: string | null; onClose
   };
 
   return (
-    <Modal title={editing ? "Edit post" : "New post"} onClose={onClose} xl>
-      <form onSubmit={submit} className="space-y-3">
+    <div className="space-y-4">
+      {/* Title comes from the route's AdminSection header — don't duplicate it here. */}
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="sm" onClick={onClose}>
+          <ArrowLeft size={14} /> Back
+        </Button>
+      </div>
+      <Card>
+        <CardBody>
+          <form onSubmit={submit} className="space-y-3">
         <Field label="Title"><Input value={f.title ?? ""} onChange={(e) => set("title", e.target.value)} required /></Field>
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Slug (blank = from title)">
@@ -206,8 +219,13 @@ export function BlogEditor({ blogId, onClose }: { blogId: string | null; onClose
           </div>
         </div>
 
-        <ModalActions onClose={onClose} loading={busy} label={editing ? "Save post" : "Create post"} />
-      </form>
-    </Modal>
+        <div className="flex justify-end gap-2 pt-1">
+          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button type="submit" loading={busy}>{editing ? "Save post" : "Create post"}</Button>
+        </div>
+          </form>
+        </CardBody>
+      </Card>
+    </div>
   );
 }

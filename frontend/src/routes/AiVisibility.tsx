@@ -5,6 +5,7 @@ import { apiErrorMessage } from "@/api/client";
 import { useAiVisibilityStatus, useAiVolume, useAskLlm, useLlmMentions, useStartAiVisibility } from "@/api/hooks/useAiVisibility";
 import { LocationLanguagePicker } from "@/components/shared/LocationLanguagePicker";
 import { CacheBadge } from "@/components/shared/CacheBadge";
+import { ExcelButton } from "@/components/shared/ExcelButton";
 import { EmptyState, ErrorState } from "@/components/shared/states";
 import { AreaChart } from "@/components/public/landingKit";
 import { Badge } from "@/components/ui/badge";
@@ -14,14 +15,66 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fmtInt } from "@/lib/format";
-import type { AiCitation, AiKeywordRow, AiVolumeRow } from "@/types";
+import { dfsLocationName } from "@/lib/regionNames";
+import type { AiCitation, AiKeywordRow, AiVolumeRow, MentionDimensionRow } from "@/types";
 
 /** DataForSEO location codes we can name; anything else falls back to the raw code. */
-const LOCATION_NAMES: Record<string, string> = { "2356": "India", "2840": "United States" };
+const languageNames = new Intl.DisplayNames(["en"], { type: "language" });
 
 function locationLabel(key: number | string | null): string {
+  return dfsLocationName(key);
+}
+
+function languageLabel(key: number | string | null): string {
   if (key === null || key === undefined) return "—";
-  return LOCATION_NAMES[String(key)] ?? String(key);
+  try {
+    return languageNames.of(String(key)) ?? String(key);
+  } catch {
+    return String(key);
+  }
+}
+
+const PLATFORM_NAMES: Record<string, string> = { google: "Google AI", chat_gpt: "ChatGPT" };
+
+function platformLabel(key: number | string | null): string {
+  if (key === null || key === undefined) return "—";
+  const k = String(key);
+  return PLATFORM_NAMES[k] ?? k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+/** One LLM-mentions dimension as a compact table (top rows only). */
+function DimTable({
+  title, rows, label, max = 6,
+}: {
+  title: string;
+  rows: MentionDimensionRow[];
+  label: (k: number | string | null) => string;
+  max?: number;
+}) {
+  if (!rows.length) return null;
+  return (
+    <div className="overflow-x-auto">
+      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-text-muted">{title}</p>
+      <table className="w-full text-sm">
+        <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-text-muted">
+          <tr>
+            <th scope="col" className="px-3 py-2 font-medium">{title}</th>
+            <th scope="col" className="px-3 py-2 text-right font-medium">Mentions</th>
+            <th scope="col" className="px-3 py-2 text-right font-medium">AI volume</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {rows.slice(0, max).map((row) => (
+            <tr key={String(row.key)} className="hover:bg-surface-2">
+              <td className="max-w-[220px] truncate px-3 py-2 font-medium text-text">{label(row.key)}</td>
+              <td className="px-3 py-2 text-right font-mono text-text">{fmtInt(row.mentions)}</td>
+              <td className="px-3 py-2 text-right font-mono text-text">{fmtInt(row.ai_search_volume)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
 }
 
 /** Last 6 monthly volumes, oldest first, for the tiny trend sparkline. */
@@ -128,15 +181,92 @@ export default function AiVisibility() {
     return [...list].sort((a, b) => rank(a) - rank(b));
   }, [s?.rows]);
 
+  const buildExcel = () => {
+    const yn = (v: boolean) => (v ? "yes" : "no");
+    const dims = mentions.data?.dimensions ?? {};
+    const dimRows = [
+      ...(dims.platform ?? []).map((r) => ({ dimension: "Platform", key: platformLabel(r.key), mentions: r.mentions, ai_search_volume: r.ai_search_volume })),
+      ...(dims.language ?? []).map((r) => ({ dimension: "Language", key: languageLabel(r.key), mentions: r.mentions, ai_search_volume: r.ai_search_volume })),
+      ...(dims.location ?? []).map((r) => ({ dimension: "Location", key: locationLabel(r.key), mentions: r.mentions, ai_search_volume: r.ai_search_volume })),
+      ...(dims.sources_domain ?? []).map((r) => ({ dimension: "Top source", key: String(r.key ?? "—"), mentions: r.mentions, ai_search_volume: r.ai_search_volume })),
+    ];
+    return {
+      summary: {
+        Report: "AI Visibility",
+        Domain: domain.trim(),
+        Keywords: keywords.length,
+        "LLM mentions": mentions.data?.mentions,
+        Generated: new Date().toLocaleString(),
+      },
+      sheets: [
+        {
+          name: "Keyword AI citations",
+          columns: [
+            { header: "Keyword", key: "keyword", width: 40 },
+            { header: "AI Overview shown", key: "ai_overview_present", width: 16 },
+            { header: "AI Overview cited", key: "ai_overview_cited", width: 16 },
+            { header: "AI Overview position", key: "ai_overview_position", width: 18 },
+            { header: "AI Overview URL", key: "ai_overview_url", width: 50 },
+            { header: "AI Mode shown", key: "ai_mode_present", width: 14 },
+            { header: "AI Mode cited", key: "ai_mode_cited", width: 14 },
+            { header: "AI Mode position", key: "ai_mode_position", width: 16 },
+            { header: "AI Mode URL", key: "ai_mode_url", width: 50 },
+            { header: "Cited domains", key: "cited_domains", width: 60 },
+          ],
+          rows: rows.map((r) => ({
+            keyword: r.keyword,
+            ai_overview_present: yn(r.ai_overview_present),
+            ai_overview_cited: yn(r.ai_overview.cited),
+            ai_overview_position: r.ai_overview.position,
+            ai_overview_url: r.ai_overview.url,
+            ai_mode_present: yn(r.ai_mode_present),
+            ai_mode_cited: yn(r.ai_mode.cited),
+            ai_mode_position: r.ai_mode.position,
+            ai_mode_url: r.ai_mode.url,
+            cited_domains: r.cited_domains.join("; "),
+          })) as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "LLM mentions",
+          columns: [
+            { header: "Dimension", key: "dimension", width: 14 },
+            { header: "Value", key: "key", width: 28 },
+            { header: "Mentions", key: "mentions", width: 12 },
+            { header: "AI volume", key: "ai_search_volume", width: 12 },
+          ],
+          rows: dimRows as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "AI search volume",
+          columns: [
+            { header: "Keyword", key: "keyword", width: 40 },
+            { header: "AI volume/mo", key: "ai_search_volume", width: 14 },
+          ],
+          rows: (aiVolume.data?.rows ?? []).map((r) => ({
+            keyword: r.keyword,
+            ai_search_volume: r.ai_search_volume,
+          })) as unknown as Record<string, unknown>[],
+        },
+      ],
+    };
+  };
+
   return (
     <div>
       {/* AI hero — Track green */}
       <div
         className="relative mb-5 overflow-hidden rounded-2xl p-6 text-white sm:p-8"
-        style={{ background: "linear-gradient(135deg, #064e3b, #065f46 48%, #10b981)" }}
+        style={{
+          background:
+            "linear-gradient(135deg, color-mix(in srgb, var(--section) 38%, #000), color-mix(in srgb, var(--section) 50%, #000) 48%, var(--section))",
+        }}
       >
         <div className="cyber-grid pointer-events-none absolute inset-0 opacity-[0.15]" aria-hidden />
-        <div className="float-slow pointer-events-none absolute -right-10 -top-12 h-64 w-64 rounded-full bg-[#34d399]/30 blur-3xl" aria-hidden />
+        <div
+          className="float-slow pointer-events-none absolute -right-10 -top-12 h-64 w-64 rounded-full blur-3xl"
+          style={{ background: "color-mix(in srgb, var(--section) 30%, transparent)" }}
+          aria-hidden
+        />
         <div className="relative z-10 flex items-start gap-4">
           <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/15 backdrop-blur">
             <Sparkles size={24} />
@@ -235,8 +365,9 @@ export default function AiVisibility() {
           </div>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-wrap items-center justify-between gap-3">
               <CardTitle>Keyword AI citations — cited first</CardTitle>
+              <ExcelButton filename={`ai-visibility-${domain.trim()}`} build={buildExcel} />
             </CardHeader>
             <CardBody className="overflow-x-auto p-0">
               <table className="w-full text-sm">
@@ -320,27 +451,33 @@ export default function AiVisibility() {
                     <p className="mt-1 font-mono text-2xl text-text">{fmtInt(mentions.data.ai_search_volume)}</p>
                   </div>
                 </div>
-                {(mentions.data.dimensions.location ?? []).length > 0 && (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-text-muted">
-                        <tr>
-                          <th className="px-3 py-2 font-medium">Location</th>
-                          <th className="px-3 py-2 font-medium">Mentions</th>
-                          <th className="px-3 py-2 font-medium">AI volume</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-border">
-                        {(mentions.data.dimensions.location ?? []).map((row) => (
-                          <tr key={String(row.key)} className="hover:bg-surface-2">
-                            <td className="px-3 py-2 font-medium text-text">{locationLabel(row.key)}</td>
-                            <td className="px-3 py-2 font-mono text-text">{fmtInt(row.mentions)}</td>
-                            <td className="px-3 py-2 font-mono text-text">{fmtInt(row.ai_search_volume)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <DimTable
+                    title="Platform"
+                    rows={mentions.data.dimensions.platform ?? []}
+                    label={platformLabel}
+                  />
+                  <DimTable
+                    title="Language"
+                    rows={mentions.data.dimensions.language ?? []}
+                    label={languageLabel}
+                  />
+                  <DimTable
+                    title="Location"
+                    rows={mentions.data.dimensions.location ?? []}
+                    label={locationLabel}
+                  />
+                  <DimTable
+                    title="Top sources"
+                    rows={mentions.data.dimensions.sources_domain ?? []}
+                    label={(k) => String(k ?? "—")}
+                  />
+                </div>
+                {(mentions.data.dimensions.sources_domain ?? []).length > 0 && (
+                  <p className="text-xs text-text-muted">
+                    Top sources are the domains LLMs cite in answers that mention {mentions.data.domain} —
+                    getting featured on these sites grows your AI visibility.
+                  </p>
                 )}
               </>
             )}

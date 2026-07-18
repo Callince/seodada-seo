@@ -34,6 +34,7 @@ export interface AdminUser {
   org_name: string;
   is_active: boolean;
   is_admin: boolean;
+  unlimited_usage: boolean;
   created_at: string;
   month_cents: number;
   total_cents: number;
@@ -413,6 +414,7 @@ export interface TrackedItem {
 export interface TrackedListResponse {
   items: TrackedItem[];
 }
+
 
 // Site Report (automated SEO audit)
 export interface PageReport {

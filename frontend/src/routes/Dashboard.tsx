@@ -31,6 +31,7 @@ import { PageHeader } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fmtInt } from "@/lib/format";
 import { usePersistedState } from "@/lib/persist";
 import { moduleForPath, sectionVars } from "@/lib/sections";
@@ -74,8 +75,8 @@ function ago(iso: string): string {
 
 export default function Dashboard() {
   const user = useAuth((s) => s.user);
-  const { data: stats } = useDashboardStats();
-  const { data: projects } = useProjects();
+  const { data: stats, isLoading: statsLoading } = useDashboardStats();
+  const { data: projects, isLoading: projectsLoading } = useProjects();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   // Shares the SERP page's persisted location so the chosen country carries over.
@@ -145,6 +146,21 @@ export default function Dashboard() {
 
       {/* ===== Stat cards ===== */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Skeletons on first load — no zero-flash before stats land. */}
+        {statsLoading ? (
+          <>
+            {[0, 1, 2, 3].map((i) => (
+              <Card key={i} className="min-h-[148px]">
+                <CardBody className="flex h-full flex-col justify-center gap-3">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-8 w-32" />
+                  <Skeleton className="h-3 w-40" />
+                </CardBody>
+              </Card>
+            ))}
+          </>
+        ) : (
+        <>
         {/* Usage ring */}
         <Card className="min-h-[148px]">
           <CardBody className="flex h-full items-center gap-4">
@@ -203,6 +219,8 @@ export default function Dashboard() {
               : "No run history yet — try a tool below."
           }
         />
+        </>
+        )}
       </div>
 
       {/* ===== Quick SERP lookup — Glassmorphic Search Hub ===== */}
@@ -309,7 +327,13 @@ export default function Dashboard() {
         </div>
 
         <Card className="overflow-hidden border-border/70">
-          {recent.length ? (
+          {projectsLoading ? (
+            <CardBody className="space-y-3 py-6">
+              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-9 w-full" />
+            </CardBody>
+          ) : recent.length ? (
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left">
                 <thead>

@@ -16,11 +16,13 @@ export function PAAList({ items }: { items: PaaItem[] }) {
           <div key={i}>
             <button
               onClick={() => setOpen(isOpen ? null : i)}
+              aria-expanded={isOpen}
               className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left hover:bg-surface-2"
             >
               <span className="text-sm font-medium text-text">{it.question}</span>
               <ChevronDown
                 size={16}
+                aria-hidden
                 className={cn(
                   "shrink-0 text-text-muted transition-transform",
                   isOpen && "rotate-180",

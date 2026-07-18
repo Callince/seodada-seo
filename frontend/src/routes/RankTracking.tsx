@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, Minus, Search } from "lucide-react";
+import { ArrowDown, ArrowUp, Minus, Search, X } from "lucide-react";
 import { useState } from "react";
 import {
   CartesianGrid,
@@ -11,8 +11,9 @@ import {
 } from "recharts";
 
 import { apiErrorMessage } from "@/api/client";
-import { useTracked, useTrackRank } from "@/api/hooks/useRank";
+import { useTracked, useTrackRank, useUntrack } from "@/api/hooks/useRank";
 import { CacheBadge } from "@/components/shared/CacheBadge";
+import { ExcelButton } from "@/components/shared/ExcelButton";
 import { LocationLanguagePicker, locationLabel } from "@/components/shared/LocationLanguagePicker";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
@@ -92,7 +93,7 @@ function HistoryChart({ data }: { data: RankTrackResponse }) {
         <Line
           type="monotone"
           dataKey="position"
-          stroke="#059669"
+          stroke="var(--section)"
           strokeWidth={2}
           dot={{ r: 3 }}
           connectNulls={false}
@@ -109,32 +110,68 @@ function TrackedList({
   items: TrackedItem[];
   onPick: (it: TrackedItem) => void;
 }) {
+  const untrack = useUntrack();
   if (!items.length)
     return <p className="text-sm text-text-muted">Nothing tracked yet — run a check above.</p>;
+
+  const remove = (it: TrackedItem) => {
+    // Destructive: tracking is derived from the snapshots, so this drops the
+    // position history and stops the daily recheck. Confirm before doing it.
+    const n = it.observations;
+    if (
+      !confirm(
+        `Stop tracking “${it.keyword}” for ${it.domain}?\n\n` +
+          `This deletes ${n} recorded position${n === 1 ? "" : "s"} and stops the daily re-check. ` +
+          `It can't be undone.`,
+      )
+    )
+      return;
+    untrack.mutate({
+      keyword: it.keyword,
+      domain: it.domain,
+      location_code: it.location_code,
+      language_code: it.language_code,
+      device: it.device,
+    });
+  };
+
   return (
     <div className="divide-y divide-border">
       {items.map((it, i) => (
-        <button
-          key={i}
-          onClick={() => onPick(it)}
-          className="flex w-full items-center justify-between gap-3 py-2.5 text-left hover:bg-surface-2"
-        >
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-text">{it.keyword}</p>
-            <p className="truncate text-xs text-text-muted">
-              {it.domain} · {locationLabel(it.location_code)}
-              {it.device === "mobile" ? " · mobile" : ""}
-            </p>
-          </div>
-          <div className="flex items-center gap-4 text-sm">
-            <span className="font-mono text-text">
-              {it.latest_position != null ? `#${it.latest_position}` : "—"}
-            </span>
-            <span className="w-12 text-right">
-              <Delta delta={it.delta} />
-            </span>
-          </div>
-        </button>
+        // A row is not a <button>: it holds its own Remove button, and nesting
+        // interactive elements is invalid HTML (and breaks keyboard nav).
+        <div key={i} className="group flex items-center gap-2 py-2.5 hover:bg-surface-2">
+          <button
+            onClick={() => onPick(it)}
+            className="flex min-w-0 flex-1 items-center justify-between gap-3 text-left"
+            title="Re-check this keyword"
+          >
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-text">{it.keyword}</p>
+              <p className="truncate text-xs text-text-muted">
+                {it.domain} · {locationLabel(it.location_code)}
+                {it.device === "mobile" ? " · mobile" : ""}
+              </p>
+            </div>
+            <div className="flex items-center gap-4 text-sm">
+              <span className="font-mono text-text">
+                {it.latest_position != null ? `#${it.latest_position}` : "—"}
+              </span>
+              <span className="w-12 text-right">
+                <Delta delta={it.delta} />
+              </span>
+            </div>
+          </button>
+          <button
+            onClick={() => remove(it)}
+            disabled={untrack.isPending}
+            aria-label={`Stop tracking ${it.keyword} for ${it.domain}`}
+            title="Stop tracking"
+            className="shrink-0 rounded-md p-1 text-text-muted opacity-0 transition-opacity hover:bg-danger/10 hover:text-danger focus-visible:opacity-100 group-hover:opacity-100 disabled:opacity-50"
+          >
+            <X size={14} />
+          </button>
+        </div>
       ))}
     </div>
   );
@@ -158,6 +195,53 @@ export default function RankTracking({ embedded }: { embedded?: boolean }) {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     run();
+  };
+
+  const buildExcel = () => {
+    if (!data) return null;
+    return {
+      summary: {
+        Report: "Rank Tracking",
+        Keyword: data.keyword,
+        Domain: data.domain,
+        Market: locationLabel(loc.location_code),
+        "Current position": data.found ? data.position : "Not found",
+        Generated: new Date().toLocaleString(),
+      },
+      sheets: [
+        {
+          name: "Position history",
+          columns: [
+            { header: "Checked at", key: "checked_at", width: 22 },
+            { header: "Position", key: "position", width: 10 },
+            { header: "Ranking URL", key: "url", width: 60 },
+          ],
+          rows: data.history.map((p) => ({
+            checked_at: new Date(p.created_at).toLocaleString(),
+            position: p.position,
+            url: p.url,
+          })) as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Tracked keywords",
+          columns: [
+            { header: "Keyword", key: "keyword", width: 36 },
+            { header: "Domain", key: "domain", width: 26 },
+            { header: "Market", key: "market", width: 22 },
+            { header: "Device", key: "device", width: 10 },
+            { header: "Latest position", key: "latest_position", width: 14 },
+            { header: "Previous position", key: "previous_position", width: 16 },
+            { header: "Delta", key: "delta", width: 8 },
+            { header: "Last checked", key: "last_checked", width: 22 },
+            { header: "Checks", key: "observations", width: 8 },
+          ],
+          rows: (tracked.data?.items ?? []).map((it) => ({
+            ...it,
+            market: locationLabel(it.location_code),
+          })) as unknown as Record<string, unknown>[],
+        },
+      ],
+    };
   };
 
   return (
@@ -210,12 +294,14 @@ export default function RankTracking({ embedded }: { embedded?: boolean }) {
       )}
       {mutation.isPending && <Skeleton className="h-64" />}
 
+
       <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
         <div className="space-y-5">
           {data && !mutation.isPending && (
             <div className="animate-fade-rise space-y-5">
-              <div className="flex items-center justify-end">
+              <div className="flex items-center justify-end gap-2">
                 <CacheBadge meta={data.meta} />
+                <ExcelButton filename={`rank-${data.keyword}`} build={buildExcel} />
               </div>
               <div className="grid gap-4 sm:grid-cols-3">
                 <Card>

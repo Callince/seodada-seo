@@ -5,6 +5,7 @@ import { apiErrorMessage } from "@/api/client";
 import { useListings } from "@/api/hooks/useLocal";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
+import { ExcelButton } from "@/components/shared/ExcelButton";
 import { MetricCard } from "@/components/shared/MetricCard";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
@@ -111,6 +112,38 @@ export default function LocalSeo() {
     }
   };
 
+  const buildExcel = () => {
+    if (!result) return null;
+    return {
+      summary: {
+        Report: "Local SEO listings",
+        Search: result.what,
+        City: city.label,
+        Listings: result.rows.length,
+        Generated: new Date().toLocaleString(),
+      },
+      sheets: [
+        {
+          name: "Listings",
+          columns: [
+            { header: "Business", key: "title", width: 34 },
+            { header: "Category", key: "category", width: 24 },
+            { header: "Rating", key: "rating", width: 10 },
+            { header: "Reviews", key: "reviews", width: 10 },
+            { header: "Claimed", key: "claimed", width: 10 },
+            { header: "Address", key: "address", width: 60 },
+            { header: "Phone", key: "phone", width: 18 },
+            { header: "Website", key: "url", width: 50 },
+          ],
+          rows: result.rows.map((r) => ({
+            ...r,
+            claimed: r.is_claimed == null ? null : r.is_claimed ? "yes" : "no",
+          })) as unknown as Record<string, unknown>[],
+        },
+      ],
+    };
+  };
+
   return (
     <div>
       <PageHeader
@@ -191,8 +224,9 @@ export default function LocalSeo() {
               </div>
             );
           })()}
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-end gap-2">
             <CacheBadge meta={result.meta} />
+            <ExcelButton filename={`local-${result.what}`} build={buildExcel} />
           </div>
           <Card>
             <CardBody>

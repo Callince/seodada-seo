@@ -34,7 +34,11 @@ interface TrendChartProps {
 
 export function TrendChart({ data, series, xKey = "date", height = 280 }: TrendChartProps) {
   return (
-    <ResponsiveContainer width="100%" height={height}>
+    <ResponsiveContainer
+      width="100%"
+      height={height}
+      aria-label={`Trend chart: ${series.map((s) => s.label).join(", ")}`}
+    >
       <AreaChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
         <defs>
           {series.map((s, i) => {

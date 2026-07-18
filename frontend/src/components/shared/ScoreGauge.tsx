@@ -23,7 +23,12 @@ export function ScoreGauge({ score, label, size = 160, max = 100, emptyHint }: S
   const data = [{ name: "score", value: isEmpty ? 0 : value }];
 
   return (
-    <div className="relative inline-flex flex-col items-center" style={{ width: size }}>
+    <div
+      className="relative inline-flex flex-col items-center"
+      style={{ width: size }}
+      role="img"
+      aria-label={`${label || "Score"}: ${isEmpty ? "not available" : Math.round(value)} of ${max}`}
+    >
       <ResponsiveContainer width={size} height={size}>
         <RadialBarChart
           innerRadius="72%"

@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { ExcelButton } from "@/components/shared/ExcelButton";
 import { usePersistedState } from "@/lib/persist";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -220,6 +221,9 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [live, setLive] = useState(false);
   const [compare, setCompare] = useState(false);
+  // Off by default: brand volume is a second billed lookup that costs several
+  // times the SERP crawl. Remembered, so anyone who wants it keeps it.
+  const [brandVol, setBrandVol] = usePersistedState("serp.brandVolume", false);
   const [highlight, setHighlight] = useState("");
   const [view, setView] = useState("google");
   const mutation = useSerpRanking();
@@ -235,8 +239,9 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
   const run = () => {
     const kw = keyword.trim();
     if (!kw) return;
-    mutation.mutate({ ...loc, keyword: kw, depth, device, force_live: live });
-    if (compare) mutation2.mutate({ ...loc2, keyword: kw, depth, device, force_live: live });
+    mutation.mutate({ ...loc, keyword: kw, depth, device, force_live: live, with_brand_volume: brandVol });
+    if (compare)
+      mutation2.mutate({ ...loc2, keyword: kw, depth, device, force_live: live, with_brand_volume: brandVol });
   };
 
   // Auto-run when arriving from the dashboard quick-search (?q=...).
@@ -299,6 +304,13 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
               <input type="checkbox" checked={compare} onChange={(e) => setCompare(e.target.checked)} className="h-4 w-4 accent-[var(--section)]" />
               Compare markets
             </label>
+            <label
+              className="flex items-center gap-1.5 whitespace-nowrap text-sm text-text-muted"
+              title="Look up monthly search volume for each brand in the results. Billed per brand — typically several times the cost of the SERP crawl itself."
+            >
+              <input type="checkbox" checked={brandVol} onChange={(e) => setBrandVol(e.target.checked)} className="h-4 w-4 accent-[var(--section)]" />
+              Brand volume
+            </label>
             <Button type="submit" disabled={pending || !keyword.trim()}>
               <Search size={16} /> {pending ? "Crawling…" : "Crawl Google"}
             </Button>
@@ -337,6 +349,42 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
             </h2>
             <div className="flex items-center gap-2">
               <CacheBadge meta={data.meta} />
+              <ExcelButton
+                filename={`serp-${data.keyword}`}
+                build={() => ({
+                  summary: {
+                    Report: "SERP Ranking",
+                    Keyword: data.keyword,
+                    Market: locationLabel(loc.location_code),
+                    Device: device,
+                    Results: data.results.length,
+                    Generated: new Date().toLocaleString(),
+                  },
+                  sheets: [
+                    {
+                      name: "Results",
+                      columns: [
+                        { header: "Position", key: "position", width: 10 },
+                        { header: "Domain", key: "domain", width: 28 },
+                        { header: "Title", key: "title", width: 50 },
+                        { header: "URL", key: "url", width: 60 },
+                        { header: "Brand", key: "brand_name", width: 18 },
+                        { header: "Brand volume", key: "brand_volume", width: 14 },
+                      ],
+                      rows: data.results as unknown as Record<string, unknown>[],
+                    },
+                    {
+                      name: "People Also Ask",
+                      columns: [
+                        { header: "Question", key: "question", width: 60 },
+                        { header: "Answer", key: "answer", width: 80 },
+                        { header: "Source", key: "url", width: 50 },
+                      ],
+                      rows: (data.paa ?? []) as unknown as Record<string, unknown>[],
+                    },
+                  ],
+                })}
+              />
               <SaveToProject
                 module="serp"
                 params={{ ...loc, keyword: data.keyword }}

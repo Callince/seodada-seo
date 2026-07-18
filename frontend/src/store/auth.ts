@@ -14,13 +14,24 @@ interface AuthState {
 
 export const useAuth = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       accessToken: null,
       refreshToken: null,
       user: null,
       setAuth: (accessToken, refreshToken, user) => set({ accessToken, refreshToken, user }),
       setAccess: (accessToken) => set({ accessToken }),
-      logout: () => set({ accessToken: null, refreshToken: null, user: null }),
+      logout: () => {
+        // Fire-and-forget server-side revocation of the refresh token.
+        const refreshToken = get().refreshToken;
+        if (refreshToken) {
+          void fetch("/api/v1/auth/logout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refresh_token: refreshToken }),
+          }).catch(() => {});
+        }
+        set({ accessToken: null, refreshToken: null, user: null });
+      },
     }),
     { name: "seo-auth" },
   ),

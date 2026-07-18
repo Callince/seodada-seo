@@ -4,6 +4,7 @@ import { useState } from "react";
 import { apiErrorMessage } from "@/api/client";
 import { useAuditStatus, useStartAudit } from "@/api/hooks/useAudit";
 import { DataTable, type Column } from "@/components/shared/DataTable";
+import { ExcelButton } from "@/components/shared/ExcelButton";
 import { MetricBar } from "@/components/shared/MetricBar";
 import { ScoreGauge } from "@/components/shared/ScoreGauge";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
@@ -132,6 +133,49 @@ export default function SiteAudit() {
             : { t: "Needs work", c: "danger" as const };
   const totalIssues = s ? s.errors + s.warnings + s.notices : 0;
 
+  const buildExcel = () => {
+    if (!s) return null;
+    return {
+      summary: {
+        Report: "Site Audit",
+        Domain: domain.trim(),
+        "Health score": score,
+        "Pages crawled": s.pages_crawled,
+        Errors: s.errors,
+        Warnings: s.warnings,
+        Notices: s.notices,
+        Generated: new Date().toLocaleString(),
+      },
+      sheets: [
+        {
+          name: "Issues",
+          columns: [
+            { header: "Issue", key: "label", width: 44 },
+            { header: "Severity", key: "severity", width: 12 },
+            { header: "Pages affected", key: "count", width: 14 },
+          ],
+          rows: s.issues as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Crawled pages",
+          columns: [
+            { header: "URL", key: "url", width: 60 },
+            { header: "Status", key: "status_code", width: 10 },
+            { header: "Score", key: "onpage_score", width: 10 },
+            { header: "Title", key: "title", width: 50 },
+            { header: "Words", key: "word_count", width: 10 },
+            { header: "Load (ms)", key: "load_time_ms", width: 10 },
+            { header: "Failed checks", key: "failed_checks", width: 60 },
+          ],
+          rows: s.pages.map((p) => ({
+            ...p,
+            failed_checks: p.failed_checks.join("; "),
+          })) as unknown as Record<string, unknown>[],
+        },
+      ],
+    };
+  };
+
   return (
     <div>
       <PageHeader
@@ -236,8 +280,9 @@ export default function SiteAudit() {
           </div>
 
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-wrap items-center justify-between gap-3">
               <CardTitle>Issues ({s.issues.length})</CardTitle>
+              <ExcelButton filename={`audit-${domain.trim()}`} build={buildExcel} />
             </CardHeader>
             <CardBody className="p-0">
               <DataTable columns={issueCols} rows={s.issues} csvName={`audit-issues-${domain.trim()}`} />

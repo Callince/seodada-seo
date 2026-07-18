@@ -5,6 +5,7 @@ import { useContentAnalysis, usePhraseTrends, useSentiment } from "@/api/hooks/u
 import { apiErrorMessage } from "@/api/client";
 import { AreaChart } from "@/components/public/landingKit";
 import { CacheBadge } from "@/components/shared/CacheBadge";
+import { ExcelButton } from "@/components/shared/ExcelButton";
 import { MetricCard } from "@/components/shared/MetricCard";
 import { SaveToProject } from "@/components/shared/SaveToProject";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
@@ -16,7 +17,11 @@ import { fmtInt } from "@/lib/format";
 import { usePersistedState } from "@/lib/persist";
 import type { Connotations, ContentResponse, PhraseTrendsResponse, SentimentResponse } from "@/types";
 
-const SENTIMENT_COLORS = { positive: "#10B981", neutral: "#94A3B8", negative: "#F43F5E" };
+const SENTIMENT_COLORS = {
+  positive: "var(--success)",
+  neutral: "var(--text-muted)",
+  negative: "var(--danger)",
+};
 
 function pct(v: number | null, total: number): number {
   return total > 0 ? Math.round(((v ?? 0) / total) * 100) : 0;
@@ -61,6 +66,8 @@ function SentimentDonut({ data }: { data: ContentResponse }) {
   );
 }
 
+// Categorical chart palette (like TrendChart's series colors) — emotions have
+// no semantic tokens, so these stay literal by design.
 const CONNOTATION_COLORS: Record<keyof Connotations, string> = {
   happiness: "#10B981",
   love: "#EC4899",
@@ -184,6 +191,72 @@ export default function ContentAnalysis({ embedded }: { embedded?: boolean }) {
     run();
   };
 
+  const buildExcel = () => {
+    if (!data) return null;
+    const s = data.sentiment;
+    return {
+      summary: {
+        Report: "Content Analysis",
+        Keyword: data.keyword,
+        "Total citations": data.total_count,
+        Generated: new Date().toLocaleString(),
+      },
+      sheets: [
+        {
+          name: "Sentiment",
+          columns: [
+            { header: "Sentiment", key: "sentiment", width: 14 },
+            { header: "Citations", key: "count", width: 12 },
+          ],
+          rows: [
+            { sentiment: "Positive", count: s.positive },
+            { sentiment: "Neutral", count: s.neutral },
+            { sentiment: "Negative", count: s.negative },
+          ] as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Connotations",
+          columns: [
+            { header: "Connotation", key: "connotation", width: 16 },
+            { header: "Score", key: "score", width: 12 },
+          ],
+          rows: Object.entries(data.connotations).map(([connotation, score]) => ({
+            connotation,
+            score,
+          })) as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Top citations",
+          columns: [
+            { header: "Domain", key: "domain", width: 28 },
+            { header: "Title", key: "title", width: 50 },
+            { header: "URL", key: "url", width: 60 },
+            { header: "Snippet", key: "snippet", width: 80 },
+          ],
+          rows: data.top_citations as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Brand sentiment",
+          columns: [
+            { header: "Connotation", key: "connotation", width: 16 },
+            { header: "Citations", key: "citations", width: 12 },
+          ],
+          rows: Object.entries(sentimentData?.connotations ?? {}).map(
+            ([connotation, citations]) => ({ connotation, citations }),
+          ) as unknown as Record<string, unknown>[],
+        },
+        {
+          name: "Citation trend",
+          columns: [
+            { header: "Date", key: "date", width: 14 },
+            { header: "Citations", key: "citations", width: 12 },
+          ],
+          rows: (trendsData?.rows ?? []) as unknown as Record<string, unknown>[],
+        },
+      ],
+    };
+  };
+
   return (
     <div>
       {!embedded && (
@@ -229,6 +302,7 @@ export default function ContentAnalysis({ embedded }: { embedded?: boolean }) {
             </p>
             <div className="flex items-center gap-2">
               <CacheBadge meta={data.meta} />
+              <ExcelButton filename={`content-${data.keyword}`} build={buildExcel} />
               <SaveToProject
                 module="content"
                 params={{ keyword: data.keyword }}
