@@ -121,7 +121,7 @@ export function Sidebar({
                     collapsed && "lg:justify-center lg:px-0",
                     isActive
                       ? "section-gradient font-semibold text-white shadow-glow"
-                      : "text-text-muted hover:bg-[color:var(--section-soft)] hover:text-[color:var(--section)]",
+                      : "text-text-muted hover:bg-[color:var(--section-soft)] hover:text-[color:var(--section-ink)]",
                   )
                 }
               >

@@ -88,7 +88,9 @@ export function PageHeader({
             {eyebrow && (
               <span
                 className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide"
-                style={{ backgroundColor: "var(--section-soft)", color: "var(--section)" }}
+                /* --section-ink, not --section: at 11px this is small text, and
+                   the raw accent lands ~3.2:1 on the soft tint (DESIGN_SYSTEM §1.3). */
+                style={{ backgroundColor: "var(--section-soft)", color: "var(--section-ink)" }}
               >
                 {eyebrow}
               </span>
