@@ -12,6 +12,7 @@ import {
   locationLabel,
 } from "@/components/shared/LocationLanguagePicker";
 import { PAAList } from "@/components/shared/PAAList";
+import { RankBadge } from "@/components/shared/RankBadge";
 import { SaveToProject } from "@/components/shared/SaveToProject";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +29,11 @@ import { fmtInt } from "@/lib/format";
 import type { SerpResponse, SerpResult } from "@/types";
 
 const columns: Column<SerpResult>[] = [
-  { key: "position", header: "#", align: "right", mono: true, sortValue: (r) => r.position },
+  {
+    key: "position", header: "#", align: "right", mono: true,
+    sortValue: (r) => r.position,
+    render: (r) => <RankBadge position={r.position} />,
+  },
   {
     key: "serp_slot", header: "SERP slot", align: "right", mono: true,
     sortValue: (r) => r.serp_slot ?? 999,
@@ -82,9 +87,7 @@ function GoogleView({ results, highlight }: { results: SerpResult[]; highlight: 
             className={cn("rounded-md p-3", hit && "bg-[color:var(--section-soft)] ring-1 ring-[color:var(--section)]")}
           >
             <div className="flex items-center gap-2 text-xs text-text-muted">
-              <span className="flex h-5 min-w-7 items-center justify-center rounded bg-surface-2 px-1 font-mono">
-                {r.position}
-              </span>
+              <RankBadge position={r.position} />
               {r.featured && <Badge tone="warning">featured snippet</Badge>}
               <span className="truncate">{r.url}</span>
             </div>

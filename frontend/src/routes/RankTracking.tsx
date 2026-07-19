@@ -14,6 +14,7 @@ import { apiErrorMessage } from "@/api/client";
 import { useTracked, useTrackRank, useUntrack } from "@/api/hooks/useRank";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { ExcelButton } from "@/components/shared/ExcelButton";
+import { RankBadge, signalFill, visibility } from "@/components/shared/RankBadge";
 import { LocationLanguagePicker, locationLabel } from "@/components/shared/LocationLanguagePicker";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
@@ -154,9 +155,7 @@ function TrackedList({
               </p>
             </div>
             <div className="flex items-center gap-4 text-sm">
-              <span className="font-mono text-text">
-                {it.latest_position != null ? `#${it.latest_position}` : "—"}
-              </span>
+              <RankBadge position={it.latest_position} />
               <span className="w-12 text-right">
                 <Delta delta={it.delta} />
               </span>
@@ -309,10 +308,16 @@ export default function RankTracking({ embedded }: { embedded?: boolean }) {
                     <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
                       Current position
                     </p>
+                    {/* 30px numeral = large text (3:1 bar), so it can carry the
+                        FULL spectrum brightness: #1 glows, #90 sits nearly dark.
+                        This is the clearest instance of the luminance thesis. */}
                     <p
-                      className={`mt-1 font-mono text-3xl ${
-                        data.found ? "text-[color:var(--section-ink)]" : "text-text-muted"
-                      }`}
+                      className="mt-1 font-mono text-3xl tabular-nums"
+                      style={{
+                        color: data.found
+                          ? signalFill(visibility(data.position))
+                          : "var(--text-muted)",
+                      }}
                     >
                       {data.found ? `#${data.position}` : "Not found"}
                     </p>

@@ -1,9 +1,15 @@
 import { PolarAngleAxis, RadialBar, RadialBarChart, ResponsiveContainer } from "recharts";
 
+/**
+ * Health is a QUALITY judgement, so it uses state colors — not the Signal
+ * Spectrum (DESIGN_SYSTEM §1.2). A score of 30 means "bad", not "dim"; the
+ * spectrum's brightness ramp would strip the alarm out of a failing audit.
+ * Tokens rather than hex so both themes track automatically.
+ */
 function toneColor(score: number): string {
-  if (score < 40) return "#F43F5E";
-  if (score < 70) return "#F59E0B";
-  return "#10B981";
+  if (score < 40) return "var(--danger)";
+  if (score < 70) return "var(--warning)";
+  return "var(--success)";
 }
 
 interface ScoreGaugeProps {

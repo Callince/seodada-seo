@@ -75,6 +75,30 @@ OKLCH is supported in every current browser (Chrome 111+, Safari 15.4+, Firefox
 113+). Hex fallbacks are listed for tooling that needs them, but **CSS should use
 the OKLCH form.**
 
+> **How to actually measure contrast in this system (learned the hard way).**
+> Hand-rolled parsers of `getComputedStyle().color` are unreliable here, because
+> the browser returns whatever notation the author used — `rgb(0, 117, 185)`,
+> `color(srgb 0.53 0.44 0.82 / 0.12)` (0–1 floats **with alpha**), or
+> `oklch(0.88 0.13 190)` (unconverted). A regex that grabs the first three
+> numbers reads `oklch(0.88 …)` as `rgb(0.88, 0.13, 190)` — near black — and
+> reports a *passing* ratio for text that actually fails. This produced two
+> wrong verification passes during implementation.
+>
+> Resolve colors through a 1×1 canvas instead. It accepts every CSS notation,
+> and painting onto an explicit base composites alpha correctly:
+> ```js
+> const ctx = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+> const flatten = (color, base = '#ffffff') => {
+>   ctx.fillStyle = base;  ctx.fillRect(0, 0, 1, 1);
+>   ctx.fillStyle = color; ctx.fillRect(0, 0, 1, 1);   // alpha composites over base
+>   const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+>   return { r, g, b };
+> };
+> ```
+> Two further limits: an ancestor walk cannot see text over a `background-image`
+> (gradients) or over a sibling at negative `z-index` (the public hero). Those
+> elements are **excluded from measurement, not passed** — check them by eye.
+
 > **Caveat — Tailwind arbitrary values (v3.4).** Two silent-failure traps bit
 > during implementation, both of which compile without error and render nothing:
 > - `shadow-[var(--lift-1)]` is read as a shadow **color** (Tailwind's
@@ -120,8 +144,21 @@ on `--signal-2`. The brand blue *is* the midpoint of the visibility ramp. Every
 brighter stop is that same blue with more light in it; every darker stop is the
 same blue with light removed. Nothing in the palette is arbitrary.
 
-**Usage.** Any 0–100 visibility score, rank position, citation rate, or health
-gauge maps onto this ramp. Never invent a second scale for the same idea.
+**Usage — and its limit.** The spectrum encodes **visibility** (buried →
+visible), *not* **quality** (bad → good). Those are different questions and must
+not share a scale:
+
+| Metric | Scale | Why |
+|---|---|---|
+| Rank position, citation share, AI-mention rate, share of voice | **Signal Spectrum** | Literally "how visible" — brightness is the value |
+| Site-health score, issue severity, pass/fail checks | **State colors** (`--danger` / `--warning` / `--success`) | A health of 30 means *bad*, not *dim*. Red carries an alarm the spectrum cannot. |
+
+An earlier draft of this section listed "health gauge" under the spectrum. That
+was wrong: recolouring a failing audit score from red to dim blue removes the
+one signal the user needs most. Apply the ramp where brightness *is* the
+measurement, and state colors where a judgement is being made.
+
+Never invent a second scale for either idea.
 
 ```css
 /* map a 0..100 visibility value onto the spectrum */
