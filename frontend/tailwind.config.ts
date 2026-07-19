@@ -10,9 +10,12 @@ import type { Config } from "tailwindcss";
  * Returning a function lets Tailwind hand us the alpha, which we apply with
  * color-mix so every `token/NN` utility works.
  */
-const tok =
-  (name: string) =>
-  ({ opacityValue }: { opacityValue?: string }) => {
+/** The opacity-aware colour value Tailwind actually accepts at runtime. */
+export type TokenColor = ({ opacityValue }: { opacityValue?: string }) => string;
+
+const token =
+  (name: string): TokenColor =>
+  ({ opacityValue }) => {
     // For a BASE utility (`bg-success`) Tailwind passes the CSS variable
     // `var(--tw-bg-opacity)` here, not undefined — Number() on that is NaN,
     // which yields `color-mix(… NaN% …)` and silently kills the colour. Only
@@ -22,6 +25,11 @@ const tok =
       ? `var(--${name})`
       : `color-mix(in srgb, var(--${name}) ${alpha * 100}%, transparent)`;
   };
+
+// Tailwind supports function colour values at runtime, but its `colors` type
+// only admits `string | RecursiveKeyValuePair`. The cast is the documented
+// escape hatch — without it `tsc -b` fails the whole build.
+const tok = (name: string) => token(name) as unknown as string;
 
 export default {
   darkMode: "class",

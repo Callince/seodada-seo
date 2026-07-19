@@ -19,6 +19,7 @@ import tailwindConfig from "../../tailwind.config";
 // "…measure 3.4-3.9:1 on --surface: fine for icons…", which a naive
 // `--name: value;` regex reads as a declaration whose greedy value then
 // swallows the next real token.
+// vitest runs from the frontend package root.
 const css = readFileSync(path.resolve(process.cwd(), "src/index.css"), "utf8")
   .replace(/\/\*[\s\S]*?\*\//g, "");
 

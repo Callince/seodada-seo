@@ -4,7 +4,10 @@
     "target": "es2023",
     "lib": ["ES2023", "DOM"],
     "module": "esnext",
-    "types": ["vite/client"],
+    // `node` is here for the *.test.ts files under src/ — designTokens.test.ts
+    // reads index.css from disk to assert the token invariants. Vitest stubs
+    // CSS imports (even `?raw`) to an empty string, so fs is the only way in.
+    "types": ["vite/client", "node"],
     "skipLibCheck": true,
     "paths": { "@/*": ["./src/*"] },
 
