@@ -56,7 +56,7 @@ export function Pricing() {
                   </div>
                   <p className="mt-1 text-xs text-text-muted">{p.perDay} analyses / day</p>
                   <RouterLink to={authed ? "/billing" : "/register"} className="mt-6">
-                    <Button className={`w-full rounded-full ${p.popular ? "gradient-fill text-white shadow-glow hover:opacity-95" : ""}`} variant={p.popular ? "primary" : "secondary"}>
+                    <Button className="w-full rounded-full" variant={p.popular ? "primary" : "secondary"}>
                       {authed ? "Choose plan" : "Start free"}
                     </Button>
                   </RouterLink>
@@ -76,10 +76,12 @@ export function Pricing() {
           <Reveal delay={0.18} className="h-full">
             <div
               className="lp-card relative flex h-full flex-col justify-between overflow-hidden rounded-3xl p-7 text-white lp-shadow-lg"
+              /* Spectrum stops, not the old brand hex — this card was still
+                 painting the pre-Aperture blues. */
               style={{
                 background:
-                  "radial-gradient(120% 120% at 100% 0%, rgba(34,195,238,0.28), transparent 55%)," +
-                  "linear-gradient(150deg, #1b2a63 0%, #2e3f87 45%, #1d7dbd 100%)",
+                  "radial-gradient(120% 120% at 100% 0%, color-mix(in srgb, var(--signal-4) 28%, transparent), transparent 55%)," +
+                  "linear-gradient(150deg, var(--signal-0) 0%, var(--signal-1) 45%, var(--signal-2) 100%)",
               }}
             >
               {/* subtle sheen */}
@@ -95,13 +97,13 @@ export function Pricing() {
                 <ul className="mt-6 space-y-2.5 border-t border-white/20 pt-6">
                   {["SSO & audit logs", "Dedicated infrastructure", "Custom integrations", "SLA & onboarding"].map((f) => (
                     <li key={f} className="flex items-start gap-2.5 text-sm text-white/95">
-                      <Check size={16} className="mt-0.5 shrink-0 text-sky-300" /> {f}
+                      <Check size={16} className="mt-0.5 shrink-0 text-[color:var(--signal-4)]" /> {f}
                     </li>
                   ))}
                 </ul>
               </div>
               <RouterLink to="/contact" className="relative mt-6">
-                <Button variant="secondary" className="w-full rounded-full bg-white text-[#2e3f87] hover:bg-white/90">Contact sales</Button>
+                <Button variant="secondary" className="w-full rounded-full bg-white text-[color:var(--signal-1)] hover:bg-white/90">Contact sales</Button>
               </RouterLink>
             </div>
           </Reveal>

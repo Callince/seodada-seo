@@ -28,7 +28,7 @@ export default function ResetPassword() {
         }
       >
         <Link to="/forgot-password">
-          <Button className="w-full gradient-fill text-white shadow-glow hover:opacity-95">
+          <Button className="w-full">
             Request a new link
           </Button>
         </Link>
@@ -72,7 +72,7 @@ export default function ResetPassword() {
         {reset.isError && <p className="text-sm text-danger">{apiErrorMessage(reset.error)}</p>}
         <Button
           type="submit"
-          className="w-full gradient-fill text-white shadow-glow hover:opacity-95"
+          className="w-full"
           disabled={reset.isPending || mismatch || !password}
         >
           {reset.isPending ? "Updating…" : "Reset password & sign in"}

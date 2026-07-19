@@ -127,7 +127,7 @@ export default function PillarGuide() {
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link to="/register">
-              <Button size="lg" className="gradient-fill text-white shadow-glow hover:opacity-95">
+              <Button size="lg">
                 Start free <ArrowRight size={16} />
               </Button>
             </Link>

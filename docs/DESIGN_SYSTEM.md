@@ -190,6 +190,29 @@ as one system rather than a bag of colored dots.
 > (the accent at `L=0.45`), which passes.
 > Dark mode measures 7.7–8.6:1 and is unrestricted.
 
+### 1.3b Where equal lightness is the WRONG rule
+
+The fixed-lightness accent set (§1.3) is correct for UI chrome — it stops one
+module out-shouting another. It is **wrong for categorical chart series**, and
+that exception is deliberate:
+
+> A colour-vision-deficient reader separates categories mostly by **lightness**.
+> Eight series at identical L differ only in hue, which is precisely the channel
+> CVD compresses. Flattening a chart palette to equal lightness makes it *more*
+> uniform to a sighted reader and *less* readable to a CVD one.
+
+So `TrendChart`'s multi-series palette keeps its own lightness-varying colours
+rather than adopting the module accents, and the competitor-overlay series stay
+CVD-validated separately. **Charts are governed by the dataviz rules, not by
+§1.3.** The Signal Spectrum still applies to single-value visibility metrics
+(rank, citation share), because there the ramp *is* the measurement.
+
+Two other deliberate exceptions to "no raw values":
+- **`--hero-*`** — the marketing hero stays dark in *both* themes (white text
+  sits on it), so it cannot bind to `--surface`. Declared once, un-themed.
+- Fixed values are acceptable **only** as named tokens with a stated reason.
+  A raw hex inside a component is still a bug.
+
 ### 1.4 Full token definition
 
 Drop-in replacement for the `:root` / `.dark` blocks in `src/index.css`. Hex

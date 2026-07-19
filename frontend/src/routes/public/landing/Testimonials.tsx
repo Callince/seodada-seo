@@ -22,7 +22,7 @@ export function Testimonials() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal className="flex flex-wrap items-end justify-between gap-4">
           <div className="max-w-xl">
-            <div className="inline-flex items-center gap-1 text-amber-400">
+            <div className="inline-flex items-center gap-1 text-warning">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star key={i} size={16} fill="currentColor" />
               ))}
@@ -54,7 +54,7 @@ export function Testimonials() {
               <div key={t.name} className="w-full shrink-0 md:w-1/2 md:pr-6 lg:w-1/3">
                 <figure className="lp-card flex h-full flex-col rounded-3xl border border-border lp-glass p-7 lp-shadow">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-amber-400">
+                    <div className="flex items-center gap-1 text-warning">
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star key={i} size={13} fill="currentColor" />
                       ))}

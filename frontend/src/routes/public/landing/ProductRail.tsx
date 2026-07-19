@@ -38,7 +38,7 @@ function DashboardWidget({ tab }: { tab: string }) {
               <CountUp to={128} suffix="k" />
             </p>
           </div>
-          <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600">+42% MoM</span>
+          <span className="rounded-full bg-[color-mix(in_srgb,var(--success)_12%,transparent)] px-2.5 py-1 text-xs font-semibold text-success-ink">+42% MoM</span>
         </div>
         <div className="mt-3 h-40">
           <AreaChart values={TRAFFIC} id="w-traffic" height={140} tone="cyan" />
@@ -64,7 +64,7 @@ function DashboardWidget({ tab }: { tab: string }) {
               <div className="mt-1 h-1.5 rounded-full bg-surface-2">
                 <div
                   className="h-full rounded-full"
-                  style={{ width: `${r.v}%`, background: "linear-gradient(90deg,#10b981,#047857)" }}
+                  style={{ width: `${r.v}%`, background: "linear-gradient(90deg,var(--success),var(--success-ink))" }}
                 />
               </div>
             </div>
@@ -106,7 +106,7 @@ function DashboardWidget({ tab }: { tab: string }) {
             <div className="h-3 flex-1 rounded-full bg-surface-2">
               <div
                 className={`h-full rounded-full ${c.you ? "" : "bg-text-muted/40"}`}
-                style={{ width: `${c.v}%`, background: c.you ? "linear-gradient(90deg,#6366f1,#4338ca)" : undefined }}
+                style={{ width: `${c.v}%`, background: c.you ? "linear-gradient(90deg,var(--sec-aivis),var(--sec-aivis-ink))" : undefined }}
               />
             </div>
             <span className="w-8 text-right text-sm font-semibold text-text">{c.v}</span>

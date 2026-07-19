@@ -152,7 +152,7 @@ export function PublicShell() {
             <div className="hidden items-center gap-2 md:flex">
               {authed ? (
                 <Link to="/dashboard">
-                  <Button size="sm" className="gradient-fill rounded-full text-white shadow-glow hover:opacity-95">
+                  <Button size="sm" className="rounded-full">
                     Dashboard
                   </Button>
                 </Link>
@@ -164,7 +164,7 @@ export function PublicShell() {
                     </Button>
                   </Link>
                   <Link to="/register">
-                    <Button size="sm" className="gradient-fill rounded-full text-white shadow-glow hover:opacity-95">
+                    <Button size="sm" className="rounded-full">
                       Get started
                     </Button>
                   </Link>
@@ -202,7 +202,7 @@ export function PublicShell() {
                   </Button>
                 </Link>
                 <Link to="/register" className="flex-1">
-                  <Button size="sm" className="w-full gradient-fill rounded-full text-white">
+                  <Button size="sm" className="w-full rounded-full">
                     Get started
                   </Button>
                 </Link>

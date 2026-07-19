@@ -37,6 +37,12 @@
   --warning: #de9300;
   --danger: #d33a3c;
   --info: #00a2ce;
+  /* Text-safe state variants (L=.45). The base state colors sit at the accent
+     lightness band and measure 3.0-3.4:1 on white — fine for icons, fills and
+     large numerals, too low for small text. Same rule as --section-ink. */
+  --success-ink: #006b2c;
+  --warning-ink: #864100;
+  --danger-ink: #a50013;
   --ring: 0 117 185;       /* rgb triplet — tailwind wraps it */
 
   /* Signal Spectrum — the visibility ramp. Any 0-100 score, rank or citation
@@ -56,6 +62,17 @@
   /* Marketing footer — deep spectrum floor on both themes. */
   --footer: #0e1b2d;
   --footer-text: #8b9aab;
+
+  /* Marketing hero — deliberately NOT theme-scoped. This surface stays dark in
+     light mode too (white text sits on it), so binding it to --surface would
+     invert it and destroy the contrast. Values extend the spectrum below
+     --signal-0, which has no darker stop. Declared once, used by PublicHero. */
+  --hero-deep: #070d24;
+  --hero-mid: #0c1a45;
+  --hero-rim: #103166;
+  --hero-wash: #273879;
+  --hero-tide: #0f74b2;
+  --hero-glow: #22d3ee;
 
   /* ---- Per-module accents (light) — L=.62 C=.15, hue only. `-soft` derives
      via color-mix, so overriding the base in .dark auto-updates the tint.
@@ -169,6 +186,10 @@
   --warning: #f2af48;
   --danger: #f2716a;
   --info: #22b5e1;
+  /* Dark surfaces need brighter, not darker — these are the -ink variants. */
+  --success-ink: #63d18f;
+  --warning-ink: #eba941;
+  --danger-ink: #ff8a82;
   --ring: 59 205 220;
 
   --signal-0: #263561;

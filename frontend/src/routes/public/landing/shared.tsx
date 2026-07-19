@@ -20,7 +20,7 @@ export function KeywordRows() {
         <div key={k.kw} className="flex items-center justify-between rounded-xl border border-border bg-surface px-3.5 py-2.5">
           <span className="truncate text-sm font-medium text-text">{k.kw}</span>
           <span className="flex items-center gap-2">
-            <span className={`inline-flex items-center gap-0.5 text-xs font-semibold ${k.up ? "text-emerald-600" : "text-rose-500"}`}>
+            <span className={`inline-flex items-center gap-0.5 text-xs font-semibold ${k.up ? "text-success-ink" : "text-danger-ink"}`}>
               <TrendingUp size={12} className={k.up ? "" : "rotate-180"} /> #{k.pos}
             </span>
           </span>

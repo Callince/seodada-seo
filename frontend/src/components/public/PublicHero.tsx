@@ -41,7 +41,7 @@ export function PublicHero({
       {/* Deep navy → ocean 3D surface (seodada brand), no photo. */}
       <div
         className="absolute inset-0 -z-20"
-        style={{ background: "linear-gradient(180deg,#070d24 0%,#0c1a45 46%,#103166 100%)" }}
+        style={{ background: "linear-gradient(180deg,var(--hero-deep) 0%,var(--hero-mid) 46%,var(--hero-rim) 100%)" }}
       />
       {/* Aurora light pools — slowly drifting. */}
       <div
@@ -56,14 +56,14 @@ export function PublicHero({
       {/* Floating neon orbs. */}
       <div
         className="float-slow absolute right-[-8%] top-[16%] -z-10 h-72 w-72 rounded-full opacity-50 blur-3xl"
-        style={{ background: "conic-gradient(from 130deg,#273879,#0f74b2,#22d3ee,#273879)" }}
+        style={{ background: "conic-gradient(from 130deg,var(--hero-wash),var(--hero-tide),var(--hero-glow),var(--hero-wash))" }}
       />
       <div
         className="float-slower absolute left-[-6%] top-[48%] -z-10 h-56 w-56 rounded-full opacity-40 blur-3xl"
-        style={{ background: "radial-gradient(circle,#22d3ee,transparent 70%)" }}
+        style={{ background: "radial-gradient(circle,var(--hero-glow),transparent 70%)" }}
       />
       {/* Bottom vignette so the following light section reads cleanly. */}
-      <div className="absolute inset-x-0 bottom-0 -z-10 h-1/3 bg-gradient-to-b from-transparent to-[#070d24]/80" />
+      <div className="absolute inset-x-0 bottom-0 -z-10 h-1/3 bg-gradient-to-b from-transparent to-[var(--hero-deep)]/80" />
 
       <section
         className={`mx-auto flex w-full max-w-5xl flex-col px-4 sm:px-6 ${alignCls} ${

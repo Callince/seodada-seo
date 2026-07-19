@@ -50,7 +50,7 @@ export default function FreeTools() {
       >
         <div className="flex flex-wrap justify-center gap-3">
           <Link to="/tools/url">
-            <Button size="lg" className="gradient-fill text-white shadow-glow hover:opacity-95">
+            <Button size="lg">
               Analyse a URL <ArrowRight size={16} />
             </Button>
           </Link>
@@ -128,7 +128,7 @@ export default function FreeTools() {
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link to="/register">
-                <Button size="lg" className="gradient-fill text-white shadow-glow hover:opacity-95">
+                <Button size="lg">
                   Start free <ArrowRight size={16} />
                 </Button>
               </Link>

@@ -27,7 +27,7 @@ export function FinalCta() {
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <Magnetic>
               <RouterLink to={primaryTo}>
-                <Button size="lg" variant="secondary" className="rounded-full bg-white text-[#2e3f87] shadow-lg hover:bg-white/90">
+                <Button size="lg" variant="secondary" className="rounded-full bg-white text-[color:var(--signal-1)] shadow-lg hover:bg-white/90">
                   {primaryLabel} <ArrowRight size={16} />
                 </Button>
               </RouterLink>

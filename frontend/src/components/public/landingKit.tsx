@@ -242,17 +242,20 @@ function smoothPath(values: number[], w: number, h: number) {
 /** Harmonious chart tones — every graph can have its own colour that still
  *  suits the UI. All sit in the cool blue→violet brand family plus a couple of
  *  fresh accents. Each entry is [light, deep]. */
+/* Token references, not hex. These feed SVG `stop-color`, where var() does
+   resolve (verified in-browser), so the illustrations re-theme with the rest of
+   the system instead of drifting off it. Each entry is [light, deep]. */
 export const TONES = {
-  blue: ["#1d7dbd", "#2e3f87"],
-  cyan: ["#06b6d4", "#0e7490"],
-  violet: ["#8b5cf6", "#6d28d9"],
-  indigo: ["#6366f1", "#4338ca"],
-  emerald: ["#10b981", "#047857"],
-  teal: ["#14b8a6", "#0f766e"],
-  sky: ["#38bdf8", "#0369a1"],
-  amber: ["#f59e0b", "#b45309"],
-  rose: ["#ef4444", "#b91c1c"],
-  slate: ["#64748b", "#334155"],
+  blue: ["var(--signal-2)", "var(--signal-1)"],
+  cyan: ["var(--signal-3)", "var(--sec-backlinks-ink)"],
+  violet: ["var(--sec-aivis)", "var(--sec-aivis-ink)"],
+  indigo: ["var(--sec-serp)", "var(--sec-serp-ink)"],
+  emerald: ["var(--success)", "var(--success-ink)"],
+  teal: ["var(--sec-local)", "var(--sec-local-ink)"],
+  sky: ["var(--signal-4)", "var(--signal-2)"],
+  amber: ["var(--warning)", "var(--warning-ink)"],
+  rose: ["var(--danger)", "var(--danger-ink)"],
+  slate: ["var(--sec-manage)", "var(--sec-manage-ink)"],
 } as const;
 export type Tone = keyof typeof TONES;
 

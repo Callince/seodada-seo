@@ -35,7 +35,7 @@ export default function WebStories() {
               {s.cover_image_url ? (
                 <img src={assetUrl(s.cover_image_url)} alt={s.title} loading="lazy" className="h-full w-full object-cover transition-transform group-hover:scale-105" />
               ) : (
-                <div className="h-full w-full" style={{ background: "linear-gradient(160deg,#273879,#0f74b2 60%,#22c3ee)" }} />
+                <div className="h-full w-full" style={{ background: "linear-gradient(160deg,var(--signal-0),var(--signal-2) 60%,var(--signal-4))" }} />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
               <span className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-white/20 text-white backdrop-blur">

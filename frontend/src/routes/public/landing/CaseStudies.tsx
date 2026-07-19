@@ -65,7 +65,7 @@ export function CaseStudies() {
                       <div className="rounded-2xl border border-border bg-[var(--lp-panel)] p-4">
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-bold text-text">Organic traffic</span>
-                          <span className="text-sm font-semibold text-emerald-600">{c.metrics[0].prefix}{c.metrics[0].v.toLocaleString()}{c.metrics[0].suffix}</span>
+                          <span className="text-sm font-semibold text-success-ink">{c.metrics[0].prefix}{c.metrics[0].v.toLocaleString()}{c.metrics[0].suffix}</span>
                         </div>
                         <div className="mt-2 h-40">
                           <AreaChart values={c.traffic} id={`case-${i}`} height={150} tone={i % 2 ? "violet" : "emerald"} />

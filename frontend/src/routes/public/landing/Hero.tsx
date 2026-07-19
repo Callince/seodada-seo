@@ -89,7 +89,7 @@ function InstantResult({
         Create a free account to crawl the whole site, track rankings, and see the full fix list.
       </p>
       <RouterLink to="/register" className="mt-2 inline-block">
-        <Button size="sm" className="gradient-fill rounded-full text-white shadow-glow">
+        <Button size="sm" className="rounded-full">
           See the full report <ArrowRight size={14} />
         </Button>
       </RouterLink>
@@ -133,8 +133,8 @@ export function Hero() {
       <div className="lp-mesh absolute inset-0 -z-10" />
       <div className="lp-cursor absolute inset-0 -z-10" />
       <Particles count={18} className="-z-10" />
-      <div className="lp-float absolute -left-24 top-28 -z-10 h-72 w-72 rounded-full bg-[#1d7dbd]/20 blur-3xl" />
-      <div className="lp-float-2 absolute -right-16 top-10 -z-10 h-80 w-80 rounded-full bg-[#2e3f87]/20 blur-3xl" />
+      <div className="lp-float absolute -left-24 top-28 -z-10 h-72 w-72 rounded-full bg-[color-mix(in_srgb,var(--signal-2)_20%,transparent)] blur-3xl" />
+      <div className="lp-float-2 absolute -right-16 top-10 -z-10 h-80 w-80 rounded-full bg-[color-mix(in_srgb,var(--signal-1)_20%,transparent)] blur-3xl" />
 
       <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 pb-12 pt-24 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:gap-10 lg:pb-14 lg:pt-20">
         {/* Left */}
@@ -199,7 +199,7 @@ export function Hero() {
           >
             <Magnetic>
               <RouterLink to={primaryTo}>
-                <Button size="lg" className="gradient-fill rounded-full text-white shadow-glow hover:opacity-95">
+                <Button size="lg" className="rounded-full">
                   {primaryLabel} <ArrowRight size={16} />
                 </Button>
               </RouterLink>
@@ -220,14 +220,14 @@ export function Hero() {
                 <span
                   key={x}
                   className="grid h-8 w-8 place-items-center rounded-full border-2 border-surface text-[10px] font-bold text-white"
-                  style={{ background: i % 2 ? "#2e3f87" : "#1d7dbd" }}
+                  style={{ background: i % 2 ? "var(--signal-1)" : "var(--signal-2)" }}
                 >
                   {x}
                 </span>
               ))}
             </div>
             <div className="text-left">
-              <div className="flex items-center gap-0.5 text-amber-400">
+              <div className="flex items-center gap-0.5 text-warning">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star key={i} size={14} fill="currentColor" />
                 ))}
@@ -245,7 +245,7 @@ export function Hero() {
           transition={{ duration: 0.8, ease: [0.2, 0.7, 0.2, 1], delay: 0.2 }}
           className="relative z-10 hidden lg:block"
         >
-          <div className="absolute inset-8 -z-10 rounded-[2.5rem] bg-gradient-to-tr from-[#2e3f87]/40 to-[#1d7dbd]/40 blur-3xl" />
+          <div className="absolute inset-8 -z-10 rounded-[2.5rem] bg-gradient-to-tr from-[color-mix(in_srgb,var(--signal-1)_40%,transparent)] to-[color-mix(in_srgb,var(--signal-2)_40%,transparent)] blur-3xl" />
           <div className="lp-ring lp-float rounded-[28px]">
             <LandingImage
               src="/content-assets/landing/hero-dashboard.png"
@@ -261,14 +261,14 @@ export function Hero() {
                         <p className="text-sm font-bold text-text">Excellent</p>
                       </div>
                     </div>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600">
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" /> Live
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[color-mix(in_srgb,var(--success)_12%,transparent)] px-2.5 py-1 text-xs font-semibold text-success-ink">
+                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success" /> Live
                     </span>
                   </div>
                   <div className="mt-4 rounded-2xl border border-border bg-surface p-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium text-text-muted">Organic traffic</span>
-                      <span className="text-xs font-semibold text-emerald-600">+382%</span>
+                      <span className="text-xs font-semibold text-success-ink">+382%</span>
                     </div>
                     <div className="mt-1 h-24">
                       <AreaChart values={TRAFFIC} id="hero-traffic" height={96} />
@@ -285,7 +285,7 @@ export function Hero() {
           {/* Floating cards */}
           <div className="lp-float-2 absolute -right-6 -top-6 w-52 rounded-2xl border border-border bg-[var(--lp-glass)] p-3.5 lp-shadow-lg backdrop-blur">
             <div className="flex items-center gap-2.5">
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-500/10 text-emerald-600">
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-[color-mix(in_srgb,var(--success)_12%,transparent)] text-success-ink">
                 <TrendingUp size={16} />
               </span>
               <div>
