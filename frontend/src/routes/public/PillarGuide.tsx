@@ -105,7 +105,7 @@ export default function PillarGuide() {
                   <a
                     key={t.id}
                     href={`#${t.id}`}
-                    className="-ml-px block border-l border-transparent py-1 pl-4 text-sm text-text-muted transition-colors hover:border-primary hover:text-primary"
+                    className="-ml-px block border-l border-transparent py-1 pl-4 text-sm text-text-muted transition-colors hover:border-primary hover:text-primary-ink"
                   >
                     {t.text}
                   </a>

@@ -81,7 +81,7 @@ const backlinkCols: Column<BacklinkRow>[] = [
           href={r.url_from}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1 text-text hover:text-[color:var(--section)] hover:underline"
+          className="inline-flex items-center gap-1 text-text hover:text-[color:var(--section-ink)] hover:underline"
         >
           {r.domain_from || r.url_from} <ExternalLink size={12} className="shrink-0 opacity-60" />
         </a>
@@ -113,7 +113,7 @@ const backlinkCols: Column<BacklinkRow>[] = [
     sortValue: (r) => r.url_to,
     render: (r) =>
       r.url_to ? (
-        <a href={r.url_to} target="_blank" rel="noreferrer" className="text-text-muted hover:text-[color:var(--section)] hover:underline">
+        <a href={r.url_to} target="_blank" rel="noreferrer" className="text-text-muted hover:text-[color:var(--section-ink)] hover:underline">
           {r.url_to}
         </a>
       ) : (
@@ -135,7 +135,7 @@ const referringCols: Column<ReferringDomainRow>[] = [
           href={`https://${r.domain}`}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1 text-text hover:text-[color:var(--section)] hover:underline"
+          className="inline-flex items-center gap-1 text-text hover:text-[color:var(--section-ink)] hover:underline"
         >
           {r.domain} <ExternalLink size={12} className="shrink-0 opacity-60" />
         </a>
@@ -183,7 +183,7 @@ const blCompetitorCols: Column<BLCompetitorRow>[] = [
           href={`https://${r.domain}`}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1 text-text hover:text-[color:var(--section)] hover:underline"
+          className="inline-flex items-center gap-1 text-text hover:text-[color:var(--section-ink)] hover:underline"
         >
           {r.domain} <ExternalLink size={12} className="shrink-0 opacity-60" />
         </a>
@@ -431,7 +431,7 @@ export default function Backlinks() {
           </form>
           <p className="mt-2.5 text-xs text-text-muted">
             Want the full organic footprint too?{" "}
-            <Link to="/domains" className="text-[color:var(--section)] hover:underline">
+            <Link to="/domains" className="text-[color:var(--section-ink)] hover:underline">
               Domain Analytics
             </Link>
           </p>

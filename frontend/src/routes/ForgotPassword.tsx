@@ -45,7 +45,7 @@ export default function ForgotPassword() {
           />
           <Button
             type="submit"
-            className="w-full gradient-fill text-white shadow-glow hover:opacity-95"
+            className="w-full"
             disabled={forgot.isPending}
           >
             {forgot.isPending ? "Sending…" : "Send reset link"}

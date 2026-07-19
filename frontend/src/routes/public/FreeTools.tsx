@@ -75,7 +75,7 @@ export default function FreeTools() {
               to={t.to}
               className="group rounded-2xl border border-border bg-surface p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-glow"
             >
-              <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary-soft text-primary transition-colors group-hover:gradient-fill group-hover:text-white">
+              <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary-soft text-primary-ink transition-colors group-hover:gradient-fill group-hover:text-white">
                 <t.icon size={20} />
               </span>
               <h2 className="mt-4 flex items-center gap-1 text-base font-semibold text-text">

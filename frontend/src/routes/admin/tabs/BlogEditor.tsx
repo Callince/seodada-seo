@@ -112,7 +112,7 @@ export function BlogEditor({ blogId, onClose }: { blogId: string | null; onClose
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Slug (blank = from title)">
             <Input value={f.slug ?? ""} onChange={(e) => set("slug", e.target.value)} placeholder="my-post" />
-            {previewSlug && <p className="mt-1 truncate text-xs text-text-muted">/blog/<span className="text-[color:var(--section)]">{previewSlug}</span></p>}
+            {previewSlug && <p className="mt-1 truncate text-xs text-text-muted">/blog/<span className="text-[color:var(--section-ink)]">{previewSlug}</span></p>}
           </Field>
           <Field label="Author"><Input value={f.author ?? ""} onChange={(e) => set("author", e.target.value)} /></Field>
           <Field label="Category">

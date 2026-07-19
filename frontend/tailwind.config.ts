@@ -17,6 +17,8 @@ export default {
         primary: {
           DEFAULT: "var(--primary)",
           soft: "var(--primary-soft)",
+          // Text-safe variant — use for small text on tinted surfaces.
+          ink: "var(--primary-ink)",
         },
         accent: "var(--accent)",
         success: "var(--success)",

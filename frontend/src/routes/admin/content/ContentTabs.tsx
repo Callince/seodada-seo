@@ -21,7 +21,7 @@ export function ContentTabs() {
             cn(
               "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
               isActive
-                ? "bg-surface text-[color:var(--section)] shadow-sm"
+                ? "bg-surface text-[color:var(--section-ink)] shadow-sm"
                 : "text-text-muted hover:text-text",
             )
           }

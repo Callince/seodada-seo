@@ -33,7 +33,7 @@ const pageCols: Column<AuditPageRow>[] = [
     key: "url", header: "Page", sortValue: (r) => r.url,
     render: (r) => (
       <div className="min-w-0">
-        <a href={r.url ?? "#"} target="_blank" rel="noreferrer" className="block truncate font-medium text-text hover:text-[color:var(--section)] hover:underline">
+        <a href={r.url ?? "#"} target="_blank" rel="noreferrer" className="block truncate font-medium text-text hover:text-[color:var(--section-ink)] hover:underline">
           {r.url}
         </a>
         {r.failed_checks.length > 0 && (

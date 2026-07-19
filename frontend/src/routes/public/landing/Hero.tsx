@@ -146,7 +146,7 @@ export function Hero() {
         >
           <motion.span
             variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
-            className="inline-flex items-center gap-2 rounded-full border border-[var(--lp-primary-border)] bg-primary-soft px-3.5 py-1.5 text-xs font-semibold text-primary"
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--lp-primary-border)] bg-primary-soft px-3.5 py-1.5 text-xs font-semibold text-primary-ink"
           >
             <Sparkles size={13} /> AI-powered SEO · GEO · AEO
           </motion.span>

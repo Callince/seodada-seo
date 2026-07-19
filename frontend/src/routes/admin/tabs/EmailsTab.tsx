@@ -150,7 +150,7 @@ export function EmailsTab() {
                 {(data?.items ?? []).map((r) => (
                   <tr key={r.id} className="border-b border-border/60">
                     <td className="py-2.5 pl-4 pr-4">
-                      <button className="text-left hover:text-[color:var(--section)]" onClick={() => setOpen(r)}>{r.to_email}</button>
+                      <button className="text-left hover:text-[color:var(--section-ink)]" onClick={() => setOpen(r)}>{r.to_email}</button>
                     </td>
                     <td className="py-2.5 pr-4 text-text-muted">{r.email_type}</td>
                     <td className="max-w-xs truncate py-2.5 pr-4">{r.subject}</td>

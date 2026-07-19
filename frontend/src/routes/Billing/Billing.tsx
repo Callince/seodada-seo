@@ -64,7 +64,7 @@ function PlanCard({
         onClick={onSubscribe}
         disabled={current || busy}
         variant={popular ? "primary" : "secondary"}
-        className={cn("mt-6 w-full", popular && "gradient-fill text-white shadow-glow")}
+        className="mt-6 w-full"
       >
         {current ? "Current plan" : busy ? "Starting…" : "Subscribe"}
         {!current && !busy && <ArrowRight size={15} />}

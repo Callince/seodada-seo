@@ -254,7 +254,7 @@ function HeadingResult({ h }: { h: PageAnalysis["headings"] }) {
                       : "bg-app-bg hover:bg-[color:var(--section-soft)]"
                 } ${n === 0 ? "cursor-default opacity-40" : ""}`}
               >
-                <span className={`font-semibold uppercase ${active ? "text-white" : "text-[color:var(--section)]"}`}>{lvl}</span> {n}
+                <span className={`font-semibold uppercase ${active ? "text-white" : "text-[color:var(--section-ink)]"}`}>{lvl}</span> {n}
               </button>
             );
           })}

@@ -102,7 +102,7 @@ function DashboardWidget({ tab }: { tab: string }) {
           { n: "rankly.ai", v: 41 },
         ].map((c) => (
           <div key={c.n} className="flex items-center gap-3">
-            <span className={`w-28 truncate text-sm ${c.you ? "font-bold text-primary" : "text-text-muted"}`}>{c.n}</span>
+            <span className={`w-28 truncate text-sm ${c.you ? "font-bold text-primary-ink" : "text-text-muted"}`}>{c.n}</span>
             <div className="h-3 flex-1 rounded-full bg-surface-2">
               <div
                 className={`h-full rounded-full ${c.you ? "" : "bg-text-muted/40"}`}
@@ -118,7 +118,7 @@ function DashboardWidget({ tab }: { tab: string }) {
     return (
       <div className="space-y-3">
         <div className="rounded-2xl border border-[var(--lp-primary-border)] bg-primary-soft p-4">
-          <div className="flex items-center gap-2 text-primary">
+          <div className="flex items-center gap-2 text-primary-ink">
             <Sparkles size={15} /> <span className="text-sm font-semibold">AI advisor</span>
           </div>
           <p className="mt-2 text-sm text-text">
@@ -197,7 +197,7 @@ export function ProductRail() {
         <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
           <Reveal className="flex flex-wrap items-end justify-between gap-4">
             <div className="max-w-2xl">
-              <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Product</span>
+              <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-ink">Product</span>
               <h2 className="mt-3 text-balance text-4xl font-extrabold tracking-tight sm:text-5xl">
                 Your entire SEO command center
               </h2>
@@ -209,14 +209,14 @@ export function ProductRail() {
               <button
                 onClick={() => scrollRail(-1)}
                 aria-label="Scroll modules left"
-                className="grid h-11 w-11 place-items-center rounded-full border border-border bg-surface text-text-muted transition hover:border-primary hover:text-primary"
+                className="grid h-11 w-11 place-items-center rounded-full border border-border bg-surface text-text-muted transition hover:border-primary hover:text-primary-ink"
               >
                 <ChevronLeft size={18} />
               </button>
               <button
                 onClick={() => scrollRail(1)}
                 aria-label="Scroll modules right"
-                className="grid h-11 w-11 place-items-center rounded-full border border-border bg-surface text-text-muted transition hover:border-primary hover:text-primary"
+                className="grid h-11 w-11 place-items-center rounded-full border border-border bg-surface text-text-muted transition hover:border-primary hover:text-primary-ink"
               >
                 <ChevronRight size={18} />
               </button>

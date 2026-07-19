@@ -67,7 +67,7 @@ export default function Login() {
         )}
         <Button
           type="submit"
-          className="w-full gradient-fill text-white shadow-glow hover:opacity-95"
+          className="w-full"
           disabled={login.isPending}
         >
           {login.isPending ? "Signing in…" : "Sign in"}

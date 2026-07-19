@@ -26,7 +26,7 @@ export default function Features() {
       >
         <div className="flex flex-wrap justify-center gap-3">
           <Link to="/register">
-            <Button size="lg" className="gradient-fill text-white shadow-glow hover:opacity-95">
+            <Button size="lg">
               Get started <ArrowRight size={16} />
             </Button>
           </Link>
@@ -61,7 +61,7 @@ export default function Features() {
                   to={f.to}
                   className="group rounded-2xl border border-border bg-surface p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-glow"
                 >
-                  <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary-soft text-primary transition-colors group-hover:gradient-fill group-hover:text-white">
+                  <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary-soft text-primary-ink transition-colors group-hover:gradient-fill group-hover:text-white">
                     <f.icon size={20} />
                   </span>
                   <h3 className="mt-4 flex items-center gap-1 text-base font-semibold text-text">
@@ -92,7 +92,7 @@ export default function Features() {
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link to="/register">
-                <Button size="lg" className="gradient-fill text-white shadow-glow hover:opacity-95">
+                <Button size="lg">
                   Start free <ArrowRight size={16} />
                 </Button>
               </Link>

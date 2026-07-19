@@ -358,7 +358,7 @@ export default function ContentAnalysis({ embedded }: { embedded?: boolean }) {
                       {c.title || c.url}
                       <ExternalLink size={12} className="text-text-muted" />
                     </div>
-                    {c.domain && <p className="text-xs text-[color:var(--section)]">{c.domain}</p>}
+                    {c.domain && <p className="text-xs text-[color:var(--section-ink)]">{c.domain}</p>}
                     {c.snippet && <p className="mt-1 line-clamp-2 text-sm text-text-muted">{c.snippet}</p>}
                   </a>
                 ))

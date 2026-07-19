@@ -311,7 +311,7 @@ export default function RankTracking({ embedded }: { embedded?: boolean }) {
                     </p>
                     <p
                       className={`mt-1 font-mono text-3xl ${
-                        data.found ? "text-[color:var(--section)]" : "text-text-muted"
+                        data.found ? "text-[color:var(--section-ink)]" : "text-text-muted"
                       }`}
                     >
                       {data.found ? `#${data.position}` : "Not found"}
@@ -328,7 +328,7 @@ export default function RankTracking({ embedded }: { embedded?: boolean }) {
                         href={data.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="block truncate text-sm text-[color:var(--section)] hover:underline"
+                        className="block truncate text-sm text-[color:var(--section-ink)] hover:underline"
                       >
                         {data.url}
                       </a>

@@ -31,7 +31,7 @@ export function CaseStudies() {
     <section className="border-t border-border py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal className="max-w-2xl">
-          <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Case studies</span>
+          <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-ink">Case studies</span>
           <h2 className="mt-3 text-balance text-4xl font-extrabold tracking-tight sm:text-5xl">Real teams, real growth</h2>
         </Reveal>
 
@@ -40,7 +40,7 @@ export function CaseStudies() {
             <Reveal key={c.name}>
               <div className={`grid items-center gap-8 rounded-[28px] border border-border bg-surface p-6 lp-shadow sm:p-8 lg:grid-cols-2 ${i % 2 ? "lg:[&>*:first-child]:order-2" : ""}`}>
                 <div>
-                  <span className="inline-flex rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary">{c.tag}</span>
+                  <span className="inline-flex rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary-ink">{c.tag}</span>
                   <h3 className="mt-3 text-2xl font-extrabold tracking-tight">{c.name}</h3>
                   <p className="mt-2 text-text-muted">"{c.quote}"</p>
                   <div className="mt-6 grid grid-cols-3 gap-4">

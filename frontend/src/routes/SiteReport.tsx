@@ -29,7 +29,7 @@ const pageCols: Column<PageReport>[] = [
     header: "Page",
     sortValue: (r) => r.url,
     render: (r) => (
-      <a href={r.url} target="_blank" rel="noreferrer" className="text-[color:var(--section)] hover:underline">
+      <a href={r.url} target="_blank" rel="noreferrer" className="text-[color:var(--section-ink)] hover:underline">
         {(() => {
           try {
             return new URL(r.url).pathname || r.url;
@@ -144,7 +144,7 @@ function SchedulePanel({
           {emailTo.trim() ? ` and emails ${emailTo.trim()}` : ""}.
         </span>
 
-        <Link to="/schedules" className="inline-flex items-center gap-1 text-xs text-[color:var(--section)] hover:underline">
+        <Link to="/schedules" className="inline-flex items-center gap-1 text-xs text-[color:var(--section-ink)] hover:underline">
           Manage all schedules <ArrowRight size={12} />
         </Link>
       </CardBody>
@@ -253,7 +253,7 @@ function Report({ data }: { data: SiteReportResponse }) {
     <div className="animate-fade-rise space-y-5">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-text">
-          Report for <span className="text-[color:var(--section)]">{data.domain}</span>
+          Report for <span className="text-[color:var(--section-ink)]">{data.domain}</span>
           {data.keyword && <span className="text-text-muted"> · “{data.keyword}”</span>}
         </h2>
         <div className="flex items-center gap-2">
@@ -319,7 +319,7 @@ function Report({ data }: { data: SiteReportResponse }) {
                   <ul className="space-y-1.5 text-sm text-text">
                     {data.findings.map((f, i) => (
                       <li key={i} className="flex gap-2">
-                        <span className="text-[color:var(--section)]">•</span>
+                        <span className="text-[color:var(--section-ink)]">•</span>
                         <span>{f}</span>
                       </li>
                     ))}
@@ -336,7 +336,7 @@ function Report({ data }: { data: SiteReportResponse }) {
                   <ul className="space-y-1.5 text-sm text-text">
                     {data.recommendations.map((r, i) => (
                       <li key={i} className="flex gap-2">
-                        <span className="text-[color:var(--section)]">→</span>
+                        <span className="text-[color:var(--section-ink)]">→</span>
                         <span>{r}</span>
                       </li>
                     ))}

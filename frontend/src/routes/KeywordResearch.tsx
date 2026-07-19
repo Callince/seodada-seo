@@ -331,7 +331,7 @@ function OverviewStrip({
         <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
           {d != null && <ScoreRing value={d} size={84} label="difficulty" tone={ringTone} />}
           {o.intent && (
-            <span className="rounded-full bg-[color:var(--section-soft)] px-3 py-1 text-xs font-medium capitalize text-[color:var(--section)]">
+            <span className="rounded-full bg-[color:var(--section-soft)] px-3 py-1 text-xs font-medium capitalize text-[color:var(--section-ink)]">
               {o.intent}
             </span>
           )}

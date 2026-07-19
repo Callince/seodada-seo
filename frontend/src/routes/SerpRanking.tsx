@@ -39,7 +39,7 @@ const columns: Column<SerpResult>[] = [
     key: "title", header: "Title", sortValue: (r) => r.title,
     render: (r) => (
       <span className="inline-flex items-center gap-2">
-        <a href={r.url} target="_blank" rel="noreferrer" className="font-medium text-text hover:text-[color:var(--section)] hover:underline">
+        <a href={r.url} target="_blank" rel="noreferrer" className="font-medium text-text hover:text-[color:var(--section-ink)] hover:underline">
           {r.title || r.url}
         </a>
         {r.featured && <Badge tone="warning">featured</Badge>}
@@ -148,7 +148,7 @@ function CompareView({
       key: "domain", header: "Domain", sortValue: (r) => r.domain,
       render: (r) => (
         <div className="min-w-0">
-          <p className={cn("truncate font-medium", hl && (r.domain === hl || r.domain.endsWith("." + hl)) ? "text-[color:var(--section)]" : "text-text")}>
+          <p className={cn("truncate font-medium", hl && (r.domain === hl || r.domain.endsWith("." + hl)) ? "text-[color:var(--section-ink)]" : "text-text")}>
             {r.domain}
           </p>
           <p className="truncate text-xs text-text-muted">{r.title}</p>
@@ -344,7 +344,7 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
         <div className="animate-fade-rise space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-lg font-semibold text-text">
-              {data.results.length} results for <span className="text-[color:var(--section)]">“{data.keyword}”</span>
+              {data.results.length} results for <span className="text-[color:var(--section-ink)]">“{data.keyword}”</span>
               <span className="ml-2 text-sm font-normal text-text-muted">{locationLabel(loc.location_code)}</span>
             </h2>
             <div className="flex items-center gap-2">

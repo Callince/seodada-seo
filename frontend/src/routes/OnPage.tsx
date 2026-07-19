@@ -261,7 +261,7 @@ function ImagesCard({ images }: { images: ImageAudit }) {
                   href={img.src}
                   target="_blank"
                   rel="noreferrer"
-                  className="block truncate text-[color:var(--section)] hover:underline"
+                  className="block truncate text-[color:var(--section-ink)] hover:underline"
                 >
                   {fileName(img.src) || "(no src)"}
                 </a>
@@ -702,7 +702,7 @@ function OnPageReport({
                 <ul className="space-y-1.5 text-sm text-text">
                   {data.recommendations.map((r, i) => (
                     <li key={i} className="flex gap-2">
-                      <span className="text-[color:var(--section)]">→</span>
+                      <span className="text-[color:var(--section-ink)]">→</span>
                       <span>{r}</span>
                     </li>
                   ))}

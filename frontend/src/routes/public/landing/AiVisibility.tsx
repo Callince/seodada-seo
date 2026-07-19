@@ -109,7 +109,9 @@ export function AiVisibility() {
                     className="rounded-full px-2 py-0.5 text-[11px] font-semibold"
                     style={
                       i === 0
-                        ? { background: "var(--sec-aivis)", color: "#fff" }
+                        // -ink, not the raw accent: white on --sec-aivis is
+                        // 3.86:1 at 11px, under the 4.5 floor. -ink gives 7.4.
+                        ? { background: "var(--sec-aivis-ink)", color: "#fff" }
                         : { background: "var(--surface-2)", color: "var(--text-muted)" }
                     }
                   >

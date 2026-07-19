@@ -138,7 +138,7 @@ export function PublicShell() {
                 className={({ isActive }) =>
                   cn(
                     "rounded-full px-3.5 py-2 text-sm font-medium tracking-wide transition-colors",
-                    isActive ? "text-primary" : "text-text-muted hover:text-text",
+                    isActive ? "text-primary-ink" : "text-text-muted hover:text-text",
                   )
                 }
               >

@@ -96,7 +96,6 @@ function DetailModal({ sub, onClose }: { sub: ContactSubmission; onClose: () => 
               className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:border-primary focus:outline-none"
             />
             <Button
-              className="gradient-fill text-white shadow-glow"
               loading={reply.isPending}
               disabled={!subject.trim() || !message.trim()}
               onClick={() =>

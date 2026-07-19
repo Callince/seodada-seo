@@ -157,7 +157,6 @@ export default function ContentPage({ slug, title }: { slug: string; title?: str
                 <Link key={c.href + i} to={c.href}>
                   <Button
                     variant={i === 0 ? "primary" : "secondary"}
-                    className={i === 0 ? "gradient-fill text-white shadow-glow" : ""}
                   >
                     {c.text}
                     {i === 0 && <ArrowRight size={15} />}
@@ -180,7 +179,7 @@ export default function ContentPage({ slug, title }: { slug: string; title?: str
                   <a
                     key={t.id}
                     href={`#${t.id}`}
-                    className="-ml-px block border-l border-transparent py-1 pl-4 text-sm text-text-muted transition-colors hover:border-primary hover:text-primary"
+                    className="-ml-px block border-l border-transparent py-1 pl-4 text-sm text-text-muted transition-colors hover:border-primary hover:text-primary-ink"
                   >
                     {t.text}
                   </a>

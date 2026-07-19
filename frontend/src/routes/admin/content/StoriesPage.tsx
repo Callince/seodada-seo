@@ -39,7 +39,7 @@ function WebStoriesCard() {
             {(stories ?? []).map((r) => (
               <tr key={r.id} className="border-b border-border/60">
                 <td className="max-w-xs truncate py-2.5 pl-4 pr-4">
-                  <Link to={`/admin/content/stories/${r.id}`} className="font-medium text-text hover:text-[color:var(--section)]">{r.title}</Link>
+                  <Link to={`/admin/content/stories/${r.id}`} className="font-medium text-text hover:text-[color:var(--section-ink)]">{r.title}</Link>
                 </td>
                 <td className="py-2.5 pr-4 text-text-muted">{catName(r.category_id)}</td>
                 <td className="py-2.5 pr-4"><Badge tone={r.status === "published" ? "success" : "neutral"}>{r.status}</Badge></td>

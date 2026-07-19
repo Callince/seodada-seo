@@ -27,6 +27,10 @@
   --text: #0d1624;         /* 17.2:1 on canvas */
   --text-muted: #535e6f;   /*  5.8:1 on canvas */
   --primary: #0075b9;      /* = --signal-2, the logo blue in OKLCH */
+  /* Text-safe primary (L=.45). --primary is 4.95:1 on pure white but dips to
+     ~4.4:1 on the tinted surfaces (--surface-2, --primary-soft, --lp-tint),
+     so small text on a tint must use this. Same rule as --section-ink. */
+  --primary-ink: #005aa0;
   --primary-soft: #e1f5ff;
   --accent: #184c8d;
   --success: #0fa05c;
@@ -158,6 +162,7 @@
   --text: #e4ecf5;         /* 17.2:1 */
   --text-muted: #91a0b1;   /*  7.7:1 */
   --primary: #3bcddc;      /* = --signal-4; 10.5:1 on canvas */
+  --primary-ink: #3bcddc;  /* already bright enough on dark surfaces */
   --primary-soft: #02263e;
   --accent: #4cdbe3;
   --success: #55c483;
@@ -470,6 +475,7 @@ body {
      the accent palette below is just consecutive stops of the Signal
      Spectrum rather than a second set of brand blues. */
   --primary: var(--signal-2);
+  --primary-ink: #005aa0;
   --primary-soft: #e1f5ff;
   --accent: var(--signal-1);
 

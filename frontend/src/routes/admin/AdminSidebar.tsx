@@ -64,7 +64,7 @@ export function AdminSidebar({
                   collapsed && "justify-center",
                   isActive
                     ? "section-gradient text-white shadow-sm"
-                    : "text-text-muted hover:bg-[color:var(--section-soft)] hover:text-[color:var(--section)]",
+                    : "text-text-muted hover:bg-[color:var(--section-soft)] hover:text-[color:var(--section-ink)]",
                 )
               }
             >

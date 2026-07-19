@@ -129,7 +129,7 @@ export function RolesTab() {
         <p className="text-sm text-text-muted">
           Admins with access to this console. Super-admins (set via <code className="rounded bg-app-bg px-1">ADMIN_EMAILS</code>) hold every permission.
         </p>
-        <Button onClick={() => setEditing("new")} className="gradient-fill text-white shadow-glow"><Plus size={15} /> Add admin</Button>
+        <Button onClick={() => setEditing("new")}><Plus size={15} /> Add admin</Button>
       </div>
       <Card>
         <CardBody className="overflow-x-auto p-0">

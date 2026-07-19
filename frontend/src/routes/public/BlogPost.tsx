@@ -217,7 +217,7 @@ function TocCard({ toc, active }: { toc: TocItem[]; active: string }) {
                   "-ml-px block border-l py-1 text-sm transition-colors",
                   item.level === 3 ? "pl-7" : "pl-4",
                   isActive
-                    ? "border-primary font-medium text-primary"
+                    ? "border-primary font-medium text-primary-ink"
                     : "border-transparent text-text-muted hover:border-primary/50 hover:text-text",
                 )}
               >

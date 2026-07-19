@@ -22,7 +22,7 @@ export function Pricing() {
     <section className="border-t border-border bg-[var(--lp-tint)] py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Pricing</span>
+          <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-ink">Pricing</span>
           <h2 className="mt-3 text-balance text-[2rem] font-extrabold tracking-tight sm:text-5xl">
             Simple, <span className="gradient-text">transparent pricing</span>
           </h2>
@@ -30,7 +30,9 @@ export function Pricing() {
           <div className="mt-8 inline-flex items-center gap-1 rounded-full border border-border bg-surface p-1 text-sm font-semibold">
             <button onClick={() => setAnnual(false)} className={`rounded-full px-4 py-1.5 transition ${!annual ? "gradient-fill text-white shadow" : "text-text-muted"}`}>Monthly</button>
             <button onClick={() => setAnnual(true)} className={`rounded-full px-4 py-1.5 transition ${annual ? "gradient-fill text-white shadow" : "text-text-muted"}`}>
-              Yearly <span className="ml-1.5 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] text-emerald-600">2 months free</span>
+              {/* Tokens, not raw emerald-500/600: that pairing measured 3.27:1
+                  at 10px. --sec-rank-ink is the token-side green that passes. */}
+              Yearly <span className="ml-1.5 rounded-full bg-[color:var(--sec-rank-soft)] px-1.5 py-0.5 text-[10px] font-semibold text-[color:var(--sec-rank-ink)]">2 months free</span>
             </button>
           </div>
         </Reveal>

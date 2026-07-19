@@ -134,7 +134,7 @@ export default function Dashboard() {
                 <span className="section-gradient grid h-14 w-14 place-items-center rounded-2xl text-white shadow-glow ring-4 ring-surface transition-transform duration-300 group-hover:scale-110 group-focus-visible:ring-[color:var(--section)]">
                   <s.icon size={22} />
                 </span>
-                <h3 className="mt-3 text-sm font-bold text-text transition-colors group-hover:text-[color:var(--section)]">
+                <h3 className="mt-3 text-sm font-bold text-text transition-colors group-hover:text-[color:var(--section-ink)]">
                   {s.title}
                 </h3>
                 <p className="mt-1 text-xs leading-relaxed text-text-muted">{s.desc}</p>

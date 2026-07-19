@@ -75,7 +75,7 @@ const rankedCols: Column<RankedKeywordRow>[] = [
   },
   {
     key: "url", header: "URL", sortValue: (r) => r.url,
-    render: (r) => (r.url ? <a href={r.url} target="_blank" rel="noreferrer" className="text-text-muted hover:text-[color:var(--section)] hover:underline">{r.url}</a> : "—"),
+    render: (r) => (r.url ? <a href={r.url} target="_blank" rel="noreferrer" className="text-text-muted hover:text-[color:var(--section-ink)] hover:underline">{r.url}</a> : "—"),
     csvValue: (r) => r.url,
   },
 ];
@@ -381,7 +381,7 @@ export default function DomainAnalytics({ embedded }: { embedded?: boolean }) {
           </form>
           <p className="mt-2.5 text-xs text-text-muted">
             Looking for competitor comparison or the keyword gap?{" "}
-            <Link to="/competitors" className="inline-flex items-center gap-1 text-[color:var(--section)] hover:underline">
+            <Link to="/competitors" className="inline-flex items-center gap-1 text-[color:var(--section-ink)] hover:underline">
               <Swords size={12} /> Competitor Analysis
             </Link>
           </p>

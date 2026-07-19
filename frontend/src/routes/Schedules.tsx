@@ -82,7 +82,7 @@ export default function Schedules() {
           </div>
           <p className="pt-1 text-sm text-text-muted">
             Reports land in your{" "}
-            <Link to="/projects" className="text-[color:var(--section)] hover:underline">
+            <Link to="/projects" className="text-[color:var(--section-ink)] hover:underline">
               Projects
             </Link>{" "}
             — reopen any saved run for $0.

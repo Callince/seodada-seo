@@ -122,7 +122,7 @@ export default function Contact() {
             type="submit"
             size="lg"
             loading={status === "sending"}
-            className="mt-6 w-full gradient-fill text-white shadow-glow hover:opacity-95 sm:w-auto"
+            className="mt-6 w-full sm:w-auto"
           >
             Send message <Send size={16} />
           </Button>
@@ -131,18 +131,18 @@ export default function Contact() {
         {/* ===== Info sidebar ===== */}
         <div className="mt-8 space-y-4 lg:mt-0">
           <div className="flex items-start gap-3 rounded-2xl border border-border bg-surface p-5">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary-ink">
               <Mail size={18} />
             </span>
             <div>
               <p className="text-sm font-semibold text-text">Email us</p>
-              <a href={`mailto:${SUPPORT_EMAIL}`} className="text-sm text-primary hover:underline">
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="text-sm text-primary-ink hover:underline">
                 {SUPPORT_EMAIL}
               </a>
             </div>
           </div>
           <div className="flex items-start gap-3 rounded-2xl border border-border bg-surface p-5">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary-ink">
               <MapPin size={18} />
             </span>
             <div>
@@ -151,7 +151,7 @@ export default function Contact() {
             </div>
           </div>
           <div className="flex items-start gap-3 rounded-2xl border border-border bg-surface p-5">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary-ink">
               <Clock size={18} />
             </span>
             <div>

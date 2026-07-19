@@ -34,14 +34,14 @@ export function Testimonials() {
             <button
               onClick={() => setTIdx((n) => (n - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
               aria-label="Previous testimonial"
-              className="grid h-11 w-11 place-items-center rounded-full border border-border bg-surface text-text-muted transition hover:border-primary hover:text-primary"
+              className="grid h-11 w-11 place-items-center rounded-full border border-border bg-surface text-text-muted transition hover:border-primary hover:text-primary-ink"
             >
               <ChevronLeft size={18} />
             </button>
             <button
               onClick={() => setTIdx((n) => (n + 1) % TESTIMONIALS.length)}
               aria-label="Next testimonial"
-              className="grid h-11 w-11 place-items-center rounded-full border border-border bg-surface text-text-muted transition hover:border-primary hover:text-primary"
+              className="grid h-11 w-11 place-items-center rounded-full border border-border bg-surface text-text-muted transition hover:border-primary hover:text-primary-ink"
             >
               <ChevronRight size={18} />
             </button>
@@ -59,7 +59,7 @@ export function Testimonials() {
                         <Star key={i} size={13} fill="currentColor" />
                       ))}
                     </div>
-                    <button aria-label="Play video testimonial" className="grid h-11 w-11 place-items-center rounded-full bg-primary-soft text-primary transition hover:gradient-fill hover:text-white">
+                    <button aria-label="Play video testimonial" className="grid h-11 w-11 place-items-center rounded-full bg-primary-soft text-primary-ink transition hover:gradient-fill hover:text-white">
                       <Play size={14} />
                     </button>
                   </div>

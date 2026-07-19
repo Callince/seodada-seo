@@ -68,7 +68,7 @@ export default function Blog() {
               </span>
             </div>
             <div className="flex flex-col justify-center gap-3 p-8">
-              <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary-ink">
                 Technical SEO
               </span>
               <h2 className="text-2xl font-bold tracking-tight group-hover:text-primary">
@@ -79,7 +79,7 @@ export default function Blog() {
                 <span className="inline-flex items-center gap-1.5">
                   <Clock size={15} /> 18 min read
                 </span>
-                <span className="inline-flex items-center gap-1.5 font-medium text-primary">
+                <span className="inline-flex items-center gap-1.5 font-medium text-primary-ink">
                   Read guide <ArrowRight size={15} />
                 </span>
               </div>
@@ -116,13 +116,13 @@ export default function Blog() {
                     )}
                   </div>
                   <div className="flex flex-1 flex-col p-5">
-                    <h3 className="line-clamp-2 text-base font-semibold leading-snug group-hover:text-primary">
+                    <h3 className="line-clamp-2 text-base font-semibold leading-snug group-hover:text-primary-ink">
                       {p.title}
                     </h3>
                     <p className="mt-2 line-clamp-3 flex-1 text-sm text-text-muted">{p.excerpt}</p>
                     <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs text-text-muted">
                       <span className="inline-flex items-center gap-2">
-                        <span className="grid h-6 w-6 place-items-center rounded-full bg-primary-soft text-[10px] font-bold uppercase text-primary">
+                        <span className="grid h-6 w-6 place-items-center rounded-full bg-primary-soft text-[10px] font-bold uppercase text-primary-ink">
                           {(p.author || "s").slice(0, 1)}
                         </span>
                         {p.author || "seodada"}
@@ -135,7 +135,7 @@ export default function Blog() {
                           </>
                         )}
                       </span>
-                      <span className="inline-flex items-center gap-1 font-medium text-primary">
+                      <span className="inline-flex items-center gap-1 font-medium text-primary-ink">
                         Read <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
                       </span>
                     </div>

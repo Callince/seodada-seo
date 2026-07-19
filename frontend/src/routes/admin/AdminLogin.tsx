@@ -49,7 +49,7 @@ export default function AdminLogin() {
             {login.isError && <p className="text-sm text-danger">{apiErrorMessage(login.error)}</p>}
             <Button
               type="submit"
-              className="w-full gradient-fill text-white shadow-glow hover:opacity-95"
+              className="w-full"
               disabled={login.isPending}
             >
               {login.isPending ? "Signing in…" : "Sign in to admin"}

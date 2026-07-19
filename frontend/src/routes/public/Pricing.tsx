@@ -107,7 +107,7 @@ export default function Pricing() {
                 </span>
                 <span className="text-sm text-text-muted">/month</span>
               </div>
-              <div className="mt-4 flex items-baseline gap-1.5 rounded-xl bg-primary-soft px-4 py-3 text-primary">
+              <div className="mt-4 flex items-baseline gap-1.5 rounded-xl bg-primary-soft px-4 py-3 text-primary-ink">
                 <span className="text-lg font-bold tabular-nums">{p.perDay}</span>
                 <span className="text-sm font-medium">analyses per day</span>
               </div>

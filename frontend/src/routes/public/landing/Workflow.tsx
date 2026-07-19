@@ -54,7 +54,7 @@ export function Workflow() {
       <div className="lg:sticky lg:top-0 lg:flex lg:min-h-screen lg:items-center">
         <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:py-24">
           <div>
-            <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Workflow</span>
+            <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-ink">Workflow</span>
             <h2 className="mt-3 text-balance text-4xl font-extrabold tracking-tight sm:text-5xl">
               From audit to growth, on autopilot
             </h2>

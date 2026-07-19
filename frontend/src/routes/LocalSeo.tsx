@@ -75,7 +75,7 @@ const cols: Column<ListingRow>[] = [
     sortValue: (r) => r.domain,
     render: (r) =>
       r.url ? (
-        <a href={r.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[color:var(--section)] hover:underline">
+        <a href={r.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[color:var(--section-ink)] hover:underline">
           {r.domain ?? "site"} <ExternalLink size={12} />
         </a>
       ) : (

@@ -72,7 +72,7 @@ const linkGapCols: Column<LinkGapRow>[] = [
           href={`https://${r.domain}`}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1 font-medium text-text hover:text-[color:var(--section)] hover:underline"
+          className="inline-flex items-center gap-1 font-medium text-text hover:text-[color:var(--section-ink)] hover:underline"
         >
           {r.domain} <ExternalLink size={12} className="shrink-0 opacity-60" />
         </a>
@@ -312,7 +312,7 @@ function StatsTable({ series, rows }: { series: RadarSeries[]; rows: StatRow[] }
                     <td
                       key={i}
                       className={`px-4 py-2.5 text-right font-mono tabular-nums ${
-                        leads ? "font-bold text-[color:var(--section)]" : "text-text"
+                        leads ? "font-bold text-[color:var(--section-ink)]" : "text-text"
                       }`}
                     >
                       {row.pending[i] ? "…" : row.fmt(v)}
