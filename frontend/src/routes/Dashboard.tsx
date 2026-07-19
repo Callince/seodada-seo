@@ -295,7 +295,7 @@ export default function Dashboard() {
                   >
                     <t.icon size={22} />
                   </span>
-                  <span className="rounded-full bg-success/10 px-2.5 py-0.5 text-[10px] font-bold text-success border border-success/20 uppercase tracking-wider">
+                  <span className="rounded-full bg-success/10 px-2.5 py-0.5 text-[10px] font-bold text-success-ink border border-success/20 uppercase tracking-wider">
                     Free
                   </span>
                 </div>

@@ -1,30 +1,54 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * Token colour that also supports Tailwind's `/opacity` modifier.
+ *
+ * A plain `"var(--x)"` string CANNOT take an opacity modifier: Tailwind has
+ * nowhere to inject the alpha, so it emits no rule at all and the utility
+ * silently does nothing — `bg-success/10` rendered a fully transparent
+ * background, and `text-text-muted/80` fell back to inheriting near-black.
+ * Returning a function lets Tailwind hand us the alpha, which we apply with
+ * color-mix so every `token/NN` utility works.
+ */
+const tok =
+  (name: string) =>
+  ({ opacityValue }: { opacityValue?: string }) => {
+    // For a BASE utility (`bg-success`) Tailwind passes the CSS variable
+    // `var(--tw-bg-opacity)` here, not undefined — Number() on that is NaN,
+    // which yields `color-mix(… NaN% …)` and silently kills the colour. Only
+    // build a color-mix for a real numeric alpha; otherwise emit the raw token.
+    const alpha = Number(opacityValue);
+    return opacityValue === undefined || Number.isNaN(alpha)
+      ? `var(--${name})`
+      : `color-mix(in srgb, var(--${name}) ${alpha * 100}%, transparent)`;
+  };
+
 export default {
   darkMode: "class",
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        "app-bg": "var(--app-bg)",
-        surface: "var(--surface)",
-        "surface-2": "var(--surface-2)",
-        border: "var(--border)",
+        "app-bg": tok("app-bg"),
+        surface: tok("surface"),
+        "surface-2": tok("surface-2"),
+        border: tok("border"),
         text: {
-          DEFAULT: "var(--text)",
-          muted: "var(--text-muted)",
+          DEFAULT: tok("text"),
+          muted: tok("text-muted"),
         },
         primary: {
-          DEFAULT: "var(--primary)",
-          soft: "var(--primary-soft)",
+          DEFAULT: tok("primary"),
+          soft: tok("primary-soft"),
           // Text-safe variant — use for small text on tinted surfaces.
-          ink: "var(--primary-ink)",
+          ink: tok("primary-ink"),
         },
-        accent: "var(--accent)",
-        success: { DEFAULT: "var(--success)", ink: "var(--success-ink)" },
-        warning: { DEFAULT: "var(--warning)", ink: "var(--warning-ink)" },
-        danger: { DEFAULT: "var(--danger)", ink: "var(--danger-ink)" },
-        info: "var(--info)",
+        accent: tok("accent"),
+        success: { DEFAULT: tok("success"), ink: tok("success-ink") },
+        warning: { DEFAULT: tok("warning"), ink: tok("warning-ink") },
+        danger: { DEFAULT: tok("danger"), ink: tok("danger-ink") },
+        info: tok("info"),
+        // Already alpha-capable via the rgb-triplet form.
         ring: "rgb(var(--ring) / <alpha-value>)",
       },
       fontFamily: {
