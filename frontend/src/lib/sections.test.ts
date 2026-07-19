@@ -37,6 +37,9 @@ describe("moduleForSection / sectionVars", () => {
     expect(sectionVars("rank")).toEqual({
       "--section": "var(--sec-rank)",
       "--section-soft": "var(--sec-rank-soft)",
+      // Text-safe variant — components use this, never --section, for small
+      // text on a light surface (DESIGN_SYSTEM §1.3).
+      "--section-ink": "var(--sec-rank-ink)",
     });
   });
 });
