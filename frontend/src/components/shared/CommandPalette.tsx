@@ -107,7 +107,8 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
         role="dialog"
         aria-modal="true"
         aria-label="Command palette"
-        className="w-full max-w-lg overflow-hidden rounded-lg border border-border bg-surface shadow-md"
+        // Stratum z3 (§4): a true overlay — glass, top radius rung, deepest lift.
+        className="w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-[color-mix(in_srgb,var(--surface)_88%,transparent)] shadow-[shadow:var(--lift-3)] backdrop-blur-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-2 border-b border-border px-3">

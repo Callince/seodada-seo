@@ -117,10 +117,24 @@ export function Sidebar({
                 title={collapsed ? label : undefined}
                 className={({ isActive }) =>
                   cn(
-                    "relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
+                    "relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium",
+                    // Safe to transition token-driven properties because the
+                    // theme flip suspends transitions for a frame (see the
+                    // `.theme-switching` rule); without that they freeze here.
+                    "transition-[background,color] duration-[var(--dur-1)] ease-[var(--ease-soft)]",
                     collapsed && "lg:justify-center lg:px-0",
+                    // Aperture §6.7: the active item is not a filled pill but a
+                    // soft tint plus a 3px rail that *emits* the module accent —
+                    // the light source for the current module. Keeps the accent
+                    // legible as text (--section-ink) instead of white-on-gradient.
                     isActive
-                      ? "section-gradient font-semibold text-white shadow-glow"
+                      ? [
+                          "bg-[color:var(--section-soft)] font-semibold text-[color:var(--section-ink)]",
+                          "before:absolute before:left-0 before:top-1/2 before:h-3/5 before:w-[3px]",
+                          "before:-translate-y-1/2 before:rounded-full before:bg-[color:var(--section)]",
+                          "before:shadow-[0_0_12px_var(--section-glow)]",
+                          collapsed && "lg:before:hidden",
+                        ]
                       : "text-text-muted hover:bg-[color:var(--section-soft)] hover:text-[color:var(--section-ink)]",
                   )
                 }

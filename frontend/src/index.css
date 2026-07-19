@@ -242,6 +242,16 @@
   border-color: var(--border);
 }
 
+/* Applied for one frame while the theme flips (see useDarkMode). A transition
+   on a token-driven property does not settle when the underlying custom
+   property changes — the element stays stuck on its previous computed value —
+   so all transitions are suspended across the swap. */
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+}
+
 html,
 body,
 #root {

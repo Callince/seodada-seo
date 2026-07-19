@@ -7,8 +7,19 @@ import { useAuth } from "@/store/auth";
 function useDarkMode() {
   const [dark, setDark] = useState(() => localStorage.getItem("theme") === "dark");
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
+    const root = document.documentElement;
+    // Suppress transitions for one frame across the theme flip. Without this,
+    // any element transitioning a token-driven property (color, background)
+    // freezes at its OLD computed value and never settles — dark-mode sidebar
+    // text sat at 2.8:1 while the token itself was correct. Affects every
+    // `transition-colors` element, so it's fixed here rather than per-component.
+    root.classList.add("theme-switching");
+    root.classList.toggle("dark", dark);
     localStorage.setItem("theme", dark ? "dark" : "light");
+    const id = requestAnimationFrame(() =>
+      requestAnimationFrame(() => root.classList.remove("theme-switching")),
+    );
+    return () => cancelAnimationFrame(id);
   }, [dark]);
   return { dark, toggle: () => setDark((d) => !d) };
 }
@@ -57,7 +68,7 @@ function NotificationBell() {
         <Bell size={18} />
       </Button>
       {open && (
-        <div role="menu" className="glass-card absolute right-0 z-30 mt-2 w-64 overflow-hidden rounded-2xl lp-shadow-lg">
+        <div role="menu" className="glass-card absolute right-0 z-30 mt-2 w-64 overflow-hidden rounded-lg shadow-[shadow:var(--lift-3)]">
           <div className="border-b border-border px-3 py-2.5 text-sm font-semibold text-text">Notifications</div>
           <div className="px-3 py-8 text-center text-sm text-text-muted">You're all caught up.</div>
         </div>
@@ -91,7 +102,7 @@ function UserMenu() {
       </button>
 
       {open && (
-        <div role="menu" className="glass-card absolute right-0 z-30 mt-2 w-56 overflow-hidden rounded-2xl lp-shadow-lg">
+        <div role="menu" className="glass-card absolute right-0 z-30 mt-2 w-56 overflow-hidden rounded-lg shadow-[shadow:var(--lift-3)]">
           <div className="border-b border-border px-3 py-2.5">
             <p className="truncate text-sm font-medium text-text">{user?.full_name || "Account"}</p>
             <p className="truncate text-xs text-text-muted">{user?.email}</p>
@@ -117,8 +128,10 @@ function UserMenu() {
 export function TopBar({ onMenu, onCommand }: { onMenu: () => void; onCommand: () => void }) {
   const { dark, toggle } = useDarkMode();
 
+  // Glass is rationed to chrome that floats over moving content (Aperture §4).
+  // This bar is the canonical case: page content scrolls beneath it.
   return (
-    <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-3 bg-transparent px-3 sm:px-6">
+    <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center gap-3 border-b border-border/60 bg-[color-mix(in_srgb,var(--surface)_72%,transparent)] px-3 backdrop-blur-xl sm:px-6">
       <Button variant="ghost" size="icon" className="lg:hidden" onClick={onMenu} aria-label="Open menu">
         <Menu size={18} />
       </Button>
@@ -127,7 +140,7 @@ export function TopBar({ onMenu, onCommand }: { onMenu: () => void; onCommand: (
       <button
         onClick={onCommand}
         aria-label="Search"
-        className="flex h-10 w-full max-w-md items-center gap-2 rounded-xl border border-border bg-surface-2/60 px-3.5 text-sm text-text-muted transition-colors hover:bg-surface-2"
+        className="flex h-10 w-full max-w-md items-center gap-2 rounded-md border border-border bg-surface-2/60 px-3.5 text-sm text-text-muted transition-colors hover:bg-surface-2"
       >
         <Search size={16} className="shrink-0" />
         <span className="flex-1 truncate text-left">Search anything…</span>
