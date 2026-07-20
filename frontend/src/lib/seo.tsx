@@ -1,17 +1,26 @@
-import { useEffect } from "react";
-
-/** Per-page SEO head tags for the public pages. React 19 hoists rendered
- *  <meta>/<link> but does NOT dedupe them against the static tags in
- *  index.html, so we upsert (update-in-place) instead — guaranteeing exactly
- *  one <title>, description, canonical, and OG/Twitter set per page. Static
- *  index.html tags remain as the no-JS fallback and get overwritten here for
- *  JS-rendering crawlers (Googlebot). */
-
-// ponytail: single canonical origin — change here if the public domain moves.
+/** Per-page SEO head tags for the public pages.
+ *
+ * These are RENDERED as real elements, not written into document.head from an
+ * effect. React 19 hoists <title>/<meta>/<link>/<script> to the head either
+ * way, but only rendered elements appear in renderToString output — and that
+ * output is what the prerender step (scripts/prerender.mjs) writes into each
+ * page's static HTML. An effect does not run during server rendering, so the
+ * previous DOM-mutating version produced perfect tags for browsers and nothing
+ * at all for the crawlers that never execute JS. Those crawlers include every
+ * LLM fetcher (GPTBot, ClaudeBot, PerplexityBot), which is the audience an
+ * AEO/GEO product can least afford to miss.
+ *
+ * The catch, and why it was written the old way: React 19 hoists but does NOT
+ * dedupe against tags already in index.html. Two <title> elements leave
+ * document.title correct (the rendered one wins — measured) but a crawler
+ * reading the FIRST <title> or description gets the shell's generic copy. So
+ * index.html deliberately no longer declares any per-page tag; it keeps only
+ * a fallback <title> for the authenticated app, which renders no <Seo> at all,
+ * and the prerender step replaces that fallback per route.
+ */
 export const SITE_URL = "https://seodada.com";
 // Real seodada social-share image (1200×630), migrated from the seodada static.
 const OG_IMAGE = "/og-seodada.png";
-const JSONLD_ID = "seo-jsonld";
 
 interface SeoProps {
   title: string;
@@ -24,66 +33,41 @@ interface SeoProps {
   jsonLd?: object | object[];
 }
 
-function upsertMeta(attr: "name" | "property", key: string, content: string) {
-  let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`);
-  if (!el) {
-    el = document.createElement("meta");
-    el.setAttribute(attr, key);
-    document.head.appendChild(el);
-  }
-  el.setAttribute("content", content);
-}
-
-function upsertLink(rel: string, href: string) {
-  let el = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);
-  if (!el) {
-    el = document.createElement("link");
-    el.setAttribute("rel", rel);
-    document.head.appendChild(el);
-  }
-  el.setAttribute("href", href);
-}
-
 export function Seo({ title, description, path, image = OG_IMAGE, type = "website", noindex, jsonLd }: SeoProps) {
+  // During prerender there is no window; the caller passes `path` for every
+  // route that matters, and falling back to "" keeps the canonical origin-only
+  // rather than throwing.
+  const pathname = path ?? (typeof window === "undefined" ? "" : window.location.pathname);
+  const url = SITE_URL + pathname;
+  const fullTitle = /seodada/i.test(title) ? title : `${title} — seodada`;
+  const img = image.startsWith("http") ? image : SITE_URL + image;
   const jsonLdStr = jsonLd
     ? JSON.stringify(Array.isArray(jsonLd) && jsonLd.length === 1 ? jsonLd[0] : jsonLd)
     : "";
 
-  useEffect(() => {
-    const pathname = path ?? window.location.pathname;
-    const url = SITE_URL + pathname;
-    const fullTitle = /seodada/i.test(title) ? title : `${title} — seodada`;
-    const img = image.startsWith("http") ? image : SITE_URL + image;
+  return (
+    <>
+      <title>{fullTitle}</title>
+      {description && <meta name="description" content={description} />}
+      <link rel="canonical" href={url} />
+      <meta name="robots" content={noindex ? "noindex,nofollow" : "index,follow"} />
 
-    document.title = fullTitle;
-    if (description) {
-      upsertMeta("name", "description", description);
-      upsertMeta("property", "og:description", description);
-      upsertMeta("name", "twitter:description", description);
-    }
-    upsertLink("canonical", url);
-    upsertMeta("name", "robots", noindex ? "noindex,nofollow" : "index,follow");
-    upsertMeta("property", "og:title", fullTitle);
-    upsertMeta("property", "og:type", type);
-    upsertMeta("property", "og:url", url);
-    upsertMeta("property", "og:image", img);
-    upsertMeta("name", "twitter:title", fullTitle);
-    upsertMeta("name", "twitter:image", img);
+      <meta property="og:title" content={fullTitle} />
+      {description && <meta property="og:description" content={description} />}
+      <meta property="og:type" content={type} />
+      <meta property="og:url" content={url} />
+      <meta property="og:image" content={img} />
 
-    // JSON-LD: one managed <script>, replaced per page.
-    let s = document.getElementById(JSONLD_ID) as HTMLScriptElement | null;
-    if (jsonLdStr) {
-      if (!s) {
-        s = document.createElement("script");
-        s.id = JSONLD_ID;
-        s.type = "application/ld+json";
-        document.head.appendChild(s);
-      }
-      s.textContent = jsonLdStr;
-    } else if (s) {
-      s.remove();
-    }
-  }, [title, description, path, image, type, noindex, jsonLdStr]);
+      <meta name="twitter:title" content={fullTitle} />
+      {description && <meta name="twitter:description" content={description} />}
+      <meta name="twitter:image" content={img} />
 
-  return null;
+      {jsonLdStr && (
+        // dangerouslySetInnerHTML, not a text child: React escapes text, and an
+        // escaped JSON-LD block is invalid to every parser that reads it. The
+        // value is JSON.stringify output of our own objects, never user input.
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdStr }} />
+      )}
+    </>
+  );
 }

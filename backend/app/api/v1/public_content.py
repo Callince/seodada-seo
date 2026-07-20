@@ -205,13 +205,13 @@ _STATIC_ROUTES: list[tuple[str, str, str]] = [
     ("/", "weekly", "1.0"),
     ("/features", "monthly", "0.9"),
     ("/pricing", "monthly", "0.9"),
+    # /free-tools is the public landing page for the tools. The tools THEMSELVES
+    # (/tools/url, /tools/keyword, …) are deliberately absent: they sit inside
+    # the RequireAuth branch of the router and redirect anonymous visitors to
+    # /login. Verified by requesting one signed out. Listing auth-gated URLs in
+    # a sitemap earns "Submitted URL requires authentication" in Search Console
+    # and spends crawl budget on redirects.
     ("/free-tools", "weekly", "0.9"),
-    ("/tools/url", "monthly", "0.8"),
-    ("/tools/keyword", "monthly", "0.8"),
-    ("/tools/heading", "monthly", "0.8"),
-    ("/tools/image", "monthly", "0.8"),
-    ("/tools/meta", "monthly", "0.8"),
-    ("/tools/sitemap", "monthly", "0.8"),
     ("/blog", "daily", "0.8"),
     ("/guides/technical-seo", "monthly", "0.8"),
     ("/webstories", "weekly", "0.6"),

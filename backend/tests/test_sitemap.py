@@ -18,7 +18,7 @@ def _locs(xml: str) -> list[str]:
 @pytest.mark.asyncio
 async def test_sitemap_lists_published_content_and_every_static_route(db):
     """The hand-maintained sitemap this replaced listed 12 URLs and had fallen
-    behind the router: the six free tools and every post and story were absent.
+    behind the router: /free-tools and every post and story were absent.
     Assert the generated one covers both halves."""
     db.add_all(
         [
@@ -48,10 +48,15 @@ async def test_sitemap_lists_published_content_and_every_static_route(db):
     assert any(u.endswith("/blog/live-post") for u in locs)
     assert any(u.endswith("/webstories/live-story") for u in locs)
 
-    # Every static route ships, including the free tools that were missing.
+    # Every static route ships.
     for path, _, _ in _STATIC_ROUTES:
         assert any(u.endswith(path) or u.rstrip("/").endswith(path) for u in locs), path
-    assert sum("/tools/" in u for u in locs) == 6
+
+    # The individual tools sit behind RequireAuth and redirect anonymous
+    # visitors to /login, so they must never appear — a sitemap full of
+    # auth-gated URLs is worse than one that omits them.
+    assert not any("/tools/" in u for u in locs)
+    assert any(u.endswith("/free-tools") for u in locs)
 
 
 @pytest.mark.asyncio

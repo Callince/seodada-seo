@@ -12,7 +12,15 @@ import { useEffect, useState } from "react";
  * copy of this hook without the guard is exactly how that bug came back.
  */
 export function useDarkMode() {
-  const [dark, setDark] = useState(() => localStorage.getItem("theme") === "dark");
+  // A useState initializer runs during RENDER, including server rendering, so
+  // reading localStorage directly here crashed the prerender step the moment it
+  // reached PublicShell. Light is the right server default: the prerendered
+  // HTML is what a crawler and a first-time visitor see, and the effect below
+  // corrects it on the client before paint for anyone whose stored preference
+  // is dark.
+  const [dark, setDark] = useState(
+    () => typeof localStorage !== "undefined" && localStorage.getItem("theme") === "dark",
+  );
 
   useEffect(() => {
     const root = document.documentElement;

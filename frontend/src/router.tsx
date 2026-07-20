@@ -1,5 +1,6 @@
 import { Suspense, lazy } from "react";
-import { Navigate, createBrowserRouter } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import type { RouteObject } from "react-router-dom";
 
 import { AppShell } from "@/components/layout/AppShell";
 import { AdminShell } from "@/routes/admin/AdminShell";
@@ -71,7 +72,15 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   return token ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
-export const router = createBrowserRouter([
+/** The route tree, separate from the router built from it.
+ *
+ * createBrowserRouter touches history/location and cannot run under Node, but
+ * the prerender step (scripts/prerender.mjs) needs these exact routes to render
+ * each page to static HTML. Exporting the array means the prerender and the
+ * browser share ONE definition — a second copy would drift, and the failure
+ * mode is silent: pages would prerender against a stale tree and still look
+ * fine until someone compared them. */
+export const routes: RouteObject[] = [
   { path: "/login", element: <Login /> },
   { path: "/register", element: <Register /> },
   { path: "/forgot-password", element: <ForgotPassword /> },
@@ -191,4 +200,4 @@ export const router = createBrowserRouter([
     : []),
 
   { path: "*", element: <Navigate to="/" replace /> },
-]);
+];

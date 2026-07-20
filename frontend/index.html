@@ -13,21 +13,22 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
     />
 
-    <title>What Your SEO Analytics Isn't Telling You (Until Now)</title>
-    <meta name="description" content="See the insights your usual SEO tools miss. Track performance, spot issues, and find growth opportunities with clear, real SEO analytics." />
-    <link rel="canonical" href="https://seodada.com/" />
+    <!--
+      Fallback title ONLY. Every public page renders its own title, description,
+      canonical and OG/Twitter set through <Seo> (src/lib/seo.tsx), and the
+      prerender step replaces this element per route.
 
-    <!-- Default social preview; per-page tags are injected by the <Seo> component. -->
+      Nothing per-page may be declared here. React 19 hoists rendered head tags
+      but does not dedupe them against static ones, so a description or og:title
+      in this file would survive alongside the page's own and be the FIRST of
+      the pair — which is the one a crawler reads. This title stays because the
+      authenticated app renders no <Seo> at all and would otherwise be untitled.
+    -->
+    <title>seodada — AI SEO Platform</title>
+
+    <!-- Site-wide constants, identical on every page, so safe to declare once. -->
     <meta property="og:site_name" content="seodada" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="What Your SEO Analytics Isn't Telling You (Until Now)" />
-    <meta property="og:description" content="See the insights your usual SEO tools miss. Track performance, spot issues, and find growth opportunities with clear, real SEO analytics." />
-    <meta property="og:url" content="https://seodada.com/" />
-    <meta property="og:image" content="https://seodada.com/og-seodada.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="What Your SEO Analytics Isn't Telling You (Until Now)" />
-    <meta name="twitter:description" content="See the insights your usual SEO tools miss. Track performance, spot issues, and find growth opportunities with clear, real SEO analytics." />
-    <meta name="twitter:image" content="https://seodada.com/og-seodada.png" />
   </head>
   <body>
     <div id="root"></div>

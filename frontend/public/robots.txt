@@ -20,6 +20,9 @@ Disallow: /admin
 Disallow: /login
 Disallow: /register
 Disallow: /oauth
+# The tool pages themselves sit behind the login and redirect anonymous
+# visitors. /free-tools, the public page that describes them, stays crawlable.
+Disallow: /tools
 
 Sitemap: https://seodada.com/sitemap.xml
 

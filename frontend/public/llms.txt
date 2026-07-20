@@ -15,15 +15,14 @@ re-bill. There is a free tier of instant, no-signup tools listed below.
 - [Pricing](https://seodada.com/pricing): plans, limits and what each tier includes
 - [Features](https://seodada.com/features): the full tool list across research, audit, optimization and tracking
 
-## Free tools (no account required)
+## Tools
 
-- [Free SEO tools](https://seodada.com/free-tools): index of every free tool
-- [URL analyzer](https://seodada.com/tools/url): fetch a page and get a full on-page breakdown
-- [Keyword density](https://seodada.com/tools/keyword): term frequency and distribution for a page
-- [Heading structure](https://seodada.com/tools/heading): H1–H6 outline and hierarchy problems
-- [Image checker](https://seodada.com/tools/image): missing alt text, oversized images
-- [Meta tag checker](https://seodada.com/tools/meta): title, description and Open Graph tags
-- [Sitemap checker](https://seodada.com/tools/sitemap): parse and validate an XML sitemap
+- [Free SEO tools](https://seodada.com/free-tools): describes the available
+  tools — URL analyzer, keyword density, heading structure, image checker, meta
+  tag checker and sitemap checker. This overview page is public; running the
+  tools themselves requires a free account.
+- The landing page carries a public analyzer that needs no account: paste a URL
+  and it returns an on-page breakdown.
 
 ## Learning resources
 
