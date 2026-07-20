@@ -243,22 +243,17 @@ export function ProductRail() {
             className="flex gap-6 px-4 will-change-transform sm:px-6 lg:pl-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))] lg:pr-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))]"
           >
             {WIDGETS.map((w) => (
+              // The heading sits OUTSIDE the card now. The card holds only the
+              // widget, so it reads as the artefact being labelled rather than a
+              // panel with a title bar — and every card starts its data at the
+              // same y, which the in-card header prevented.
               <article
                 key={w.key}
                 style={sectionVars(w.mod)}
-                className={[
-                  "lp-card group relative flex h-[380px] w-[86vw] max-w-[500px] shrink-0 snap-start",
-                  "flex-col overflow-hidden rounded-[16px] border border-border bg-surface lp-shadow",
-                  "transition-[border-color,box-shadow] duration-[var(--dur-2)] ease-[var(--ease)]",
-                  "hover:border-text-muted/45 hover:shadow-[shadow:var(--lift-2)] sm:w-[500px]",
-                ].join(" ")}
+                className="group flex h-[380px] w-[86vw] max-w-[500px] shrink-0 snap-start flex-col sm:w-[500px]"
               >
-                {/* No section wash and no filled chip. Three cards each flooded
-                    with a different hue read as a swatch set, and the tint sat
-                    directly behind the charts it was competing with. The card is
-                    neutral now so the DATA carries the colour — the widgets keep
-                    their own tones because there the colour means something. */}
-                <div className="relative flex items-center gap-3 px-6 pt-6">
+                {/* Label — outside the card, aligned to its left edge. */}
+                <div className="flex items-center gap-3 pb-3">
                   <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-surface-2 text-text-muted transition-colors duration-[var(--dur-2)] group-hover:text-[color:var(--section-ink)]">
                     <w.icon size={19} strokeWidth={1.9} />
                   </span>
@@ -271,8 +266,21 @@ export function ProductRail() {
                     className="ml-auto shrink-0 text-text-muted opacity-0 transition-opacity group-hover:opacity-100"
                   />
                 </div>
-                {/* body */}
-                <div className="relative flex flex-1 flex-col justify-center overflow-hidden px-6 pb-6 pt-5">
+
+                {/* The card itself — widget only. Hover is driven from the
+                    wrapper (group-hover) rather than the card's own :hover, so
+                    pointing at the label lifts the card too; they are one item.
+                    That also replaces .lp-card, whose :hover only fired on the
+                    card and would have ignored the heading. */}
+                <div
+                  className={[
+                    "relative flex flex-1 flex-col justify-center overflow-hidden rounded-[16px]",
+                    "border border-border bg-surface p-6 lp-shadow",
+                    "transition-[transform,border-color,box-shadow] duration-[var(--dur-2)] ease-[var(--ease)]",
+                    "group-hover:-translate-y-1.5 group-hover:border-text-muted/45",
+                    "group-hover:shadow-[shadow:var(--lift-2)]",
+                  ].join(" ")}
+                >
                   <DashboardWidget tab={w.key} />
                 </div>
               </article>
