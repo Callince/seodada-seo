@@ -78,12 +78,10 @@ const FOOTER_COLS: { title: string; links: { to: string; label: string; external
   },
 ];
 
-function Logo({ scrolled }: { scrolled: boolean }) {
+function Logo() {
   return (
     <Link to="/" className="flex shrink-0 items-center" aria-label="seodada home">
-      {/* Matches the nav capsule's 54px from lg up, where the capsule exists.
-          The PNG is fully trimmed — measured 0% transparent padding on both
-          axes — so the box height IS the artwork height and 54px lines up.
+      {/* One fixed height now that there is no capsule to track.
           `shrink-0` is load-bearing: the header is a flex row, and without it
           the image was squeezed to fit rather than keeping its 3.75 aspect
           (it rendered 67px wide instead of 202 at tablet widths).
@@ -94,13 +92,7 @@ function Logo({ scrolled }: { scrolled: boolean }) {
         alt="seodada"
         width={202}
         height={54}
-        className={cn(
-          "w-auto shrink-0 translate-y-[2px] transition-[height] duration-500 ease-out",
-          // Tracks the capsule through its morph: 54px at rest, 50px once the
-          // pill tightens on scroll. Without this the logo stayed 54 and drifted
-          // 4px taller than the pill it is supposed to match.
-          scrolled ? "h-10 lg:h-[50px]" : "h-11 lg:h-[54px]",
-        )}
+        className="h-9 w-auto shrink-0 translate-y-[2px] sm:h-10"
       />
     </Link>
   );
@@ -166,45 +158,41 @@ export function PublicShell() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* ===== Dynamic-island nav — floating glass pill that morphs on scroll =====
-          Every public page opens with a permanently-dark hero, so at rest the
-          header sits ON that navy and adopts the same `.lp-hero` token scope the
-          hero uses: nav links were 3.0:1 and "Log in" 2.56:1 against it once the
-          landing switched to the dark backdrop. Past the fold it drops the scope
-          and returns to the theme tokens for the light content below. */}
+      {/* ===== Header — a plain full-width bar =====
+          Fixed rather than sticky: every public page's hero already carries top
+          padding sized to clear a fixed header, so making this take layout space
+          would double that gap on all ten of them.
+
+          Transparent over the hero, solid once past it. The hero is permanently
+          dark in both themes, so while the bar sits on it the whole header
+          adopts the `.lp-hero` token scope — without it nav links measured
+          3.0:1 and "Log in" 2.56:1 against that navy. Past the fold it drops the
+          scope and returns to the ordinary theme tokens for the light content
+          below, which is also when it needs its own surface and bottom rule. */}
       <header
         className={cn(
-          "pointer-events-none fixed inset-x-0 top-0 z-40 px-3 sm:px-4",
-          !scrolled && "lp-hero",
+          "fixed inset-x-0 top-0 z-40 transition-colors duration-300",
+          scrolled
+            ? "border-b border-border bg-[color-mix(in_srgb,var(--surface)_88%,transparent)] backdrop-blur-xl"
+            : "lp-hero border-b border-transparent",
         )}
       >
-        {/* Three columns, not `justify-between`. With flex the pill lands wherever
-            the two flanks leave room — logo is 165px, the actions cluster is ~180,
-            so it sat ~8px off centre and drifted again whenever the right side
-            changed (signed in vs out swaps two buttons for one avatar). Equal
-            1fr flanks centre it on the viewport regardless of what's beside it. */}
-        <div className="mx-auto mt-3 grid max-w-6xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 sm:mt-4">
-          {/* Logo — floats free on the left (outside the pill) */}
-          <div className="pointer-events-auto">
-            <Logo scrolled={scrolled} />
-          </div>
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4 sm:px-6">
+          <Logo />
 
-          {/* Center island — holds ONLY the nav links; morphs on scroll */}
-          <nav
-            className={cn(
-              "pointer-events-auto hidden items-center gap-1 rounded-full border border-border backdrop-blur-xl transition-all duration-500 ease-out lg:flex",
-              scrolled
-                ? "bg-[color-mix(in_srgb,var(--surface)_92%,transparent)] px-2 py-1.5 lp-shadow-lg"
-                : "bg-[color-mix(in_srgb,var(--surface)_65%,transparent)] px-2.5 py-2 shadow-md",
-            )}
-          >
+          {/* Nav sits next to the logo rather than centred. Centring a middle
+              column meant its position depended on the two flanks, and the right
+              flank changes width with auth state (two buttons signed out, one
+              avatar signed in) — so the links shifted depending on who was
+              looking at them. Left-aligned, there is nothing to drift. */}
+          <nav className="hidden items-center gap-1 lg:flex">
             {NAV.map((n) => (
               <NavLink
                 key={n.to}
                 to={n.to}
                 className={({ isActive }) =>
                   cn(
-                    "rounded-full px-3.5 py-2 text-sm font-medium tracking-wide transition-colors",
+                    "rounded-md px-3 py-2 text-sm font-medium transition-colors",
                     isActive ? "text-primary-ink" : "text-text-muted hover:text-text",
                   )
                 }
@@ -214,8 +202,7 @@ export function PublicShell() {
             ))}
           </nav>
 
-          {/* Actions — float free on the right (outside the pill) */}
-          <div className="pointer-events-auto flex items-center justify-self-end gap-2">
+          <div className="ml-auto flex items-center gap-2">
             {/* The public site had no way to change theme, so a visitor whose
                 stored preference is dark got the landing in dark with no exit. */}
             <Button
@@ -251,7 +238,7 @@ export function PublicShell() {
 
             <button
               ref={menuBtnRef}
-              className="grid h-10 w-10 place-items-center rounded-full border border-border bg-[color-mix(in_srgb,var(--surface)_75%,transparent)] text-text-muted backdrop-blur transition-colors hover:bg-surface-2 lg:hidden"
+              className="grid h-10 w-10 place-items-center rounded-md text-text-muted transition-colors hover:bg-surface-2 hover:text-text lg:hidden"
               onClick={() => setOpen((o) => !o)}
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
@@ -262,10 +249,21 @@ export function PublicShell() {
           </div>
         </div>
 
-        {/* Mobile menu — floating panel below the island */}
+        {/* Mobile menu — drops from the bar as a full-width panel.
+            It sits inside <header>, so above the fold it inherits the `.lp-hero`
+            token scope and comes out dark-on-dark, matching the bar it drops
+            from; past the fold it turns light with the rest of the chrome. That
+            inheritance is wanted, but it also means `bg-surface` resolves to a
+            *translucent* colour-mix up there (measured 0.82 alpha), which left
+            the links sitting on whatever hero artwork was behind them. The blur
+            is what makes that safe — same treatment the scrolled bar uses. */}
         {open && (
-          <div ref={panelRef} id="public-mobile-menu" className="pointer-events-auto mx-auto mt-2 max-h-[75vh] w-full max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-3 lp-shadow-lg lg:hidden">
-            <div className="flex flex-col gap-1">
+          <div
+            ref={panelRef}
+            id="public-mobile-menu"
+            className="max-h-[75vh] overflow-y-auto border-b border-border bg-surface backdrop-blur-xl lg:hidden"
+          >
+            <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3 sm:px-6">
               {NAV.map((n) => (
                 <Link
                   key={n.to}
