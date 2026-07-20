@@ -1,7 +1,8 @@
-import { Menu, Moon, Sun, X } from "lucide-react";
+import { LogOut, Menu, Moon, Sun, X } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 
+import { AccountMenu } from "@/components/shared/AccountMenu";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { useDarkMode } from "@/lib/useDarkMode";
@@ -109,6 +110,8 @@ export function PublicShell() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const authed = useAuth((s) => !!s.accessToken);
+  const user = useAuth((s) => s.user);
+  const logout = useAuth((s) => s.logout);
   const { pathname } = useLocation();
   const { dark, toggle } = useDarkMode();
 
@@ -185,11 +188,7 @@ export function PublicShell() {
             </Button>
             <div className="hidden items-center gap-2 lg:flex">
               {authed ? (
-                <Link to="/dashboard">
-                  <Button size="sm" className="rounded-full">
-                    Dashboard
-                  </Button>
-                </Link>
+                <AccountMenu />
               ) : (
                 <>
                   <Link to="/login">
@@ -209,7 +208,9 @@ export function PublicShell() {
             <button
               className="grid h-10 w-10 place-items-center rounded-full border border-border bg-[color-mix(in_srgb,var(--surface)_75%,transparent)] text-text-muted backdrop-blur transition-colors hover:bg-surface-2 lg:hidden"
               onClick={() => setOpen((o) => !o)}
-              aria-label="Toggle menu"
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              aria-controls="public-mobile-menu"
             >
               {open ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -218,7 +219,7 @@ export function PublicShell() {
 
         {/* Mobile menu — floating panel below the island */}
         {open && (
-          <div className="pointer-events-auto mx-auto mt-2 max-h-[75vh] w-full max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-3 lp-shadow-lg lg:hidden">
+          <div id="public-mobile-menu" className="pointer-events-auto mx-auto mt-2 max-h-[75vh] w-full max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-3 lp-shadow-lg lg:hidden">
             <div className="flex flex-col gap-1">
               {NAV.map((n) => (
                 <Link
@@ -229,18 +230,43 @@ export function PublicShell() {
                   {n.label}
                 </Link>
               ))}
-              <div className="mt-2 flex gap-2">
-                <Link to="/login" className="flex-1">
-                  <Button variant="secondary" size="sm" className="w-full rounded-full">
-                    Log in
-                  </Button>
-                </Link>
-                <Link to="/register" className="flex-1">
-                  <Button size="sm" className="w-full rounded-full">
-                    Get started
-                  </Button>
-                </Link>
-              </div>
+              {/* Auth-aware. This block used to be hardcoded to Log in /
+                  Get started, so a signed-in visitor on mobile or tablet was
+                  invited to sign in again and had no way to sign out. */}
+              {authed ? (
+                <div className="mt-2 border-t border-border pt-2">
+                  <div className="px-3 py-1.5">
+                    <p className="truncate text-sm font-medium text-text">
+                      {user?.full_name || "Account"}
+                    </p>
+                    <p className="truncate text-xs text-text-muted">{user?.email}</p>
+                  </div>
+                  <Link to="/dashboard" className="mt-1 block">
+                    <Button size="sm" className="w-full rounded-full">
+                      Go to dashboard
+                    </Button>
+                  </Link>
+                  <button
+                    onClick={logout}
+                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-text-muted hover:bg-surface-2 hover:text-text"
+                  >
+                    <LogOut size={15} aria-hidden /> Log out
+                  </button>
+                </div>
+              ) : (
+                <div className="mt-2 flex gap-2">
+                  <Link to="/login" className="flex-1">
+                    <Button variant="secondary" size="sm" className="w-full rounded-full">
+                      Log in
+                    </Button>
+                  </Link>
+                  <Link to="/register" className="flex-1">
+                    <Button size="sm" className="w-full rounded-full">
+                      Get started
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         )}

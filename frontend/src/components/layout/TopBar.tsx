@@ -1,40 +1,13 @@
-import { Bell, ChevronDown, LogOut, Menu, Moon, Search, Sun } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Bell, Menu, Moon, Search, Sun } from "lucide-react";
+import { useState } from "react";
 
+import { AccountMenu } from "@/components/shared/AccountMenu";
 import { Button } from "@/components/ui/button";
 import { useDarkMode } from "@/lib/useDarkMode";
-import { useAuth } from "@/store/auth";
+import { useDismiss } from "@/lib/useDismiss";
 
 // Theme switching lives in @/lib/useDarkMode — see the note there on why the
 // transition-suppression must not be reimplemented per surface.
-
-function initials(name?: string, email?: string): string {
-  const src = (name || "").trim();
-  if (src) {
-    const parts = src.split(/\s+/);
-    return (parts[0][0] + (parts[1]?.[0] ?? "")).toUpperCase();
-  }
-  return (email?.[0] ?? "?").toUpperCase();
-}
-
-/** Close a popover on outside-click or Escape. */
-function useDismiss(open: boolean, close: () => void) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    const onClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) close();
-    };
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
-    document.addEventListener("mousedown", onClick);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onClick);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open, close]);
-  return ref;
-}
 
 function NotificationBell() {
   const [open, setOpen] = useState(false);
@@ -55,54 +28,6 @@ function NotificationBell() {
         <div role="menu" className="glass-card absolute right-0 z-30 mt-2 w-64 overflow-hidden rounded-lg shadow-[shadow:var(--lift-3)]">
           <div className="border-b border-border px-3 py-2.5 text-sm font-semibold text-text">Notifications</div>
           <div className="px-3 py-8 text-center text-sm text-text-muted">You're all caught up.</div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function UserMenu() {
-  const user = useAuth((s) => s.user);
-  const logout = useAuth((s) => s.logout);
-  const [open, setOpen] = useState(false);
-  const ref = useDismiss(open, () => setOpen(false));
-
-  return (
-    <div className="relative" ref={ref}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 rounded-full p-0.5 pr-2 transition-colors hover:bg-surface-2"
-        aria-label="Account menu"
-        aria-haspopup="menu"
-        aria-expanded={open}
-      >
-        <span className="grid h-8 w-8 place-items-center rounded-full gradient-fill text-xs font-semibold text-white shadow-glow">
-          {initials(user?.full_name, user?.email)}
-        </span>
-        <span className="hidden max-w-[8rem] truncate text-sm font-medium text-text sm:block">
-          {user?.full_name || "Account"}
-        </span>
-        <ChevronDown size={14} className="text-text-muted" />
-      </button>
-
-      {open && (
-        <div role="menu" className="glass-card absolute right-0 z-30 mt-2 w-56 overflow-hidden rounded-lg shadow-[shadow:var(--lift-3)]">
-          <div className="border-b border-border px-3 py-2.5">
-            <p className="truncate text-sm font-medium text-text">{user?.full_name || "Account"}</p>
-            <p className="truncate text-xs text-text-muted">{user?.email}</p>
-            {user?.role && (
-              <span className="mt-1.5 inline-block rounded-full bg-primary-soft px-2 py-0.5 text-xs font-medium capitalize text-primary">
-                {user.role}
-              </span>
-            )}
-          </div>
-          <button
-            role="menuitem"
-            onClick={logout}
-            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-text transition-colors hover:bg-surface-2"
-          >
-            <LogOut size={15} className="text-text-muted" /> Log out
-          </button>
         </div>
       )}
     </div>
@@ -137,7 +62,7 @@ export function TopBar({ onMenu, onCommand }: { onMenu: () => void; onCommand: (
           {dark ? <Sun size={18} /> : <Moon size={18} />}
         </Button>
         <NotificationBell />
-        <UserMenu />
+        <AccountMenu />
       </div>
     </header>
   );
