@@ -46,6 +46,16 @@ const GROUPS = NAV_ITEMS.reduce<{ section: string; items: NavItem[] }[]>((out, i
  *  the whole group points at the public free-tools page. */
 const isFree = (section: string) => section === "Free tools";
 
+/**
+ * Columns that divide a group's cards into balanced rows.
+ *
+ * Letting every group wrap at 3 filled the rows but stranded a single
+ * full-width card at the end of Track (4 tools) and Free tools (7) — no gap,
+ * but a 1104px card beside 360px ones. Choosing the wrap point per group gives
+ * 2+2 and 4+3 instead, and the cards still grow so the last row stays full.
+ */
+const colsFor = (n: number) => (n <= 3 ? n : n === 4 ? 2 : n <= 6 ? 3 : 4);
+
 export function FeatureBento() {
   return (
     <section className="border-t border-border bg-[var(--lp-tint)] py-20 sm:py-28">
@@ -81,12 +91,23 @@ export function FeatureBento() {
                     <span className="h-px flex-1 bg-border" aria-hidden />
                   </div>
 
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {/* Flex, not a fixed grid. The groups hold 2/5/2/2/4/2/7
+                      tools, so a shared 3-column grid left a hole at the end of
+                      every one of them. Each group wraps at its own column count
+                      and the cards grow, so rows are balanced AND always full. */}
+                  <div
+                    className="mt-4 flex flex-wrap gap-3 [--gap:0.75rem]"
+                    style={{ ["--cols" as string]: colsFor(g.items.length) }}
+                  >
                     {g.items.map(({ to, label, icon: Icon }) => (
                       <Link
                         key={to}
                         to={isFree(g.section) ? "/free-tools" : "/register"}
-                        className="lp-card lp-glass flex gap-3 rounded-2xl border border-border p-4 lp-shadow transition-transform hover:-translate-y-0.5"
+                        // Basis is an exact 1/--cols share, so the group wraps
+                        // where intended; grow lets a short final row expand to
+                        // fill rather than leaving a hole. Below sm it drops to
+                        // one card per row.
+                        className="lp-card lp-glass flex flex-[1_1_100%] gap-3 rounded-2xl border border-border p-4 lp-shadow transition-transform hover:-translate-y-0.5 sm:flex-[1_1_calc((100%-(var(--cols)-1)*var(--gap))/var(--cols))]"
                       >
                         <span
                           className="grid h-10 w-10 shrink-0 place-items-center rounded-xl"
