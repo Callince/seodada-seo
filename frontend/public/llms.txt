@@ -28,6 +28,7 @@ re-bill. There is a free tier of instant, no-signup tools listed below.
 
 - [Blog](https://seodada.com/blog): articles on SEO, AEO and GEO practice
 - [Technical SEO guide](https://seodada.com/guides/technical-seo): pillar guide to crawling, indexing and site health
+- [SEO, AEO & GEO glossary](https://seodada.com/glossary): plain-language definitions of classic and AI-era search terms
 - [Web stories](https://seodada.com/webstories): short visual explainers
 - [Help centre](https://seodada.com/help): product documentation
 

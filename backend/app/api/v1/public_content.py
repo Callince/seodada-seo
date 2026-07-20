@@ -214,6 +214,7 @@ _STATIC_ROUTES: list[tuple[str, str, str]] = [
     ("/free-tools", "weekly", "0.9"),
     ("/blog", "daily", "0.8"),
     ("/guides/technical-seo", "monthly", "0.8"),
+    ("/glossary", "monthly", "0.7"),
     ("/webstories", "weekly", "0.6"),
     ("/about", "yearly", "0.5"),
     ("/help", "monthly", "0.5"),

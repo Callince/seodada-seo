@@ -29,6 +29,7 @@ const BlogPost = lazy(() => import("@/routes/public/BlogPost"));
 const WebStories = lazy(() => import("@/routes/public/WebStories"));
 const WebStoryViewer = lazy(() => import("@/routes/public/WebStoryViewer"));
 const PillarGuide = lazy(() => import("@/routes/public/PillarGuide"));
+const Glossary = lazy(() => import("@/routes/public/Glossary"));
 
 const Dashboard = lazy(() => import("@/routes/Dashboard"));
 const Workspace = lazy(() => import("@/routes/Workspace"));
@@ -109,6 +110,7 @@ export const routes: RouteObject[] = [
       { path: "/webstories", element: <WebStories /> },
       { path: "/webstories/:slug", element: <WebStoryViewer /> },
       { path: "/guides/technical-seo", element: <PillarGuide /> },
+      { path: "/glossary", element: <Glossary /> },
       { path: "/privacy", element: <ContentPage slug="privacy" /> },
       { path: "/terms", element: <ContentPage slug="terms" /> },
       { path: "/cookies", element: <ContentPage slug="cookie_policy" /> },

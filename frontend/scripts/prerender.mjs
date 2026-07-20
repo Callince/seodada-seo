@@ -49,6 +49,7 @@ const ROUTES = [
   "/pricing",
   "/free-tools",
   "/guides/technical-seo",
+  "/glossary",
   "/contact",
 ];
 

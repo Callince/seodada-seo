@@ -63,6 +63,7 @@ const FOOTER_COLS: { title: string; links: { to: string; label: string; external
       { to: "/free-tools", label: "Free SEO Tools" },
       { to: "/content", label: "Content Checker Tool" },
       { to: "/guides/technical-seo", label: "Technical SEO Guide" },
+      { to: "/glossary", label: "SEO Glossary" },
       { to: "/blog", label: "Blog" },
       { to: "/webstories", label: "Web Stories" },
       { to: "/help", label: "Help Center" },
