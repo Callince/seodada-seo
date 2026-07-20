@@ -78,6 +78,17 @@
   --hero-tide: #0f74b2;
   --hero-glow: #22d3ee;
 
+  /* Saturn ring tones for the hero constellation. Theme-independent for the
+     same reason as --hero-* above: they only ever sit on the dark hero.
+     Ordered inner→outer and, like the planet's, the middle band is the bright
+     one — a uniform gold reads as a flat target rather than a ring system.
+     Warm gold is the one family that stays clearly outside the Signal Spectrum
+     (blue→cyan), so the rings can never be misread as encoding tool visibility
+     the way a blue-tinted tile would. */
+  --sat-1: #f6e3b4;
+  --sat-2: #e6c489;
+  --sat-3: #ab8757;
+
   /* ---- Per-module accents (light) — L=.62 C=.15, hue only. `-soft` derives
      via color-mix, so overriding the base in .dark auto-updates the tint.
      `-ink` is the text-safe variant at L=.45. ---------------------------- */
@@ -793,34 +804,34 @@ body {
 .lp-float-2 { animation: lp-float 8.5s ease-in-out infinite; }
 @keyframes lp-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
 
-/* Tool-constellation tiles. Four distinct motions rather than one keyframe at
-   different delays: staggering a single bob still reads as one mechanism, and
-   24 tiles doing the same thing looks like a loading state. Each has its own
-   character — rise, diagonal drift, sway with a tilt, and a slow breath — so
-   the cluster feels alive instead of synchronised.
-   These animate `transform`, which is why tile depth lives on a PARENT node
-   (see ToolConstellation): same-node transform would be overwritten here. */
-@keyframes tile-rise {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50%      { transform: translateY(-16px) rotate(-1.2deg); }
-}
-@keyframes tile-drift {
-  0%, 100% { transform: translate(0, 0); }
-  33%      { transform: translate(7px, -11px); }
-  66%      { transform: translate(-6px, -5px); }
-}
-@keyframes tile-sway {
-  0%, 100% { transform: translateX(0) rotate(0deg); }
-  50%      { transform: translateX(10px) rotate(2deg); }
-}
-@keyframes tile-breathe {
-  0%, 100% { transform: scale(1) translateY(0); }
-  50%      { transform: scale(1.06) translateY(-7px); }
-}
-.tile-rise    { animation: tile-rise    9s  ease-in-out infinite; }
-.tile-drift   { animation: tile-drift   13s ease-in-out infinite; }
-.tile-sway    { animation: tile-sway    11s ease-in-out infinite; }
-.tile-breathe { animation: tile-breathe 8s  ease-in-out infinite; }
+/* ===================== Saturn tool-constellation =====================
+   The hero's 24 tools orbit the logo as a ringed planet. The rings are tilted
+   toward the viewer inside a preserve-3d context, so each icon's Z position
+   carries it BEHIND the logo through half of every orbit and in front through
+   the other half — that 3D sort, not a z-index, is what makes it read as a
+   planet with rings rather than a spinning wheel.
+
+   Every tile's orientation is the product of four nested transforms:
+
+     ring  rotate(φ)          the orbit, animated
+     seat  rotate(θ) X(r)     the tile's fixed slot on the ring
+     spin  rotate(-φ)         cancels the orbit  ← this rule
+     face  rotate(-θ) rX(-t)  cancels the slot and the ring tilt
+
+   so the tile travels the ellipse while staying upright and facing front.
+
+   The cancellation is only exact while the two animations stay in lockstep, so
+   they read the SAME inherited `--orbit` off the ring rather than each being
+   given its own duration — two numbers that must match are two numbers that
+   eventually don't, and any mismatch shows up as tiles slowly tumbling. */
+@keyframes sat-orbit   { to { transform: rotate(360deg); } }
+@keyframes sat-counter { to { transform: rotate(-360deg); } }
+.sat-ring    { animation: sat-orbit   var(--orbit) linear infinite; }
+.sat-counter { animation: sat-counter var(--orbit) linear infinite; }
+
+/* Reduced motion parks the orbit at 0%, where every tile still sits at its own
+   `seat` angle — the ring reads as a static composition rather than collapsing
+   all 24 tiles onto one point, which is what a translate-based orbit would do. */
 
 /* Draw-on chart line (dashboard sparklines/areas). */
 .lp-draw { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: lp-draw 1.8s ease forwards; }

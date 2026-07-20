@@ -1,5 +1,5 @@
 import { LogOut, Menu, Moon, Sun, X } from "lucide-react";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 
 import { AccountMenu } from "@/components/shared/AccountMenu";
@@ -109,6 +109,8 @@ function Logo({ scrolled }: { scrolled: boolean }) {
 export function PublicShell() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const menuBtnRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const authed = useAuth((s) => !!s.accessToken);
   const user = useAuth((s) => s.user);
   const logout = useAuth((s) => s.logout);
@@ -127,6 +129,40 @@ export function PublicShell() {
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
+  /**
+   * Open-drawer behaviour: Escape closes it, focus moves into it, focus returns
+   * to the button that opened it, and the rest of the page stops being
+   * reachable. Previously none of that held — a keyboard user could tab
+   * straight out of the open menu into the page behind it and had no way back.
+   *
+   * The trap is `inert` on the page's other landmarks rather than a hand-rolled
+   * keydown loop. It's the platform's own answer: an inert subtree leaves the
+   * tab order AND the accessibility tree, so there's no cycle to get wrong, no
+   * list of focusable selectors to keep in sync, and screen-reader virtual
+   * cursors are held back too — which a Tab-key loop does nothing about.
+   * The header stays live on purpose so the toggle and theme button remain
+   * reachable while the panel is open.
+   */
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+
+    const outside = [document.querySelector("main"), document.querySelector("footer")].filter(
+      Boolean,
+    ) as HTMLElement[];
+    outside.forEach((el) => (el.inert = true));
+    panelRef.current?.querySelector<HTMLElement>("a, button")?.focus();
+
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      outside.forEach((el) => (el.inert = false));
+      menuBtnRef.current?.focus();
+    };
+  }, [open]);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -214,6 +250,7 @@ export function PublicShell() {
             </div>
 
             <button
+              ref={menuBtnRef}
               className="grid h-10 w-10 place-items-center rounded-full border border-border bg-[color-mix(in_srgb,var(--surface)_75%,transparent)] text-text-muted backdrop-blur transition-colors hover:bg-surface-2 lg:hidden"
               onClick={() => setOpen((o) => !o)}
               aria-label={open ? "Close menu" : "Open menu"}
@@ -227,7 +264,7 @@ export function PublicShell() {
 
         {/* Mobile menu — floating panel below the island */}
         {open && (
-          <div id="public-mobile-menu" className="pointer-events-auto mx-auto mt-2 max-h-[75vh] w-full max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-3 lp-shadow-lg lg:hidden">
+          <div ref={panelRef} id="public-mobile-menu" className="pointer-events-auto mx-auto mt-2 max-h-[75vh] w-full max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-3 lp-shadow-lg lg:hidden">
             <div className="flex flex-col gap-1">
               {NAV.map((n) => (
                 <Link

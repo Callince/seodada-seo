@@ -1,117 +1,209 @@
 import { NAV_ITEMS } from "@/lib/nav";
-import { moduleForSection, sectionVars } from "@/lib/sections";
 
 /**
- * The hero's right-hand visual: every tool in the platform as a floating 3D
- * constellation.
+ * The hero's right-hand visual: the logo as a ringed planet, with every tool in
+ * the platform orbiting it.
  *
- * Replaces the old dashboard mock. The mock showed one screen of invented
- * numbers; this shows the actual surface area of the product — all 24 tools,
- * each in its real workflow colour, drawn from NAV_ITEMS so it can never drift
- * from the sidebar.
+ * Shows the actual surface area of the product — all 24 tools, drawn from
+ * NAV_ITEMS so it can never drift from the sidebar. Decorative: the tools are
+ * named in text further down the page, so this is one labelled image to
+ * assistive tech rather than 24 stray words.
  *
- * The 3D is a single rotated plane with per-tile depth rather than 24
- * individually transformed elements: one composited layer, so it stays cheap.
- * Decorative — the tools are named in text further down the page, so the whole
- * thing is hidden from assistive tech rather than read out as 24 stray words.
+ * Replaces a flat 5-column plane. That version had the tools bobbing in place;
+ * this one puts them in orbit, and because the rings are tilted inside a
+ * preserve-3d context each icon passes BEHIND the logo for half of every
+ * revolution. The pass-behind is the whole effect — it's what separates a
+ * planet from a spinning wheel — and it comes from the browser's 3D sort, so
+ * there is deliberately no z-index anywhere in here to fight with it.
  */
 
-/**
- * Deterministic depth — no Math.random, so it never jitters between renders.
- * Eight values over a 4-column grid means the pattern repeats every two rows,
- * which reads as a wave rather than noise. (An earlier `(i*5 + i%3) % 6`
- * collapsed to almost all zeros and flattened the whole plane.)
- */
-const DEPTH = [10, 52, 24, 68, 34, 58, 16, 44];
-const depthFor = (i: number) => DEPTH[i % DEPTH.length];
+/** How far the rings are tipped toward the viewer. 0° = face-on circles, 90° =
+ *  edge-on lines. 64° keeps the ellipses open enough to read as rings while
+ *  still throwing tiles convincingly front and back. */
+const TILT = 64;
 
 /**
- * Four motions, not one. A single keyframe at staggered delays still reads as
- * one mechanism — 24 tiles bobbing identically looks like a skeleton loader.
- * The cycle length (4) is coprime with neither 5 (columns) nor 8 (depths), so
- * motion, depth and grid position never line up into a visible pattern.
+ * Three rings, and deliberately NOT eight tiles each.
+ *
+ * Equal counts put every ring's tiles at the same set of angles, which lines
+ * them up into visible radial spokes that rotate as one wheel. 7/8/9 share no
+ * factor, so the three rings never re-align and the field always reads as
+ * scattered. The counts also sum to exactly NAV_ITEMS.length.
+ *
+ * Periods rise with radius, as they do on the real planet — a uniform period
+ * would make the whole system turn like a solid disc.
  */
-const MOTION = ["tile-rise", "tile-drift", "tile-sway", "tile-breathe"] as const;
-const motionFor = (i: number) => MOTION[i % MOTION.length];
+const RINGS = [
+  { radius: 132, orbit: "46s", tone: "var(--sat-1)", count: 7 },
+  { radius: 182, orbit: "64s", tone: "var(--sat-2)", count: 8 },
+  { radius: 232, orbit: "88s", tone: "var(--sat-3)", count: 9 },
+];
+
+/**
+ * Planet diameter.
+ *
+ * Ring radii are compared against PLANET/2 on the HORIZONTAL axis only. The
+ * tilt squashes each ring vertically by cos(TILT) ≈ 0.44, so a 132px ring is
+ * only ~58px tall on screen and its tiles do pass within the planet's 95px
+ * radius near the top and bottom of the ellipse — measured, and correct: those
+ * are exactly the points where a tile is furthest front or back, so it should
+ * be crossing the face or hidden behind the body. What must clear PLANET/2 is
+ * the radius itself, or the ring is swallowed even at its widest.
+ */
+const PLANET = 190;
+
+/** Deal the tools out across the rings in order. Derived from two module
+ *  constants, so it is computed once here rather than on every render. */
+const RING_TOOLS = RINGS.map((ring, i) => {
+  const start = RINGS.slice(0, i).reduce((n, r) => n + r.count, 0);
+  return { ...ring, tools: NAV_ITEMS.slice(start, start + ring.count) };
+});
 
 export function ToolConstellation() {
   return (
     <div
-      className="relative select-none"
+      className="relative mx-auto grid aspect-square w-full max-w-[520px] place-items-center select-none"
       role="img"
       aria-label="The seodada platform — 24 SEO tools across research, audit, optimization and tracking"
     >
-      {/* Ambient bloom behind the plane so the tiles read as lit, not pasted on. */}
+      {/* Ambient bloom so the system reads as lit, not pasted on. */}
       <div
         aria-hidden
-        className="absolute inset-6 -z-10 blur-3xl"
+        className="absolute inset-10 -z-10 rounded-full blur-3xl"
         style={{
           background:
             "radial-gradient(60% 60% at 30% 20%, color-mix(in srgb, var(--hero-tide) 55%, transparent), transparent 70%)," +
-            "radial-gradient(55% 55% at 75% 75%, color-mix(in srgb, var(--hero-glow) 40%, transparent), transparent 70%)",
+            "radial-gradient(55% 55% at 75% 75%, color-mix(in srgb, var(--sat-2) 26%, transparent), transparent 70%)",
         }}
       />
 
+      {/* The 3D stage. Everything that must sort against everything else in
+          depth — both rings and the planet — has to live in this one
+          preserve-3d context; split them across two and the browser flattens
+          each and sorts the groups, which loses the pass-behind entirely.
+          Scaled rather than re-measured per breakpoint so the ring radii stay
+          in one coordinate system. */}
       <div
         aria-hidden
-        style={{ perspective: "1200px", perspectiveOrigin: "60% 40%" }}
-        // The second kind of motion: the plane answers the cursor instead of
-        // only looping. Ambient float alone reads as decoration; parallax makes
-        // the cluster feel like an object in the page. Written to CSS vars so
-        // the transform below stays declarative and React never re-renders.
-        onMouseMove={(e) => {
-          const r = e.currentTarget.getBoundingClientRect();
-          const dx = (e.clientX - r.left) / r.width - 0.5;
-          const dy = (e.clientY - r.top) / r.height - 0.5;
-          e.currentTarget.style.setProperty("--tilt-y", `${dx * 14}deg`);
-          e.currentTarget.style.setProperty("--tilt-x", `${-dy * 12}deg`);
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.setProperty("--tilt-y", "0deg");
-          e.currentTarget.style.setProperty("--tilt-x", "0deg");
+        className="[--sat-scale:0.56] sm:[--sat-scale:0.76] lg:[--sat-scale:1]"
+        style={{
+          perspective: "1100px",
+          transform: "scale(var(--sat-scale))",
+          transformStyle: "preserve-3d",
         }}
       >
-        <div
-          // 5 columns keeps the cluster roughly square against the hero copy;
-          // 4 made it ~870px tall, nearly the full viewport.
-          className="grid grid-cols-5 gap-3 [transition:transform_500ms_cubic-bezier(.32,.72,0,1)]"
-          style={{
-            transform:
-              "rotateX(calc(16deg + var(--tilt-x, 0deg))) rotateY(calc(-17deg + var(--tilt-y, 0deg))) rotateZ(4deg)",
-            transformStyle: "preserve-3d",
-          }}
-        >
-          {NAV_ITEMS.map(({ to, label, icon: Icon, section }, i) => (
-            // Depth and float are split across two elements ON PURPOSE:
-            // `.lp-float` animates `transform`, so putting translateZ on the
-            // same node let the animation overwrite it and the whole 3D
-            // flattened to a 2D matrix. Outer holds depth, inner breathes.
-            <div
-              key={to}
-              style={{
-                ...sectionVars(moduleForSection(section)),
-                transform: `translateZ(${depthFor(i)}px)`,
-                transformStyle: "preserve-3d",
-              }}
-            >
+        <div className="relative grid h-[520px] w-[520px] place-items-center" style={{ transformStyle: "preserve-3d" }}>
+          {/* Ring plane */}
+          <div
+            className="absolute inset-0 grid place-items-center"
+            style={{ transform: `rotateX(${TILT}deg)`, transformStyle: "preserve-3d" }}
+          >
+            {RING_TOOLS.map((ring) => (
               <div
-                className={`${motionFor(i)} grid aspect-square place-items-center rounded-2xl border backdrop-blur-md`}
-                style={{
-                  // Delay uses a 7-step cycle against 4 motions and 5 columns,
-                  // so neighbours never share both motion and phase.
-                  animationDelay: `${(i % 7) * 0.55}s`,
-                  borderColor: "color-mix(in srgb, var(--section) 34%, transparent)",
-                  background:
-                    "linear-gradient(150deg, color-mix(in srgb, var(--section) 22%, transparent), color-mix(in srgb, #0f1c33 70%, transparent))",
-                  boxShadow:
-                    "inset 0 1px 0 rgba(255,255,255,0.14), 0 12px 28px -12px color-mix(in srgb, var(--section) 45%, transparent)",
-                }}
+                key={ring.radius}
+                className="sat-ring absolute"
+                // Both the orbit and every tile's counter-spin read this one
+                // value, so they cannot fall out of lockstep. See index.css.
+                style={{ ["--orbit" as string]: ring.orbit, transformStyle: "preserve-3d" }}
               >
-                <Icon size={22} strokeWidth={1.8} style={{ color: "var(--section)" }} aria-hidden />
-                <span className="sr-only">{label}</span>
+                {/* The band itself. Sits in the ring plane, so its near edge
+                    crosses in front of the logo and its far edge behind — the
+                    detail that sells the whole thing as a planet. */}
+                <div
+                  className="absolute rounded-full border"
+                  style={{
+                    width: ring.radius * 2,
+                    height: ring.radius * 2,
+                    left: -ring.radius,
+                    top: -ring.radius,
+                    borderColor: `color-mix(in srgb, ${ring.tone} 26%, transparent)`,
+                    boxShadow: `0 0 24px -6px color-mix(in srgb, ${ring.tone} 30%, transparent)`,
+                  }}
+                />
+
+                {ring.tools.map(({ to, label, icon: Icon }, j) => {
+                  const angle = (360 / ring.count) * j;
+                  return (
+                    // seat — the tile's fixed slot on the ring
+                    <div
+                      key={to}
+                      className="absolute"
+                      style={{
+                        transform: `rotate(${angle}deg) translateX(${ring.radius}px)`,
+                        transformStyle: "preserve-3d",
+                      }}
+                    >
+                      {/* cancels the orbit */}
+                      <div className="sat-counter" style={{ transformStyle: "preserve-3d" }}>
+                        {/* cancels the slot angle and the ring tilt, so the
+                            tile faces front however far round it has travelled */}
+                        <div style={{ transform: `rotate(${-angle}deg) rotateX(${-TILT}deg)` }}>
+                          <div
+                            className="grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-2xl border backdrop-blur-md"
+                            style={{
+                              borderColor: `color-mix(in srgb, ${ring.tone} 42%, transparent)`,
+                              background: `linear-gradient(150deg, color-mix(in srgb, ${ring.tone} 20%, transparent), color-mix(in srgb, #0f1c33 78%, transparent))`,
+                              boxShadow: `inset 0 1px 0 rgba(255,255,255,0.16), 0 10px 26px -10px color-mix(in srgb, ${ring.tone} 50%, transparent)`,
+                            }}
+                          >
+                            <Icon size={19} strokeWidth={1.8} style={{ color: ring.tone }} aria-hidden />
+                            <span className="sr-only">{label}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {/* The planet — a sibling of the ring plane rather than a child, so the
+              browser sorts it against individual tiles by depth instead of
+              against the plane as a whole. That sort is what lets the near half
+              of each ring cross the logo while the far half disappears behind.
+
+              It needs to be a BODY and not just the wordmark: on its own the
+              logo is a 190x51 strip of text, and tiles crossing it shredded it
+              into something unreadable. A solid disc gives the crossing tiles
+              something to read against and gives the far half of the orbit
+              something to actually hide behind — a planet you can see through
+              isn't one. Lit from the upper left, matching the hero's own bloom. */}
+          <div className="relative grid place-items-center" style={{ transform: "translateZ(0)" }}>
+            <div
+              className="absolute rounded-full"
+              style={{
+                width: PLANET,
+                height: PLANET,
+                background:
+                  "radial-gradient(circle at 32% 26%, #1b2f52 0%, #12203a 42%, #0a1122 78%, #070d18 100%)",
+                boxShadow:
+                  "inset 0 2px 1px color-mix(in srgb, #ffffff 12%, transparent)," +
+                  "inset 0 -18px 34px -18px #000," +
+                  "0 0 0 1px color-mix(in srgb, var(--sat-1) 14%, transparent)," +
+                  "0 24px 60px -20px rgba(0,0,0,0.7)",
+              }}
+            />
+            {/* Atmosphere on the lit limb. Kept tight (transparent by 38%) and
+                weak: at 26% out to 62% it bloomed across the whole face and
+                washed the wordmark down to a grey smear. */}
+            <div
+              className="absolute rounded-full blur-xl"
+              style={{
+                width: PLANET * 1.18,
+                height: PLANET * 1.18,
+                background:
+                  "radial-gradient(circle at 30% 24%, color-mix(in srgb, var(--hero-glow) 18%, transparent), transparent 38%)",
+              }}
+            />
+            <img
+              src="/content-assets/logo_1761200794.png"
+              alt=""
+              width={202}
+              height={54}
+              className="relative w-[132px] max-w-none drop-shadow-[0_4px_14px_rgba(0,0,0,0.7)]"
+            />
+          </div>
         </div>
       </div>
     </div>

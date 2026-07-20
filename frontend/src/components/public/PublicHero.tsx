@@ -62,8 +62,13 @@ export function PublicHero({
         className="float-slower absolute left-[-6%] top-[48%] -z-10 h-56 w-56 rounded-full opacity-40 blur-3xl"
         style={{ background: "radial-gradient(circle,var(--hero-glow),transparent 70%)" }}
       />
-      {/* Bottom vignette so the following light section reads cleanly. */}
-      <div className="absolute inset-x-0 bottom-0 -z-10 h-1/3 bg-gradient-to-b from-transparent to-[var(--hero-deep)]/80" />
+      {/* Bottom vignette so the following light section reads cleanly.
+          The end stop is a color-mix, NOT `to-[var(--hero-deep)]/80`: an
+          opacity modifier on an arbitrary var() silently produces nothing, and
+          this gradient had been computing to transparent→transparent — no
+          vignette at all — on every page using PublicHero. Tailwind can apply
+          `/80` to a *function* result but not to a bare custom property. */}
+      <div className="absolute inset-x-0 bottom-0 -z-10 h-1/3 bg-gradient-to-b from-transparent to-[color-mix(in_srgb,var(--hero-deep)_80%,transparent)]" />
 
       <section
         className={`mx-auto flex w-full max-w-5xl flex-col px-4 sm:px-6 ${alignCls} ${
