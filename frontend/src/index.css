@@ -803,6 +803,35 @@ body {
 .lp-float-2 { animation: lp-float 8.5s ease-in-out infinite; }
 @keyframes lp-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
 
+/* Tool-constellation tiles. Four distinct motions rather than one keyframe at
+   different delays: staggering a single bob still reads as one mechanism, and
+   24 tiles doing the same thing looks like a loading state. Each has its own
+   character — rise, diagonal drift, sway with a tilt, and a slow breath — so
+   the cluster feels alive instead of synchronised.
+   These animate `transform`, which is why tile depth lives on a PARENT node
+   (see ToolConstellation): same-node transform would be overwritten here. */
+@keyframes tile-rise {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-16px) rotate(-1.2deg); }
+}
+@keyframes tile-drift {
+  0%, 100% { transform: translate(0, 0); }
+  33%      { transform: translate(7px, -11px); }
+  66%      { transform: translate(-6px, -5px); }
+}
+@keyframes tile-sway {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  50%      { transform: translateX(10px) rotate(2deg); }
+}
+@keyframes tile-breathe {
+  0%, 100% { transform: scale(1) translateY(0); }
+  50%      { transform: scale(1.06) translateY(-7px); }
+}
+.tile-rise    { animation: tile-rise    9s  ease-in-out infinite; }
+.tile-drift   { animation: tile-drift   13s ease-in-out infinite; }
+.tile-sway    { animation: tile-sway    11s ease-in-out infinite; }
+.tile-breathe { animation: tile-breathe 8s  ease-in-out infinite; }
+
 /* Draw-on chart line (dashboard sparklines/areas). */
 .lp-draw { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: lp-draw 1.8s ease forwards; }
 @keyframes lp-draw { to { stroke-dashoffset: 0; } }

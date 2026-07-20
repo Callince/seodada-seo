@@ -25,6 +25,15 @@ import { moduleForSection, sectionVars } from "@/lib/sections";
 const DEPTH = [10, 52, 24, 68, 34, 58, 16, 44];
 const depthFor = (i: number) => DEPTH[i % DEPTH.length];
 
+/**
+ * Four motions, not one. A single keyframe at staggered delays still reads as
+ * one mechanism — 24 tiles bobbing identically looks like a skeleton loader.
+ * The cycle length (4) is coprime with neither 5 (columns) nor 8 (depths), so
+ * motion, depth and grid position never line up into a visible pattern.
+ */
+const MOTION = ["tile-rise", "tile-drift", "tile-sway", "tile-breathe"] as const;
+const motionFor = (i: number) => MOTION[i % MOTION.length];
+
 export function ToolConstellation() {
   return (
     <div
@@ -43,12 +52,34 @@ export function ToolConstellation() {
         }}
       />
 
-      <div aria-hidden style={{ perspective: "1200px", perspectiveOrigin: "60% 40%" }}>
+      <div
+        aria-hidden
+        style={{ perspective: "1200px", perspectiveOrigin: "60% 40%" }}
+        // The second kind of motion: the plane answers the cursor instead of
+        // only looping. Ambient float alone reads as decoration; parallax makes
+        // the cluster feel like an object in the page. Written to CSS vars so
+        // the transform below stays declarative and React never re-renders.
+        onMouseMove={(e) => {
+          const r = e.currentTarget.getBoundingClientRect();
+          const dx = (e.clientX - r.left) / r.width - 0.5;
+          const dy = (e.clientY - r.top) / r.height - 0.5;
+          e.currentTarget.style.setProperty("--tilt-y", `${dx * 14}deg`);
+          e.currentTarget.style.setProperty("--tilt-x", `${-dy * 12}deg`);
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.setProperty("--tilt-y", "0deg");
+          e.currentTarget.style.setProperty("--tilt-x", "0deg");
+        }}
+      >
         <div
           // 5 columns keeps the cluster roughly square against the hero copy;
           // 4 made it ~870px tall, nearly the full viewport.
-          className="grid grid-cols-5 gap-3"
-          style={{ transform: "rotateX(16deg) rotateY(-17deg) rotateZ(4deg)", transformStyle: "preserve-3d" }}
+          className="grid grid-cols-5 gap-3 [transition:transform_500ms_cubic-bezier(.32,.72,0,1)]"
+          style={{
+            transform:
+              "rotateX(calc(16deg + var(--tilt-x, 0deg))) rotateY(calc(-17deg + var(--tilt-y, 0deg))) rotateZ(4deg)",
+            transformStyle: "preserve-3d",
+          }}
         >
           {NAV_ITEMS.map(({ to, label, icon: Icon, section }, i) => (
             // Depth and float are split across two elements ON PURPOSE:
@@ -64,10 +95,11 @@ export function ToolConstellation() {
               }}
             >
               <div
-                className="lp-float grid aspect-square place-items-center rounded-2xl border backdrop-blur-md"
+                className={`${motionFor(i)} grid aspect-square place-items-center rounded-2xl border backdrop-blur-md`}
                 style={{
-                  animationDelay: `${(i % 8) * 0.45}s`,
-                  animationDuration: `${7 + (i % 4)}s`,
+                  // Delay uses a 7-step cycle against 4 motions and 5 columns,
+                  // so neighbours never share both motion and phase.
+                  animationDelay: `${(i % 7) * 0.55}s`,
                   borderColor: "color-mix(in srgb, var(--section) 34%, transparent)",
                   background:
                     "linear-gradient(150deg, color-mix(in srgb, var(--section) 22%, transparent), color-mix(in srgb, #0f1c33 70%, transparent))",
