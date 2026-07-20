@@ -1,7 +1,6 @@
 import { Seo, SITE_URL } from "@/lib/seo";
 
 import { AiVisibility } from "./landing/AiVisibility";
-import { CaseStudies } from "./landing/CaseStudies";
 import { Faq, FAQS } from "./landing/Faq";
 import { FeatureBento } from "./landing/FeatureBento";
 import { FinalCta } from "./landing/FinalCta";
@@ -56,7 +55,7 @@ const SITE_JSONLD = [
 /**
  * Section order is also the background rhythm. From ProductRail down:
  *
- *   rail · BENTO · workflow · AI-VIZ · roles · CASES · [stats] · quotes ·
+ *   rail · BENTO · workflow · AI-VIZ · roles · [stats] · quotes ·
  *   PRICING · faq+cta        (caps = tinted, [brackets] = dark navy)
  *
  * Base and --lp-tint alternate strictly, with ONE deliberate exception: Stats
@@ -100,9 +99,6 @@ export default function Landing() {
 
       {/* ==================== ROLES — what each seat gets ==================== */}
       <Roles />
-
-      {/* ==================== CASE STUDIES ==================== */}
-      <CaseStudies />
 
       {/* ==================== STATISTICS ==================== */}
       <Stats />

@@ -87,7 +87,7 @@ function buildHtml(shell, head, body) {
 async function main() {
   // Rendering the real app means the prerendered page includes the shared
   // header and footer, which carry the internal links a crawler follows.
-  const { renderRoute, hiddenContentRoutes, close } = await import("./render-route.mjs");
+  const { renderRoute, close } = await import("./render-route.mjs");
 
   // Prefer app.html when it exists: after one run, index.html is the
   // PRERENDERED HOMEPAGE, not the shell. Re-reading it would make a second run
@@ -143,13 +143,6 @@ async function main() {
   console.log("\nprerendered:");
   for (const r of report) {
     console.log(`  ${r.route.padEnd(width)}  ${String(r.text).padStart(6)} B text  ${r.head} B head`);
-  }
-  if (hiddenContentRoutes.length) {
-    console.warn(
-      `\n  NOTE: ${hiddenContentRoutes.length}/${report.length} routes have their content inside\n` +
-        "  React's hidden streaming div. It is in the HTML and readable by crawlers that\n" +
-        "  do not run JS, but marked hidden. See the KNOWN LIMITATION in render-route.mjs.",
-    );
   }
   const thin = report.filter((r) => r.text < 500);
   if (thin.length) {
