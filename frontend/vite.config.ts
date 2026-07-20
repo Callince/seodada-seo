@@ -23,9 +23,26 @@ export default defineConfig({
             // CKEditor is pure ESM and only used in the admin blog editor —
             // give it its own chunk (lazy-loaded) so it never weighs down the
             // public pages. Everything else stays co-located (see note above).
-            if (id.includes("ckeditor")) return "ckeditor";
+            // Match the PACKAGES, not any path containing the word. The old
+            // substring tests were too loose: `id.includes("/d3")` in
+            // particular pulled unrelated modules into the d3 chunk (tightening
+            // it moved real content back to vendor).
+            //
+            // KNOWN ISSUE, not fixed by this: the entry chunk still ends up with
+            // a static `import {X} from "./ckeditor-*.js"`, so index.html
+            // modulepreloads ~1.2 MB of CKEditor on every page, landing page
+            // included. It is NOT a source-level import — RichEditor is only
+            // ever `lazy()`-imported, and the chunk contains no app code — so it
+            // is a rolldown chunk-graph artefact. Diagnosing it further means
+            // touching the chunk split that previously caused a production-only
+            // "t is not a function" crash (see the note above), so it needs a
+            // deliberate session with a production smoke test, not a drive-by.
+            if (/node_modules[/\\](@ckeditor[/\\]|ckeditor5)/.test(id)) return "ckeditor";
             // d3 (site-structure graph) is admin/tool-only and lazy-loaded.
-            if (id.includes("/d3") || id.includes("d3-")) return "d3";
+            if (/node_modules[/\\]d3(-[a-z]+)?[/\\]/.test(id)) return "d3";
+            // exceljs (Excel report export) is only imported on click — keep it
+            // out of the eager vendor chunk.
+            if (id.includes("exceljs")) return "exceljs";
             return "vendor";
           }
         },
