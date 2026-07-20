@@ -1,4 +1,4 @@
-import { AreaChart, CountUp, LandingImage, Reveal } from "@/components/public/landingKit";
+import { AreaChart, BrowserFrame, CountUp, LandingImage, Reveal } from "@/components/public/landingKit";
 
 /** Case studies — illustrative outcomes (mark as examples before launch). */
 const CASES = [
@@ -56,13 +56,17 @@ export function CaseStudies() {
                     ))}
                   </div>
                 </div>
-                <div className="lp-ring overflow-hidden rounded-2xl">
+                {/* The chart inside browser chrome, so it reads as the client's
+                    dashboard rather than a decorative graph. A real screenshot
+                    (content-assets/landing/case-N.png) takes priority when it
+                    exists; the live mock is the standing fallback. */}
+                <BrowserFrame url="app.seodada.com/rank">
                   <LandingImage
                     src={`/content-assets/landing/case-${i + 1}.png`}
                     alt={`${c.name} — organic traffic growth in the seodada dashboard`}
-                    className="block w-full rounded-2xl border border-border"
+                    className="block w-full"
                     fallback={
-                      <div className="rounded-2xl border border-border bg-[var(--lp-panel)] p-4">
+                      <div className="bg-[var(--lp-panel)] p-4">
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-bold text-text">Organic traffic</span>
                           <span className="text-sm font-semibold text-success-ink">{c.metrics[0].prefix}{c.metrics[0].v.toLocaleString()}{c.metrics[0].suffix}</span>
@@ -73,7 +77,7 @@ export function CaseStudies() {
                       </div>
                     }
                   />
-                </div>
+                </BrowserFrame>
               </div>
             </Reveal>
           ))}

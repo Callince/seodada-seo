@@ -82,6 +82,34 @@ export function Reveal({
   );
 }
 
+/**
+ * Browser-chrome frame — the ahrefs/semrush device for making a UI panel read
+ * as "the product running" instead of "a card with a chart on it". Traffic
+ * lights, an address pill, then the panel.
+ *
+ * Deliberately wraps LIVE MOCK MARKUP rather than screenshots: the mocks
+ * follow the theme, stay sharp at every DPI, ship no image bytes, and — since
+ * the landing is prerendered — their text is crawlable, which a PNG's never
+ * is. If real screenshots arrive later, they drop in as children unchanged.
+ */
+export function BrowserFrame({ url, children, className = "" }: { url: string; children: ReactNode; className?: string }) {
+  return (
+    <div className={`overflow-hidden rounded-xl border border-border bg-surface lp-shadow-lg ${className}`}>
+      <div className="flex items-center gap-3 border-b border-border bg-[var(--surface-2)] px-4 py-2.5">
+        <span className="flex gap-1.5" aria-hidden>
+          <span className="h-2.5 w-2.5 rounded-full bg-[#f66151]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#f5c211]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-[#33d17a]" />
+        </span>
+        <span className="min-w-0 flex-1 truncate rounded-md bg-surface px-3 py-1 text-center text-[11px] font-medium text-text-muted">
+          {url}
+        </span>
+      </div>
+      {children}
+    </div>
+  );
+}
+
 /** Magnetic hover — child drifts toward the cursor with spring physics. */
 export function Magnetic({
   children,

@@ -1,7 +1,7 @@
 import { Quote, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import { Reveal } from "@/components/public/landingKit";
+import { BrowserFrame, Reveal } from "@/components/public/landingKit";
 
 /** Share of AI answers that cite you, per engine. 0–1. */
 const ENGINES = [
@@ -84,7 +84,8 @@ export function AiVisibility() {
 
         {/* ------------------------------------------------ mock panel */}
         <Reveal delay={0.1}>
-          <div className="rounded-xl border border-border bg-surface p-5 lp-shadow-lg">
+          <BrowserFrame url="app.seodada.com/ai-visibility">
+            <div className="bg-surface p-5">
             {/* the cited answer */}
             <div className="rounded-lg border border-border bg-[var(--lp-panel)] p-4">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-text-muted">
@@ -160,7 +161,8 @@ export function AiVisibility() {
                 the app.
               </p>
             </div>
-          </div>
+            </div>
+          </BrowserFrame>
         </Reveal>
       </div>
     </section>
