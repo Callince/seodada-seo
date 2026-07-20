@@ -240,17 +240,21 @@ export function ProductRail() {
               <article
                 key={w.key}
                 style={sectionVars(w.mod)}
-                className="lp-card group relative flex h-[380px] w-[86vw] max-w-[500px] shrink-0 snap-start flex-col overflow-hidden rounded-[16px] border border-[var(--lp-card-border)] bg-[var(--lp-card-glass)] backdrop-blur-2xl lp-shadow sm:w-[500px]"
+                className={[
+                  "lp-card group relative flex h-[380px] w-[86vw] max-w-[500px] shrink-0 snap-start",
+                  "flex-col overflow-hidden rounded-[16px] border border-border bg-surface lp-shadow",
+                  "transition-[border-color,box-shadow] duration-[var(--dur-2)] ease-[var(--ease)]",
+                  "hover:border-text-muted/45 hover:shadow-[shadow:var(--lift-2)] sm:w-[500px]",
+                ].join(" ")}
               >
-                {/* soft wash in the card's own section colour behind the glass */}
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,color-mix(in_srgb,var(--section)_22%,transparent),transparent_46%,color-mix(in_srgb,var(--section)_10%,transparent))] opacity-80 transition-opacity duration-300 group-hover:opacity-100"
-                />
-                {/* header — no fill, blends into the glass card */}
+                {/* No section wash and no filled chip. Three cards each flooded
+                    with a different hue read as a swatch set, and the tint sat
+                    directly behind the charts it was competing with. The card is
+                    neutral now so the DATA carries the colour — the widgets keep
+                    their own tones because there the colour means something. */}
                 <div className="relative flex items-center gap-3 px-6 pt-6">
-                  <span className="section-gradient grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-white shadow-glow">
-                    <w.icon size={19} />
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-surface-2 text-text-muted transition-colors duration-[var(--dur-2)] group-hover:text-[color:var(--section-ink)]">
+                    <w.icon size={19} strokeWidth={1.9} />
                   </span>
                   <div className="min-w-0">
                     <h3 className="truncate font-bold tracking-tight">{w.label}</h3>

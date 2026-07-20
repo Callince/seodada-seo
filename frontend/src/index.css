@@ -565,12 +565,6 @@ body {
   --lp-panel: #f4f8fc;
   --lp-glass: color-mix(in srgb, #ffffff 85%, transparent);
   --lp-primary-border: color-mix(in srgb, var(--signal-2) 22%, transparent);
-  /* Translucent showcase cards — thinner than --lp-glass so the mesh reads
-     through them. Separate token because it must flip with the theme: a
-     hardcoded `#ffffff 42%` composited to a mid grey on the dark canvas and
-     took 30 elements of the product rail down with it. */
-  --lp-card-glass: color-mix(in srgb, #ffffff 42%, transparent);
-  --lp-card-border: color-mix(in srgb, #ffffff 50%, transparent);
 }
 
 /* Landing hero — the SAME permanently-dark surface the tools/public pages use
@@ -589,8 +583,6 @@ body {
   --primary-ink: #86e7f3;
   --primary-soft: color-mix(in srgb, var(--hero-glow) 16%, transparent);
   --lp-glass: color-mix(in srgb, #0f1c33 55%, transparent);
-  --lp-card-glass: color-mix(in srgb, #0f1c33 55%, transparent);
-  --lp-card-border: color-mix(in srgb, #ffffff 14%, transparent);
   --lp-primary-border: color-mix(in srgb, var(--hero-glow) 30%, transparent);
   --success-ink: #63d18f;
   --danger-ink: #ff8a82;
@@ -623,8 +615,6 @@ body {
      — painted dark blue on the dark canvas. Ink inverts with the theme. */
   --primary-ink: var(--signal-4);
   --primary-soft: #0d2438;
-  --lp-card-glass: color-mix(in srgb, #16202f 62%, transparent);
-  --lp-card-border: color-mix(in srgb, #ffffff 10%, transparent);
 }
 /* Spectrum stops, not the pre-Aperture brand hex. Runs deep -> bright -> deep
    so the sweep reads as light travelling across the headline; the dark cut
