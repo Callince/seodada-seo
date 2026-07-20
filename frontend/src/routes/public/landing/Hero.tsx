@@ -1,15 +1,15 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Bot, Check, PhoneCall, Search, Sparkles, Star, TrendingUp, X } from "lucide-react";
+import { ArrowRight, Check, PhoneCall, Search, Sparkles, Star, X } from "lucide-react";
 import { useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 
 import { apiErrorMessage } from "@/api/client";
 import { usePublicAnalyze } from "@/api/hooks/usePublicAnalyze";
-import { AreaChart, LandingImage, Magnetic, Particles, ScoreRing } from "@/components/public/landingKit";
+import { Magnetic, Particles } from "@/components/public/landingKit";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/store/auth";
 
-import { KeywordRows, TRAFFIC } from "./shared";
+import { ToolConstellation } from "./ToolConstellation";
 
 /** A URL is analysable here; a bare keyword isn't — route those to the app. */
 const looksLikeUrl = (q: string) => /\.[a-z]{2,}(\/|$|\?)/i.test(q.replace(/^https?:\/\//i, ""));
@@ -283,63 +283,7 @@ export function Hero() {
           className="relative z-10 hidden lg:block"
         >
           <div className="absolute inset-8 -z-10 rounded-[2.5rem] bg-gradient-to-tr from-[color-mix(in_srgb,var(--signal-1)_40%,transparent)] to-[color-mix(in_srgb,var(--signal-2)_40%,transparent)] blur-3xl" />
-          <div className="lp-ring lp-float rounded-[28px]">
-            <LandingImage
-              src="/content-assets/landing/hero-dashboard.png"
-              alt="seodada SEO dashboard — SEO score, organic traffic growth, and keyword rankings at a glance"
-              className="block w-full rounded-[28px] border border-white/60 lp-shadow-lg"
-              fallback={
-                <div className="relative rounded-[28px] border border-[var(--lp-card-border)] bg-[var(--lp-card-glass)] p-5 lp-shadow-lg backdrop-blur-xl">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <ScoreRing value={92} size={72} />
-                      <div>
-                        <p className="text-xs text-text-muted">SEO score</p>
-                        <p className="text-sm font-bold text-text">Excellent</p>
-                      </div>
-                    </div>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[color-mix(in_srgb,var(--success)_12%,transparent)] px-2.5 py-1 text-xs font-semibold text-success-ink">
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success" /> Live
-                    </span>
-                  </div>
-                  <div className="mt-4 rounded-2xl border border-border bg-surface p-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium text-text-muted">Organic traffic</span>
-                      <span className="text-xs font-semibold text-success-ink">+382%</span>
-                    </div>
-                    <div className="mt-1 h-24">
-                      <AreaChart values={TRAFFIC} id="hero-traffic" height={96} />
-                    </div>
-                  </div>
-                  <div className="mt-3">
-                    <KeywordRows />
-                  </div>
-                </div>
-              }
-            />
-          </div>
-
-          {/* Floating cards */}
-          <div className="lp-float-2 absolute -right-6 -top-6 w-52 rounded-2xl border border-border bg-[var(--lp-glass)] p-3.5 lp-shadow-lg backdrop-blur">
-            <div className="flex items-center gap-2.5">
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-[color-mix(in_srgb,var(--success)_12%,transparent)] text-success-ink">
-                <TrendingUp size={16} />
-              </span>
-              <div>
-                <p className="text-xs font-semibold text-text">Ranking up</p>
-                <p className="text-[11px] text-text-muted">"geo optimization" · #4 → #1</p>
-              </div>
-            </div>
-          </div>
-          <div className="lp-float absolute -bottom-5 -left-6 flex items-center gap-2.5 rounded-2xl border border-border bg-[var(--lp-glass)] px-4 py-3 lp-shadow-lg backdrop-blur">
-            <span className="grid h-8 w-8 place-items-center rounded-lg gradient-fill text-white">
-              <Bot size={15} />
-            </span>
-            <div>
-              <p className="text-xs font-semibold text-text">AI advisor</p>
-              <p className="text-[11px] text-text-muted">3 fixes ready to apply</p>
-            </div>
-          </div>
+          <ToolConstellation />
         </motion.div>
       </div>
     </section>
