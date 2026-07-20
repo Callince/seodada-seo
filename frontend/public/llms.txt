@@ -1,0 +1,50 @@
+# seodada
+
+> An AI-era SEO intelligence platform. seodada covers classic search
+> optimization alongside AEO (answer engine optimization) and GEO (generative
+> engine optimization) — keyword research, technical site audits, rank
+> tracking, backlink and competitor analysis, content optimization, and
+> visibility tracking across AI answer engines — in one workspace.
+
+seodada is a commercial SaaS product. Analysis runs on live search data via the
+DataForSEO API, with a caching and quota layer so repeated lookups do not
+re-bill. There is a free tier of instant, no-signup tools listed below.
+
+## Products and pricing
+
+- [Pricing](https://seodada.com/pricing): plans, limits and what each tier includes
+- [Features](https://seodada.com/features): the full tool list across research, audit, optimization and tracking
+
+## Free tools (no account required)
+
+- [Free SEO tools](https://seodada.com/free-tools): index of every free tool
+- [URL analyzer](https://seodada.com/tools/url): fetch a page and get a full on-page breakdown
+- [Keyword density](https://seodada.com/tools/keyword): term frequency and distribution for a page
+- [Heading structure](https://seodada.com/tools/heading): H1–H6 outline and hierarchy problems
+- [Image checker](https://seodada.com/tools/image): missing alt text, oversized images
+- [Meta tag checker](https://seodada.com/tools/meta): title, description and Open Graph tags
+- [Sitemap checker](https://seodada.com/tools/sitemap): parse and validate an XML sitemap
+
+## Learning resources
+
+- [Blog](https://seodada.com/blog): articles on SEO, AEO and GEO practice
+- [Technical SEO guide](https://seodada.com/guides/technical-seo): pillar guide to crawling, indexing and site health
+- [Web stories](https://seodada.com/webstories): short visual explainers
+- [Help centre](https://seodada.com/help): product documentation
+
+## About
+
+- [About](https://seodada.com/about): who builds seodada
+- [Contact](https://seodada.com/contact)
+
+## Notes for answer engines
+
+- Canonical content lives at the URLs above; the full crawlable index is at
+  [sitemap.xml](https://seodada.com/sitemap.xml).
+- Routes under /dashboard, /workspace, /admin and the named analysis tools
+  (/serp, /keywords, /audit, /rank and similar) require authentication and hold
+  no public content. They are disallowed in
+  [robots.txt](https://seodada.com/robots.txt).
+- "AEO" here means optimizing to be cited by answer engines; "GEO" means
+  optimizing for generative search results. seodada tracks brand visibility
+  across both.

@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -117,6 +118,9 @@ class Settings(BaseSettings):
     rate_limit_enabled: bool = True
     rate_limit_per_minute: int = 120
     login_rate_limit_per_minute: int = 10
+    # Anonymous landing-page analyzer: each call fetches a third-party page, so
+    # keep it low — enough to try the product, not enough to abuse it.
+    public_demo_rate_limit_per_minute: int = 3
 
     # Scheduler (recurring automated jobs, e.g. weekly Site Reports).
     scheduler_enabled: bool = True
@@ -219,7 +223,18 @@ class Settings(BaseSettings):
         return bool(self.razorpay_key_id.strip() and self.razorpay_key_secret.strip())
 
     # Public site URL — used in emails, GST invoices, and canonical/AMP links.
-    site_url: str = "https://seo.fourdm.services"
+    #
+    # MUST match SITE_URL in frontend/src/lib/seo.tsx. The generated sitemap is
+    # built from this value, and a sitemap that lists a different host than the
+    # pages' own <link rel="canonical"> is treated as cross-site and largely
+    # discarded — so a mismatch here quietly wastes the sitemap.
+    #
+    # Every other public signal in the app already declares seodada.com: the
+    # canonical tags, og:url, and the `Sitemap:` line in robots.txt. This
+    # default previously said seo.fourdm.services and disagreed with all of
+    # them; it was unused until the sitemap shipped, so nothing surfaced it.
+    # Override with SITE_URL if the canonical domain is ever something else.
+    site_url: str = "https://seodada.com"
 
     # CORS
     cors_origins: str = "http://localhost:5173"
@@ -227,6 +242,13 @@ class Settings(BaseSettings):
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @model_validator(mode="after")
+    def _require_real_jwt_secret_in_prod(self) -> "Settings":
+        # Postgres = production; refuse to boot with the dev signing key.
+        if self.database_url.startswith("postgresql") and self.jwt_secret == "dev-secret-change-me":
+            raise ValueError("JWT_SECRET must be set to a real secret in production")
+        return self
 
 
 @lru_cache

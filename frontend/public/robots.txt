@@ -22,3 +22,6 @@ Disallow: /register
 Disallow: /oauth
 
 Sitemap: https://seodada.com/sitemap.xml
+
+# Product and content summary for LLM crawlers.
+# https://seodada.com/llms.txt
