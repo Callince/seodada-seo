@@ -2,7 +2,7 @@ import { Seo, SITE_URL } from "@/lib/seo";
 
 import { AiVisibility } from "./landing/AiVisibility";
 import { CaseStudies } from "./landing/CaseStudies";
-import { Faq } from "./landing/Faq";
+import { Faq, FAQS } from "./landing/Faq";
 import { FeatureBento } from "./landing/FeatureBento";
 import { FinalCta } from "./landing/FinalCta";
 import { Hero } from "./landing/Hero";
@@ -37,6 +37,19 @@ const SITE_JSONLD = [
       target: `${SITE_URL}/serp?q={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
+  },
+  // Built from the same FAQS array the visible accordion renders, so the
+  // markup can never claim questions the page doesn't show. Google demoted
+  // FAQ rich results, but LLMs parse FAQPage heavily — this is an AEO block,
+  // not a SERP one, and definitional Q&A is what answer engines quote.
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQS.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
   },
 ];
 

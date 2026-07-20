@@ -2,7 +2,10 @@ import { ChevronDown } from "lucide-react";
 
 import { Reveal } from "@/components/public/landingKit";
 
-const FAQS = [
+/** Exported so Landing.tsx can build the FAQPage JSON-LD from the SAME array
+ *  the accordion renders — schema derived from a second copy of the questions
+ *  is schema that eventually lies about the page. */
+export const FAQS = [
   { q: "Is there a free plan?", a: "Yes. Create an account and run a set number of analyses every day for free — no credit card. Upgrade any time for a higher daily limit." },
   { q: "What is GEO and AEO?", a: "Generative Engine Optimization and Answer Engine Optimization — making your content the source AI assistants (ChatGPT, Google AI) cite. seodada tracks and improves your AI visibility alongside classic SEO." },
   { q: "What data does seodada use?", a: "Live data from your own pages (our in-house crawler) plus search-intelligence providers for SERP, keywords, and backlinks — with free fallbacks so nothing breaks." },

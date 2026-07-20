@@ -37,6 +37,40 @@ const PLANS = [
 
 const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
 
+/**
+ * The page LLMs read to answer "how much does seodada cost" — without this
+ * they guess from prose. Built from the same PLANS array the cards render, so
+ * the schema can never quote a price the page doesn't show. The free tier is
+ * included because the product genuinely has one (signup, daily analysis
+ * quota, no card) and "is there a free plan" is the single most-asked pricing
+ * question an answer engine fields.
+ */
+const PRICING_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "seodada",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  description:
+    "AI-powered SEO platform — keyword research, technical audits, rank tracking, and AI visibility across ChatGPT, Perplexity and Google AI Overviews.",
+  offers: [
+    {
+      "@type": "Offer",
+      name: "Free",
+      price: 0,
+      priceCurrency: "INR",
+      description: "Free daily analyses with an account — no credit card.",
+    },
+    ...PLANS.map((p) => ({
+      "@type": "Offer" as const,
+      name: p.name,
+      price: p.price,
+      priceCurrency: "INR",
+      description: `${p.blurb} ${p.perDay} analyses per day, billed monthly with GST invoice.`,
+    })),
+  ],
+};
+
 /** Features included in every plan, migrated from the seodada pricing copy. */
 function includedFeatures(): string[] {
   const page = getPage("pricing");
@@ -67,6 +101,7 @@ export default function Pricing() {
         title="Pricing"
         description="Simple, transparent pricing. Every plan unlocks the full seodada analytics suite — Basic ₹799, Pro ₹4,999, and Premium ₹8,999 per month."
         path="/pricing"
+        jsonLd={PRICING_JSONLD}
       />
       {/* ===== Hero ===== */}
       <PublicHero
