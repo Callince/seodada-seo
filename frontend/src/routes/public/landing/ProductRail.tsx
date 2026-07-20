@@ -230,7 +230,13 @@ export function ProductRail() {
             driven scroll-jack on desktop. */}
         <div
           ref={railWrapRef}
-          className="mt-10 snap-x snap-mandatory overflow-x-auto pb-4 lg:snap-none lg:overflow-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          // Vertical padding, not just pb: setting overflow-x makes overflow-y
+          // compute to a clipping value too, so with zero top padding the card's
+          // 6px hover lift (.lp-card:hover) was sliced off at the top edge.
+          // 24px each side also stops the hover glow (0 26px 55px -20px, ~34px
+          // of downward reach) being cut at the bottom. Margin drops 10 -> 4 so
+          // the rail still sits exactly where it did.
+          className="mt-4 snap-x snap-mandatory overflow-x-auto py-6 lg:snap-none lg:overflow-hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <div
             ref={railRef}
