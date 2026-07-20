@@ -1,3 +1,4 @@
+import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Reveal } from "@/components/public/landingKit";
@@ -107,18 +108,37 @@ export function FeatureBento() {
                         // where intended; grow lets a short final row expand to
                         // fill rather than leaving a hole. Below sm it drops to
                         // one card per row.
-                        className="lp-card lp-glass flex flex-[1_1_100%] gap-3 rounded-2xl border border-border p-4 lp-shadow transition-transform hover:-translate-y-0.5 sm:flex-[1_1_calc((100%-(var(--cols)-1)*var(--gap))/var(--cols))]"
+                        className={[
+                          "lp-card group/card relative flex flex-[1_1_100%] items-start gap-3.5",
+                          "rounded-2xl border border-border bg-surface p-4 pr-9",
+                          "transition-[border-color,box-shadow,transform] duration-[var(--dur-2)] ease-[var(--ease)]",
+                          "hover:-translate-y-0.5 hover:border-text-muted/45 hover:shadow-[shadow:var(--lift-2)]",
+                          "sm:flex-[1_1_calc((100%-(var(--cols)-1)*var(--gap))/var(--cols))]",
+                        ].join(" ")}
                       >
-                        <span
-                          className="grid h-10 w-10 shrink-0 place-items-center rounded-xl"
-                          style={{ background: "var(--section-soft)", color: "var(--section)" }}
-                        >
-                          <Icon size={18} />
+                        {/* Neutral by design. The workflow accent lives on the
+                            group header — repeating it on all 24 cards turned
+                            the section into a colour chart and made every card
+                            shout equally. Monochrome here lets the NAMES lead,
+                            and the icon warms to the accent only on hover. */}
+                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-2 text-text-muted transition-colors duration-[var(--dur-2)] group-hover/card:text-[color:var(--section-ink)]">
+                          <Icon size={18} strokeWidth={1.9} />
                         </span>
                         <span className="min-w-0">
-                          <span className="block font-semibold tracking-tight">{label}</span>
-                          <span className="mt-1 block text-sm leading-relaxed text-text-muted">{BLURB[to]}</span>
+                          <span className="block text-[15px] font-semibold leading-snug tracking-tight">
+                            {label}
+                          </span>
+                          <span className="mt-1 block text-sm leading-relaxed text-text-muted">
+                            {BLURB[to]}
+                          </span>
                         </span>
+                        {/* These are links; give them an affordance instead of
+                            relying on the cursor alone. */}
+                        <ArrowUpRight
+                          size={15}
+                          aria-hidden
+                          className="absolute right-3.5 top-4 text-text-muted opacity-0 transition-opacity duration-[var(--dur-2)] group-hover/card:opacity-100"
+                        />
                       </Link>
                     ))}
                   </div>
