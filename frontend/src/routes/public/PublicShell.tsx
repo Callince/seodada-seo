@@ -177,7 +177,9 @@ export function PublicShell() {
             : "lp-hero border-b border-transparent",
         )}
       >
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4 sm:px-6">
+        {/* --header-h, not h-16: the pinned landing sections offset their sticky
+            point by this exact value, so the two must move together. */}
+        <div className="mx-auto flex h-[var(--header-h)] max-w-6xl items-center gap-6 px-4 sm:px-6">
           <Logo />
 
           {/* Nav sits next to the logo rather than centred. Centring a middle

@@ -67,6 +67,14 @@
   --footer: #0e1b2d;
   --footer-text: #8b9aab;
 
+  /* Height of the fixed public header. Referenced by the pinned landing
+     sections, which stick BELOW it — with `top: 0` their content was centred
+     in a box whose top 64px the header covers, so section headings collided
+     with the nav. Kept as a token because this value has already changed once
+     (floating capsule -> plain bar) and three hard-coded 4rems would have
+     drifted apart silently. */
+  --header-h: 4rem;
+
   /* Marketing hero — deliberately NOT theme-scoped. This surface stays dark in
      light mode too (white text sits on it), so binding it to --surface would
      invert it and destroy the contrast. Values extend the spectrum below

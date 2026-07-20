@@ -51,7 +51,9 @@ export function Workflow() {
 
   return (
     <section ref={flowRef} className="relative lg:h-[280vh]">
-      <div className="lg:sticky lg:top-0 lg:flex lg:min-h-screen lg:items-center">
+      {/* Sticks below the fixed header — see the note in ProductRail; with
+          `top-0` the "WORKFLOW" eyebrow and heading sat under the nav. */}
+      <div className="lg:sticky lg:top-[var(--header-h)] lg:flex lg:min-h-[calc(100vh-var(--header-h))] lg:items-center">
         <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:py-24">
           <div>
             <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-ink">Workflow</span>

@@ -187,7 +187,16 @@ export function ProductRail() {
   return (
     <section ref={pinRef} className="relative py-20 sm:py-28 lg:h-[360vh] lg:py-0">
       <div className="lp-grid absolute inset-0 -z-10" />
-      <div className="relative lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:justify-center lg:overflow-hidden">
+      {/* Sticks BELOW the fixed header, not under it. With `top-0` / `h-screen`
+          this pinned panel centred its content in the full viewport, but the
+          header covers the top 4rem of that — so the eyebrow and heading ran
+          straight into the nav for the whole pin. Offsetting the stick point
+          and taking the same amount off the height centres the content in the
+          space that is actually visible.
+          The pin maths below is unaffected: it measures the SECTION's rect, not
+          this element's, so the only effect is a ~64px dead zone at the very
+          start of a 260vh travel. */}
+      <div className="relative lg:sticky lg:top-[var(--header-h)] lg:flex lg:h-[calc(100vh-var(--header-h))] lg:flex-col lg:justify-center lg:overflow-hidden">
         {/* soft colour wash so the glass cards read as frosted */}
         <div className="pointer-events-none absolute inset-0 -z-10 hidden lg:block" aria-hidden>
           <div className="absolute left-[10%] top-1/3 h-72 w-72 rounded-full bg-[rgba(29,125,189,0.20)] blur-3xl" />
