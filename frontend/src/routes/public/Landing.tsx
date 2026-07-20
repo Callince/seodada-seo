@@ -8,6 +8,7 @@ import { FinalCta } from "./landing/FinalCta";
 import { Hero } from "./landing/Hero";
 import { Pricing } from "./landing/Pricing";
 import { ProductRail } from "./landing/ProductRail";
+import { Roles } from "./landing/Roles";
 import { Stats } from "./landing/Stats";
 import { Testimonials } from "./landing/Testimonials";
 import { TrustMarquee } from "./landing/TrustMarquee";
@@ -40,20 +41,21 @@ const SITE_JSONLD = [
 ];
 
 /**
- * Section order is also the background rhythm. From ProductRail down, sections
- * alternate base / --lp-tint strictly:
+ * Section order is also the background rhythm. From ProductRail down:
  *
- *   rail · BENTO · workflow · AI-VIZ · cases · STATS · quotes · PRICING · faq+cta
- *   (caps = tinted)
+ *   rail · BENTO · workflow · AI-VIZ · roles · CASES · [stats] · quotes ·
+ *   PRICING · faq+cta        (caps = tinted, [brackets] = dark navy)
  *
- * It used to run base / tint / base / base / base / tint / base / tint — three
- * flat sections in a row through the middle of the page, so Workflow, AI
- * Visibility and Case Studies read as one undifferentiated scroll.
+ * Base and --lp-tint alternate strictly, with ONE deliberate exception: Stats
+ * is a full-contrast dark band (the ahrefs colour-blocking move) so the middle
+ * of the scroll has an anchor between the dark hero and the gradient CTA. A
+ * dark band counts as "opposite fill" to both of its neighbours, so the
+ * alternation survives around it.
  *
- * The alternation is also why no section carries `border-t` any more: a rule
- * between two bands that already differ in fill is a redundant line. If you
- * insert a section here, give it the opposite fill of its neighbour rather than
- * a border — and keep the pairing, or the rhythm breaks two sections deep.
+ * The alternation is also why no section carries `border-t`: a rule between
+ * two bands that already differ in fill is a redundant line. If you insert a
+ * section here, give it the opposite fill of its neighbour rather than a
+ * border — and keep the pairing, or the rhythm breaks two sections deep.
  */
 export default function Landing() {
   return (
@@ -82,6 +84,9 @@ export default function Landing() {
 
       {/* ============ AI VISIBILITY — the differentiator ============ */}
       <AiVisibility />
+
+      {/* ==================== ROLES — what each seat gets ==================== */}
+      <Roles />
 
       {/* ==================== CASE STUDIES ==================== */}
       <CaseStudies />

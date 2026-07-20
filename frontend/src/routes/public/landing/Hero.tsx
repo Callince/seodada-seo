@@ -187,9 +187,13 @@ export function Hero() {
           >
             <Sparkles size={13} /> AI-powered SEO · GEO · AEO
           </motion.span>
+          {/* Display size and 0.95–1.0 leading are the point, not a garnish —
+              measured ahrefs' hero at 60px/57px. Loose leading on huge type is
+              what makes a page read "template"; the tight setting is what reads
+              as conviction. */}
           <motion.h1
             variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-            className="mt-5 text-balance text-[2rem] font-extrabold leading-[1.08] tracking-tight text-text sm:text-5xl sm:leading-[1.03] lg:text-6xl xl:text-7xl"
+            className="mt-5 text-balance text-[2.1rem] font-extrabold leading-[1.02] tracking-tight text-text sm:text-5xl sm:leading-[0.98] lg:text-6xl xl:text-[4.75rem] xl:leading-[0.95]"
           >
             AI SEO
             <br />
@@ -248,30 +252,27 @@ export function Hero() {
             </RouterLink>
           </motion.div>
 
+          {/* Data-scale proof, ahrefs-style: numbers with rules between them,
+              not an avatar pile. Every figure here is a claim the site already
+              makes elsewhere (Stats, reviews) — nothing is invented for the
+              hero, so the two sections can never disagree. */}
           <motion.div
             variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-            className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-6 sm:gap-y-3 lg:justify-start"
+            className="mx-auto mt-8 grid max-w-lg grid-cols-3 divide-x divide-border border-t border-border pt-5 text-left lg:mx-0"
           >
-            <div className="flex -space-x-2">
-              {["PN", "AM", "SO", "RK"].map((x, i) => (
-                <span
-                  key={x}
-                  className="grid h-8 w-8 place-items-center rounded-full border-2 border-surface text-[10px] font-bold text-white"
-                  style={{ background: i % 2 ? "var(--signal-0)" : "var(--signal-1)" }}
-                >
-                  {x}
-                </span>
-              ))}
-            </div>
-            <div className="text-left">
-              <div className="flex items-center gap-0.5 text-warning">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} size={14} fill="currentColor" />
-                ))}
-                <span className="ml-1.5 text-sm font-semibold text-text">4.9/5</span>
+            {[
+              { n: "1.2M+", l: "URLs analysed" },
+              { n: "2,000+", l: "teams on board" },
+              { n: "4.9/5", l: "from 500+ reviews", star: true },
+            ].map((s) => (
+              <div key={s.l} className="px-4 first:pl-0 last:pr-0">
+                <div className="flex items-baseline gap-1 text-xl font-extrabold tracking-tight text-text sm:text-2xl">
+                  {s.n}
+                  {s.star && <Star size={13} className="text-warning" fill="currentColor" aria-hidden />}
+                </div>
+                <div className="mt-0.5 text-xs leading-snug text-text-muted">{s.l}</div>
               </div>
-              <span className="text-xs text-text-muted">Trusted by 2,000+ teams · 500+ reviews</span>
-            </div>
+            ))}
           </motion.div>
         </motion.div>
 
