@@ -77,18 +77,29 @@ const FOOTER_COLS: { title: string; links: { to: string; label: string; external
   },
 ];
 
-function Logo() {
+function Logo({ scrolled }: { scrolled: boolean }) {
   return (
     <Link to="/" className="flex shrink-0 items-center" aria-label="seodada home">
-      {/* The logo PNG's magnifier handle protrudes below the wordmark, so the
-          image's geometric centre sits below the visual centre — nudge down a
-          hair to optically centre the pill body in the nav. */}
+      {/* Matches the nav capsule's 54px from lg up, where the capsule exists.
+          The PNG is fully trimmed — measured 0% transparent padding on both
+          axes — so the box height IS the artwork height and 54px lines up.
+          `shrink-0` is load-bearing: the header is a flex row, and without it
+          the image was squeezed to fit rather than keeping its 3.75 aspect
+          (it rendered 67px wide instead of 202 at tablet widths).
+          The magnifier handle protrudes below the wordmark, which drops the
+          geometric centre below the visual one; the nudge corrects for that. */}
       <img
         src="/content-assets/logo_1761200794.png"
         alt="seodada"
-        width={119}
-        height={32}
-        className="h-8 w-auto translate-y-[2px]"
+        width={202}
+        height={54}
+        className={cn(
+          "w-auto shrink-0 translate-y-[2px] transition-[height] duration-500 ease-out",
+          // Tracks the capsule through its morph: 54px at rest, 50px once the
+          // pill tightens on scroll. Without this the logo stayed 54 and drifted
+          // 4px taller than the pill it is supposed to match.
+          scrolled ? "h-10 lg:h-[50px]" : "h-11 lg:h-[54px]",
+        )}
       />
     </Link>
   );
@@ -131,13 +142,13 @@ export function PublicShell() {
         <div className="mx-auto mt-3 flex max-w-6xl items-center justify-between gap-3 sm:mt-4">
           {/* Logo — floats free on the left (outside the pill) */}
           <div className="pointer-events-auto">
-            <Logo />
+            <Logo scrolled={scrolled} />
           </div>
 
           {/* Center island — holds ONLY the nav links; morphs on scroll */}
           <nav
             className={cn(
-              "pointer-events-auto hidden items-center gap-1 rounded-full border border-border backdrop-blur-xl transition-all duration-500 ease-out md:flex",
+              "pointer-events-auto hidden items-center gap-1 rounded-full border border-border backdrop-blur-xl transition-all duration-500 ease-out lg:flex",
               scrolled
                 ? "bg-[color-mix(in_srgb,var(--surface)_92%,transparent)] px-2 py-1.5 lp-shadow-lg"
                 : "bg-[color-mix(in_srgb,var(--surface)_65%,transparent)] px-2.5 py-2 shadow-md",
@@ -172,7 +183,7 @@ export function PublicShell() {
             >
               {dark ? <Sun size={17} /> : <Moon size={17} />}
             </Button>
-            <div className="hidden items-center gap-2 md:flex">
+            <div className="hidden items-center gap-2 lg:flex">
               {authed ? (
                 <Link to="/dashboard">
                   <Button size="sm" className="rounded-full">
@@ -196,7 +207,7 @@ export function PublicShell() {
             </div>
 
             <button
-              className="grid h-10 w-10 place-items-center rounded-full border border-border bg-[color-mix(in_srgb,var(--surface)_75%,transparent)] text-text-muted backdrop-blur transition-colors hover:bg-surface-2 md:hidden"
+              className="grid h-10 w-10 place-items-center rounded-full border border-border bg-[color-mix(in_srgb,var(--surface)_75%,transparent)] text-text-muted backdrop-blur transition-colors hover:bg-surface-2 lg:hidden"
               onClick={() => setOpen((o) => !o)}
               aria-label="Toggle menu"
             >
@@ -207,7 +218,7 @@ export function PublicShell() {
 
         {/* Mobile menu — floating panel below the island */}
         {open && (
-          <div className="pointer-events-auto mx-auto mt-2 max-h-[75vh] w-full max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-3 lp-shadow-lg md:hidden">
+          <div className="pointer-events-auto mx-auto mt-2 max-h-[75vh] w-full max-w-md overflow-y-auto rounded-3xl border border-border bg-surface p-3 lp-shadow-lg lg:hidden">
             <div className="flex flex-col gap-1">
               {NAV.map((n) => (
                 <Link
