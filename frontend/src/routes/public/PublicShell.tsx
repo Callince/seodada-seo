@@ -1,9 +1,10 @@
-import { Menu, X } from "lucide-react";
+import { Menu, Moon, Sun, X } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
+import { useDarkMode } from "@/lib/useDarkMode";
 import { useAuth } from "@/store/auth";
 
 // lucide-react dropped brand glyphs for trademark reasons, so the social icons
@@ -98,6 +99,7 @@ export function PublicShell() {
   const [scrolled, setScrolled] = useState(false);
   const authed = useAuth((s) => !!s.accessToken);
   const { pathname } = useLocation();
+  const { dark, toggle } = useDarkMode();
 
   // The centre nav pill floats as a glass capsule and morphs once scrolled.
   useEffect(() => {
@@ -149,6 +151,17 @@ export function PublicShell() {
 
           {/* Actions — float free on the right (outside the pill) */}
           <div className="pointer-events-auto flex items-center gap-2">
+            {/* The public site had no way to change theme, so a visitor whose
+                stored preference is dark got the landing in dark with no exit. */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggle}
+              aria-label={dark ? "Switch to light theme" : "Switch to dark theme"}
+              className="rounded-full"
+            >
+              {dark ? <Sun size={17} /> : <Moon size={17} />}
+            </Button>
             <div className="hidden items-center gap-2 md:flex">
               {authed ? (
                 <Link to="/dashboard">

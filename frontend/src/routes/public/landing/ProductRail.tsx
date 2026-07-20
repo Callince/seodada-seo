@@ -240,7 +240,7 @@ export function ProductRail() {
               <article
                 key={w.key}
                 style={sectionVars(w.mod)}
-                className="lp-card group relative flex h-[380px] w-[86vw] max-w-[500px] shrink-0 snap-start flex-col overflow-hidden rounded-[16px] border border-white/50 bg-[color-mix(in_srgb,#ffffff_42%,transparent)] backdrop-blur-2xl lp-shadow sm:w-[500px]"
+                className="lp-card group relative flex h-[380px] w-[86vw] max-w-[500px] shrink-0 snap-start flex-col overflow-hidden rounded-[16px] border border-[var(--lp-card-border)] bg-[var(--lp-card-glass)] backdrop-blur-2xl lp-shadow sm:w-[500px]"
               >
                 {/* soft wash in the card's own section colour behind the glass */}
                 <div

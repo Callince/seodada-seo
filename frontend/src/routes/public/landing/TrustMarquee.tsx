@@ -18,7 +18,7 @@ export function TrustMarquee() {
       <div className="marquee-wrap group relative mt-6 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_12%,#000_88%,transparent)]">
         <div className="marquee gap-14 pr-14">
           {[...ECOSYSTEM, ...ECOSYSTEM].map((name, i) => (
-            <span key={i} className="whitespace-nowrap text-xl font-bold tracking-tight text-text-muted/60 grayscale transition group-hover:text-text-muted/80">
+            <span key={i} className="whitespace-nowrap text-xl font-bold tracking-tight text-text-muted/75 grayscale transition group-hover:text-text-muted">
               {name}
             </span>
           ))}

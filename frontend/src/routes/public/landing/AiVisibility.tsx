@@ -17,13 +17,11 @@ const ENGINES = [
 const signal = (v: number) =>
   `oklch(${(0.3 + 0.58 * v).toFixed(3)} 0.13 ${(268 - 78 * v).toFixed(1)})`;
 
-/** Text-safe cut of the same ramp for the numeral beside each bar.
- *  Compressed to L 0.30–0.45 so every value clears 4.5:1 on white — at full
- *  range a 55% score lands at L=0.62 (~3.9:1) and fails as small text. The
- *  bar still carries the full-brightness signal; the label just has to be
- *  readable (DESIGN_SYSTEM §1.3). */
-const signalInk = (v: number) =>
-  `oklch(${(0.3 + 0.15 * v).toFixed(3)} 0.13 ${(268 - 78 * v).toFixed(1)})`;
+/** Vars for the shared `.signal-ink` class. This was a local colour helper
+ *  pinned to the LIGHT band (L .30–.45); once the landing gained a dark theme
+ *  it rendered dark-on-dark at ~1.9:1. The readable band inverts per theme and
+ *  only CSS can see the theme (DESIGN_SYSTEM §1.2). */
+const signalInkVars = (v: number) => ({ ["--v" as string]: v.toFixed(3) });
 
 /**
  * The differentiator block (UI_DESIGN_PROMPTS §8, item 5).
@@ -109,9 +107,14 @@ export function AiVisibility() {
                     className="rounded-full px-2 py-0.5 text-[11px] font-semibold"
                     style={
                       i === 0
-                        // -ink, not the raw accent: white on --sec-aivis is
-                        // 3.86:1 at 11px, under the 4.5 floor. -ink gives 7.4.
-                        ? { background: "var(--sec-aivis-ink)", color: "#fff" }
+                        // Tint + ink, not a solid fill: no single solid works in
+                        // both themes (white on the light ink is fine, but the
+                        // dark-mode ink is a bright violet at 2.42:1). Both
+                        // tokens flip, so the pair stays legible either way.
+                        ? {
+                            background: "color-mix(in srgb, var(--sec-aivis) 16%, transparent)",
+                            color: "var(--sec-aivis-ink)",
+                          }
                         : { background: "var(--surface-2)", color: "var(--text-muted)" }
                     }
                   >
@@ -132,7 +135,7 @@ export function AiVisibility() {
                   <div key={e.name}>
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-medium text-text">{e.name}</span>
-                      <span className="tabular-nums font-semibold" style={{ color: signalInk(e.you) }}>
+                      <span className="signal-ink tabular-nums font-semibold" style={signalInkVars(e.you)}>
                         {Math.round(e.you * 100)}%
                       </span>
                     </div>

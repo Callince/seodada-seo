@@ -220,7 +220,7 @@ export function Hero() {
                 <span
                   key={x}
                   className="grid h-8 w-8 place-items-center rounded-full border-2 border-surface text-[10px] font-bold text-white"
-                  style={{ background: i % 2 ? "var(--signal-1)" : "var(--signal-2)" }}
+                  style={{ background: i % 2 ? "var(--signal-0)" : "var(--signal-1)" }}
                 >
                   {x}
                 </span>
@@ -252,7 +252,7 @@ export function Hero() {
               alt="seodada SEO dashboard — SEO score, organic traffic growth, and keyword rankings at a glance"
               className="block w-full rounded-[28px] border border-white/60 lp-shadow-lg"
               fallback={
-                <div className="relative rounded-[28px] border border-white/60 bg-white/85 p-5 lp-shadow-lg backdrop-blur-xl">
+                <div className="relative rounded-[28px] border border-[var(--lp-card-border)] bg-[var(--lp-card-glass)] p-5 lp-shadow-lg backdrop-blur-xl">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <ScoreRing value={92} size={72} />
