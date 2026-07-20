@@ -43,6 +43,10 @@
   --success-ink: #006b2c;
   --warning-ink: #864100;
   --danger-ink: #a50013;
+  /* Foreground for text sitting ON a filled state surface. White works over the
+     light-mode danger red, but dark mode brightens --danger to a light coral
+     where white drops to 2.86:1 — so this flips instead of being hardcoded. */
+  --on-danger: #ffffff;
   --ring: 0 117 185;       /* rgb triplet — tailwind wraps it */
 
   /* Signal Spectrum — the visibility ramp. Any 0-100 score, rank or citation
@@ -136,8 +140,11 @@
   --section: var(--primary);
   --section-soft: var(--primary-soft);
   /* Text-safe variant of the active accent. Use this — never --section — when
-     an accent has to carry small text on a light surface (see DESIGN_SYSTEM §1.3). */
-  --section-ink: var(--primary);
+     an accent has to carry small text on a light surface (see DESIGN_SYSTEM §1.3).
+     Defaults to --primary-INK, not --primary: outside a sectionVars() scope this
+     is what components resolve to, and pointing it at the base accent silently
+     reintroduced the exact 4.4:1 failure the token exists to prevent. */
+  --section-ink: var(--primary-ink);
   --section-glow: color-mix(in srgb, var(--section) 28%, transparent);
 
   /* ---- Aperture scale (DESIGN_SYSTEM §3-§5) -----------------------------
@@ -190,6 +197,7 @@
   --success-ink: #63d18f;
   --warning-ink: #eba941;
   --danger-ink: #ff8a82;
+  --on-danger: #14090b; /* white on the dark-mode coral is 2.86:1 */
   --ring: 59 205 220;
 
   --signal-0: #263561;
@@ -261,6 +269,29 @@
 
 * {
   border-color: var(--border);
+}
+
+/* Signal-spectrum TEXT, theme-aware (DESIGN_SYSTEM §1.2).
+   `--v` is the 0–1 visibility the element sets inline. The lightness band flips
+   per theme because "readable" inverts: on a light surface the ink must be dark
+   (L .30–.45), on a dark surface it must be bright (L .72–.90). A single
+   hardcoded band is wrong in one of the two themes — the JS helper was
+   light-only and rendered dark-mode rank numerals at ~1.05:1. Hue still tracks
+   visibility in both, so the signal survives.
+   Fills keep the FULL range via signalFill(); only text uses this. */
+:root {
+  --signal-ink-l0: 0.3;
+  --signal-ink-lr: 0.15;
+}
+.dark {
+  --signal-ink-l0: 0.72;
+  --signal-ink-lr: 0.18;
+}
+.signal-ink {
+  color: oklch(
+    calc(var(--signal-ink-l0) + var(--signal-ink-lr) * var(--v)) 0.13
+      calc(268deg - 78deg * var(--v))
+  );
 }
 
 /* Applied for one frame while the theme flips (see useDarkMode). A transition

@@ -170,5 +170,25 @@ export const router = createBrowserRouter([
     ],
   },
 
+  // Dev-only visual review sheet for the Aperture system. The lazy() lives
+  // INSIDE the dead branch on purpose: a module-scope `lazy(() => import(…))`
+  // keeps the dynamic import in the graph and still emits a chunk in
+  // production, even when the route itself is conditional.
+  ...(import.meta.env.DEV
+    ? (() => {
+        const DesignReview = lazy(() => import("@/routes/DesignReview"));
+        return [
+          {
+            path: "/design",
+            element: (
+              <Suspense fallback={null}>
+                <DesignReview />
+              </Suspense>
+            ),
+          },
+        ];
+      })()
+    : []),
+
   { path: "*", element: <Navigate to="/" replace /> },
 ]);

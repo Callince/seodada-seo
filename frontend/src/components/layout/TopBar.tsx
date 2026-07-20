@@ -2,27 +2,11 @@ import { Bell, ChevronDown, LogOut, Menu, Moon, Search, Sun } from "lucide-react
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useDarkMode } from "@/lib/useDarkMode";
 import { useAuth } from "@/store/auth";
 
-function useDarkMode() {
-  const [dark, setDark] = useState(() => localStorage.getItem("theme") === "dark");
-  useEffect(() => {
-    const root = document.documentElement;
-    // Suppress transitions for one frame across the theme flip. Without this,
-    // any element transitioning a token-driven property (color, background)
-    // freezes at its OLD computed value and never settles — dark-mode sidebar
-    // text sat at 2.8:1 while the token itself was correct. Affects every
-    // `transition-colors` element, so it's fixed here rather than per-component.
-    root.classList.add("theme-switching");
-    root.classList.toggle("dark", dark);
-    localStorage.setItem("theme", dark ? "dark" : "light");
-    const id = requestAnimationFrame(() =>
-      requestAnimationFrame(() => root.classList.remove("theme-switching")),
-    );
-    return () => cancelAnimationFrame(id);
-  }, [dark]);
-  return { dark, toggle: () => setDark((d) => !d) };
-}
+// Theme switching lives in @/lib/useDarkMode — see the note there on why the
+// transition-suppression must not be reimplemented per surface.
 
 function initials(name?: string, email?: string): string {
   const src = (name || "").trim();

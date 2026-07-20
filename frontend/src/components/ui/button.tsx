@@ -39,7 +39,8 @@ export const buttonVariants = cva(
           "border border-[color:var(--section)] text-[color:var(--section-ink)] hover:bg-[color:var(--section-soft)]",
         ghost:
           "text-text-muted hover:bg-[color:var(--section-soft)] hover:text-[color:var(--section-ink)]",
-        danger: "bg-danger text-white shadow-[shadow:var(--lift-1)] hover:brightness-110",
+        danger:
+          "bg-danger text-[color:var(--on-danger)] shadow-[shadow:var(--lift-1)] hover:brightness-110",
       },
       size: {
         sm: "h-8 px-3 text-[13px]",

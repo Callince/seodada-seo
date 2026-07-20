@@ -14,7 +14,7 @@ import { apiErrorMessage } from "@/api/client";
 import { useTracked, useTrackRank, useUntrack } from "@/api/hooks/useRank";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { ExcelButton } from "@/components/shared/ExcelButton";
-import { RankBadge, signalFill, visibility } from "@/components/shared/RankBadge";
+import { RankBadge, signalInkVars, visibility } from "@/components/shared/RankBadge";
 import { LocationLanguagePicker, locationLabel } from "@/components/shared/LocationLanguagePicker";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
@@ -308,16 +308,16 @@ export default function RankTracking({ embedded }: { embedded?: boolean }) {
                     <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
                       Current position
                     </p>
-                    {/* 30px numeral = large text (3:1 bar), so it can carry the
-                        FULL spectrum brightness: #1 glows, #90 sits nearly dark.
-                        This is the clearest instance of the luminance thesis. */}
+                    {/* `.signal-ink` + --v, not a colour string. Text can never
+                        carry the FULL spectrum: bright-on-light is unreadable
+                        (#1 measured 1.3:1) and dark-on-dark equally so, and the
+                        readable band inverts per theme — which only CSS can see.
+                        Brightness stays on FILLS (see RankBadge's tint). */}
                     <p
-                      className="mt-1 font-mono text-3xl tabular-nums"
-                      style={{
-                        color: data.found
-                          ? signalFill(visibility(data.position))
-                          : "var(--text-muted)",
-                      }}
+                      className={`mt-1 font-mono text-3xl tabular-nums ${
+                        data.found ? "signal-ink" : "text-text-muted"
+                      }`}
+                      style={data.found ? signalInkVars(visibility(data.position)) : undefined}
                     >
                       {data.found ? `#${data.position}` : "Not found"}
                     </p>

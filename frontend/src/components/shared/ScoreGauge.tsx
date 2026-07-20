@@ -12,6 +12,15 @@ function toneColor(score: number): string {
   return "var(--success)";
 }
 
+/** Same ramp, text-safe. The arc is a FILL and can be vivid; the numeral is
+ *  text and cannot — amber on white measured 2.36:1, under the 3:1 large-text
+ *  bar. Splitting them keeps the gauge legible without dulling the arc. */
+function toneInk(score: number): string {
+  if (score < 40) return "var(--danger-ink)";
+  if (score < 70) return "var(--warning-ink)";
+  return "var(--success-ink)";
+}
+
 interface ScoreGaugeProps {
   score: number | null;
   label?: string;
@@ -50,7 +59,7 @@ export function ScoreGauge({ score, label, size = 160, max = 100, emptyHint }: S
       <div className="absolute inset-0 flex flex-col items-center justify-center px-3 text-center">
         <span
           className={isEmpty ? "font-mono text-xl font-semibold" : "font-mono text-3xl font-semibold"}
-          style={{ color }}
+          style={{ color: isEmpty ? "var(--text-muted)" : toneInk((value / max) * 100) }}
         >
           {isEmpty ? "N/A" : Math.round(value)}
         </span>
