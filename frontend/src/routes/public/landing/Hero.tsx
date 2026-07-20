@@ -123,18 +123,55 @@ export function Hero() {
 
   return (
     <section
-      className="lp-noise relative flex min-h-[100svh] items-center overflow-hidden"
+      className="lp-hero lp-noise cyber-grid grid-drift relative flex min-h-[100svh] items-center overflow-hidden"
       onMouseMove={(e) => {
         const r = e.currentTarget.getBoundingClientRect();
         e.currentTarget.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
         e.currentTarget.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
       }}
     >
-      <div className="lp-mesh absolute inset-0 -z-10" />
+      {/* Deep navy → ocean surface: the same backdrop the tools and other
+          public pages use (PublicHero), on the --hero-* tokens so it is
+          identical in both themes. */}
+      <div
+        className="absolute inset-0 -z-20"
+        style={{
+          background:
+            "linear-gradient(180deg,var(--hero-deep) 0%,var(--hero-mid) 46%,var(--hero-rim) 100%)",
+        }}
+      />
+      {/* Aurora light pools — slowly drifting. */}
+      <div
+        className="aurora-drift absolute inset-0 -z-10"
+        style={{
+          background:
+            "radial-gradient(70% 60% at 50% 118%, color-mix(in srgb, var(--hero-glow) 38%, transparent), transparent 62%)," +
+            "radial-gradient(46% 42% at 12% 4%, color-mix(in srgb, var(--hero-wash) 55%, transparent), transparent 60%)," +
+            "radial-gradient(42% 40% at 90% 8%, color-mix(in srgb, var(--hero-tide) 42%, transparent), transparent 60%)",
+        }}
+      />
+      {/* Floating neon orbs. */}
+      <div
+        className="float-slow absolute right-[-8%] top-[16%] -z-10 h-72 w-72 rounded-full opacity-50 blur-3xl"
+        style={{
+          background:
+            "conic-gradient(from 130deg,var(--hero-wash),var(--hero-tide),var(--hero-glow),var(--hero-wash))",
+        }}
+      />
+      <div
+        className="float-slower absolute left-[-6%] top-[48%] -z-10 h-56 w-56 rounded-full opacity-40 blur-3xl"
+        style={{ background: "radial-gradient(circle,var(--hero-glow),transparent 70%)" }}
+      />
       <div className="lp-cursor absolute inset-0 -z-10" />
       <Particles count={18} className="-z-10" />
-      <div className="lp-float absolute -left-24 top-28 -z-10 h-72 w-72 rounded-full bg-[color-mix(in_srgb,var(--signal-2)_20%,transparent)] blur-3xl" />
-      <div className="lp-float-2 absolute -right-16 top-10 -z-10 h-80 w-80 rounded-full bg-[color-mix(in_srgb,var(--signal-1)_20%,transparent)] blur-3xl" />
+      {/* Vignette so the section below reads cleanly against the hero. */}
+      <div
+        className="absolute inset-x-0 bottom-0 -z-10 h-1/3"
+        style={{
+          background:
+            "linear-gradient(180deg, transparent, color-mix(in srgb, var(--hero-deep) 85%, transparent))",
+        }}
+      />
 
       <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 pb-12 pt-24 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:gap-10 lg:pb-14 lg:pt-20">
         {/* Left */}

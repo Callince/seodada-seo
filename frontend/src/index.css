@@ -573,6 +573,39 @@ body {
   --lp-card-border: color-mix(in srgb, #ffffff 50%, transparent);
 }
 
+/* Landing hero — the SAME permanently-dark surface the tools/public pages use
+   (PublicHero). Rather than rewriting every element to light-on-dark, the hero
+   re-points the theme tokens inside its own subtree: `text-text`,
+   `text-text-muted`, `bg-primary-soft`, `border-border`, `--lp-glass` and the
+   rest keep working, and they resolve correctly in BOTH themes because this
+   scope is theme-independent, exactly like --hero-*. */
+.lp-hero {
+  --text: #eaf1fb;
+  --text-muted: #a9b8d0;
+  --border: color-mix(in srgb, #ffffff 16%, transparent);
+  --surface: color-mix(in srgb, #0f1c33 82%, transparent);
+  --surface-2: color-mix(in srgb, #ffffff 8%, transparent);
+  --primary: var(--hero-glow);
+  --primary-ink: #86e7f3;
+  --primary-soft: color-mix(in srgb, var(--hero-glow) 16%, transparent);
+  --lp-glass: color-mix(in srgb, #0f1c33 55%, transparent);
+  --lp-card-glass: color-mix(in srgb, #0f1c33 55%, transparent);
+  --lp-card-border: color-mix(in srgb, #ffffff 14%, transparent);
+  --lp-primary-border: color-mix(in srgb, var(--hero-glow) 30%, transparent);
+  --success-ink: #63d18f;
+  --danger-ink: #ff8a82;
+  --signal-ink-l0: 0.72;
+  --signal-ink-lr: 0.18;
+  color: var(--text);
+}
+/* The light cut starts at --signal-1, which disappears on this surface. */
+.lp-hero .gradient-text-anim {
+  background-image: linear-gradient(
+    100deg,
+    var(--signal-3), var(--signal-4), var(--signal-5), var(--signal-4), var(--signal-3)
+  );
+}
+
 /* Landing in DARK. Without this the .lp block above wins in both themes and
    the page renders near-white section panels behind near-white text — the
    alternating band measured #eff4fa against #e4ecf5 body copy.
