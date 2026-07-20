@@ -68,9 +68,32 @@ coding agent working in this repo.
 >   `md:` prefix on them will silently generate nothing. Use them unprefixed.)*
 >
 > **CORNERS — partly rounded, calm, NOT pill-like.** Radius scale is
-> `md 8px · lg 12px · xl 14px · 2xl 16px`. Cards/containers use `rounded-2xl`
-> (16px). Inputs/buttons `rounded-xl`/`rounded-lg`. Reserve `rounded-full` for
-> avatars, badges, and icon chips only. Never round a large container past 16px.
+> `md 10px · lg 14px · xl 18px · 2xl 24px` (bound to `--r-*`). Cards/containers
+> use `rounded-xl` (18px) — that 18px is the system's fingerprint, softer than
+> the 12px everyone defaults to. Inputs/buttons `rounded-md` (10px). Reserve
+> `rounded-full` for avatars, badges and icon chips only. **Radius never exceeds
+> 24px on a container, and nested elements step DOWN one rung** — an 18px card
+> holds a 14px panel holds a 10px input. Concentric radii that don't step look
+> broken at the corner.
+>
+> **ACCENT COLOUR IS NOT TEXT COLOUR.** The module accents and state colours sit
+> at a fixed lightness band and measure **3.0–3.9:1** on a light surface. That
+> clears the 3:1 bar for icons, fills, borders and large numerals, and **fails
+> the 4.5:1 bar for small text**. So:
+> - fills / icons / borders / display numerals → `--section`, `--success`, …
+> - any small text → the **`-ink`** variant: `--section-ink`, `--primary-ink`,
+>   `--success-ink`, `--warning-ink`, `--danger-ink`, `--sec-<module>-ink`.
+>
+> Using `--section` for a 12px label is the single most common way to produce
+> inaccessible output here; it was wrong in ~45 places before being fixed.
+>
+> **LUMINANCE CARRIES MEANING — but only for visibility.** A rank, citation
+> share or share-of-voice renders on the **Signal Spectrum**: brighter = more
+> visible, #1 glows and #90 is nearly dark (`RankBadge`, `signalFill`,
+> `signalInk`). This does **not** apply to quality metrics — a health score of
+> 30 means *bad*, not *dim*, so gauges and severity keep `--danger` /
+> `--warning` / `--success`. Never put a quality judgement on the spectrum, and
+> never invent a second scale for visibility.
 >
 > **ELEVATION.** Depth comes from soft layered shadows (`.lp-shadow`,
 > `shadow-md`) + hairline borders + glass, not heavy drop shadows. Hovering an
@@ -107,8 +130,25 @@ coding agent working in this repo.
 > `MetricCard`, `DataTable`, `ScoreGauge`, `TrendChart`, `AuthorityBadge`,
 > `MetricBar`, `CacheBadge`, `SaveToProject`, `SavedRunView`, `AiAdvisor`,
 > `LocationLanguagePicker`, `PAAList`, `KeywordTable`, `ExcelButton`,
-> `CommandPalette`, and the four-state helpers in `shared/states.tsx`. New ideas
-> extend these; they don't fork them.
+> `RankBadge` (rank-as-light — use it for ANY SERP position), and the four-state
+> helpers in `shared/states.tsx`. New ideas extend these; they don't fork them.
+>
+> **SURFACES ARE SOLID; GLASS IS RATIONED.** `Card` is opaque on purpose.
+> `backdrop-filter` repaints everything beneath it, so a 200-row table behind
+> glass drops frames. Glass belongs to chrome that floats over moving content —
+> topbar, sidebar, command palette, modals — and to marketing. Never to a data
+> surface.
+>
+> **BUILD-TIME TRAPS (all of these compile clean and render nothing).**
+> - `shadow-[var(--x)]` is parsed as a shadow *colour*. Use `shadow-[shadow:var(--x)]`.
+> - `duration-[--dur-1]` / `ease-[--ease]` are v4 syntax; this is Tailwind 3.4.
+>   Use `duration-[var(--dur-1)]`.
+> - `.glass-card`, `.gradient-fill`, `.section-gradient` are plain CSS, not
+>   Tailwind utilities — a `group-hover:` or `md:` prefix on them generates nothing.
+> - Never transition a token-driven property without the `.theme-switching`
+>   guard; it freezes on the old value across a theme flip.
+> Verify any new arbitrary value with `getComputedStyle` in the browser. A green
+> build is not evidence.
 
 ---
 
@@ -239,9 +279,17 @@ overflow-x-auto. Pagination or load-more for long lists. Skeleton rows while
 loading. Row click opens detail where one exists.`
 
 **ScoreGauge** — `Radial 0–100: animated arc that draws on, color ramps
-red→amber→green (with a numeric label so it isn't color-only), subtle inner glow
-at high scores. Center shows the number + a qualitative word
-(Poor/Fair/Good/Excellent).`
+red→amber→green via --danger/--warning/--success (with a numeric label so it
+isn't color-only), subtle inner glow at high scores. Center shows the number + a
+qualitative word (Poor/Fair/Good/Excellent). Health is a QUALITY judgement, so
+it keeps state colours — it does NOT use the Signal Spectrum.`
+
+**RankBadge** — `Any SERP position. Renders rank as light: the chip's tint comes
+from the Signal Spectrum at full brightness (#1 glows cyan, #90 sits dim indigo)
+while the numeral uses the compressed text-safe cut so it always clears 4.5:1.
+Tint alpha is CONSTANT — ramping it with visibility breaks monotonicity and the
+signal reverses at the dim end. The number is always printed, so nothing is
+encoded by colour alone.`
 
 **Analysis form** — `Glass Card: the one or two query inputs, a
 LocationLanguagePicker defaulted to last-used, advanced options in a collapsed
@@ -761,7 +809,10 @@ carry an Undo for ~8s; errors persist until dismissed and never bury the detail.
 > tokens (light + dark, no hardcoded hex) with fixed per-module workflow accents
 > (Research purple, Audit red, Optimize violet, Track green, Manage slate);
 > glassmorphism on a soft aurora canvas with a whisper of cyber-grid;
-> **partly-rounded corners (16px cards, never pill-like)**; soft layered shadows;
+> **partly-rounded corners (18px cards, 10px controls, never pill-like)**;
+> accents for fills and large numerals but `-ink` variants for any small text;
+> rank and citation share rendered on the Signal Spectrum so brightness *is* the
+> metric, while quality scores keep red/amber/green; soft layered shadows;
 > buttery framer-motion (fade-rise, blur-in stagger, count-ups, draw-on charts,
 > hover spotlight-lift) that respects reduced motion. Data is the hero — Recharts
 > trends, radial 0–100 gauges, sparkline stat cards, ranking bars, all
