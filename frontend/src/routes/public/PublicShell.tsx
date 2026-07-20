@@ -116,8 +116,18 @@ export function PublicShell() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* ===== Dynamic-island nav — floating glass pill that morphs on scroll ===== */}
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-40 px-3 sm:px-4">
+      {/* ===== Dynamic-island nav — floating glass pill that morphs on scroll =====
+          Every public page opens with a permanently-dark hero, so at rest the
+          header sits ON that navy and adopts the same `.lp-hero` token scope the
+          hero uses: nav links were 3.0:1 and "Log in" 2.56:1 against it once the
+          landing switched to the dark backdrop. Past the fold it drops the scope
+          and returns to the theme tokens for the light content below. */}
+      <header
+        className={cn(
+          "pointer-events-none fixed inset-x-0 top-0 z-40 px-3 sm:px-4",
+          !scrolled && "lp-hero",
+        )}
+      >
         <div className="mx-auto mt-3 flex max-w-6xl items-center justify-between gap-3 sm:mt-4">
           {/* Logo — floats free on the left (outside the pill) */}
           <div className="pointer-events-auto">
