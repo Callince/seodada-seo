@@ -142,7 +142,12 @@ export function PublicShell() {
           !scrolled && "lp-hero",
         )}
       >
-        <div className="mx-auto mt-3 flex max-w-6xl items-center justify-between gap-3 sm:mt-4">
+        {/* Three columns, not `justify-between`. With flex the pill lands wherever
+            the two flanks leave room — logo is 165px, the actions cluster is ~180,
+            so it sat ~8px off centre and drifted again whenever the right side
+            changed (signed in vs out swaps two buttons for one avatar). Equal
+            1fr flanks centre it on the viewport regardless of what's beside it. */}
+        <div className="mx-auto mt-3 grid max-w-6xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 sm:mt-4">
           {/* Logo — floats free on the left (outside the pill) */}
           <div className="pointer-events-auto">
             <Logo scrolled={scrolled} />
@@ -174,7 +179,7 @@ export function PublicShell() {
           </nav>
 
           {/* Actions — float free on the right (outside the pill) */}
-          <div className="pointer-events-auto flex items-center gap-2">
+          <div className="pointer-events-auto flex items-center justify-self-end gap-2">
             {/* The public site had no way to change theme, so a visitor whose
                 stored preference is dark got the landing in dark with no exit. */}
             <Button
@@ -191,13 +196,16 @@ export function PublicShell() {
                 <AccountMenu />
               ) : (
                 <>
+                  {/* size="md" (h-10), not "sm" (h-8) — the header cluster had
+                      three control heights side by side: the 40px theme toggle
+                      next to two 32px buttons. One height reads as one row. */}
                   <Link to="/login">
-                    <Button variant="ghost" size="sm" className="rounded-full">
+                    <Button variant="ghost" size="md" className="rounded-full">
                       Log in
                     </Button>
                   </Link>
                   <Link to="/register">
-                    <Button size="sm" className="rounded-full">
+                    <Button size="md" className="rounded-full">
                       Get started
                     </Button>
                   </Link>

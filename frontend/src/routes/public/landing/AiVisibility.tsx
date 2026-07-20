@@ -32,7 +32,7 @@ const signalInkVars = (v: number) => ({ ["--v" as string]: v.toFixed(3) });
  */
 export function AiVisibility() {
   return (
-    <section className="relative overflow-hidden border-t border-border py-20 sm:py-28">
+    <section className="relative overflow-hidden bg-[var(--lp-tint)] py-20 sm:py-28">
       {/* Aurora wash, keyed to the AI-visibility module accent. */}
       <div
         aria-hidden

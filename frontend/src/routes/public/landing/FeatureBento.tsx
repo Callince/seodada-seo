@@ -59,7 +59,7 @@ const colsFor = (n: number) => (n <= 3 ? n : n === 4 ? 2 : n <= 6 ? 3 : 4);
 
 export function FeatureBento() {
   return (
-    <section className="border-t border-border bg-[var(--lp-tint)] py-20 sm:py-28">
+    <section className="bg-[var(--lp-tint)] py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal className="mx-auto max-w-2xl text-center">
           <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-ink">Platform</span>

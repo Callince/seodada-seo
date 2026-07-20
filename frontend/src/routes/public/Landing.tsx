@@ -39,6 +39,22 @@ const SITE_JSONLD = [
   },
 ];
 
+/**
+ * Section order is also the background rhythm. From ProductRail down, sections
+ * alternate base / --lp-tint strictly:
+ *
+ *   rail · BENTO · workflow · AI-VIZ · cases · STATS · quotes · PRICING · faq+cta
+ *   (caps = tinted)
+ *
+ * It used to run base / tint / base / base / base / tint / base / tint — three
+ * flat sections in a row through the middle of the page, so Workflow, AI
+ * Visibility and Case Studies read as one undifferentiated scroll.
+ *
+ * The alternation is also why no section carries `border-t` any more: a rule
+ * between two bands that already differ in fill is a redundant line. If you
+ * insert a section here, give it the opposite fill of its neighbour rather than
+ * a border — and keep the pairing, or the rhythm breaks two sections deep.
+ */
 export default function Landing() {
   return (
     <div className="lp overflow-x-clip">
