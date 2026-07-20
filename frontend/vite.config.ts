@@ -46,14 +46,20 @@ export default defineConfig({
             //    no-op for the build; .vite/deps is a dev-mode cache (tried
             //    that too, with the cache cleared: same hash again).
             //
-            // So the duplicate React is introduced upstream of manualChunks,
-            // somewhere in how the react plugin / rolldown resolves the CJS
-            // interop for the CKEditor wrapper. The next step is a real
-            // production smoke test (`vite preview`) against a build with the
-            // ckeditor rule removed entirely, to see whether the duplicate
-            // disappears when the chunk does — that risks the "t is not a
-            // function" crash above, so it needs its own session.
-            if (/node_modules[/\\](@ckeditor[/\\]|ckeditor5)/.test(id)) return "ckeditor";
+            // ROOT CAUSE, and the fix: @ckeditor/ckeditor5-react is a CJS
+            // wrapper. When the old pattern (@ckeditor OR ckeditor5) swept it
+            // into this chunk, rolldown placed the wrapper's CommonJS React
+            // interop — a full copy of the JSX runtime — inside the chunk, and
+            // then deduplicated by pointing every OTHER chunk's JSX-runtime
+            // import here. Hence 50 chunks importing one symbol from
+            // "ckeditor" and index.html preloading 1.2 MB of editor to render
+            // the landing page.
+            //
+            // Matching ONLY the pure-ESM ckeditor5 core keeps the CJS wrapper
+            // in vendor with the rest of the CJS interop (exactly the
+            // co-location rule at the top of this function), so the editor
+            // chunk holds no React and nothing eager imports it.
+            if (/node_modules[/\\]ckeditor5[/\\]/.test(id)) return "ckeditor";
             // d3 (site-structure graph) is admin/tool-only and lazy-loaded.
             if (/node_modules[/\\]d3(-[a-z]+)?[/\\]/.test(id)) return "d3";
             // exceljs (Excel report export) is only imported on click — keep it
