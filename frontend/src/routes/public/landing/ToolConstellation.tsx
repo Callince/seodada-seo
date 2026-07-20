@@ -175,8 +175,22 @@ export function ToolConstellation() {
               style={{
                 width: PLANET,
                 height: PLANET,
+                // The logo's own gradient, via the brand tokens rather than
+                // sampled hexes — the wordmark runs rgb(38,56,122) to
+                // rgb(11,116,179) across its width, which is what --grad-a and
+                // --grad-b already encode, so the planet tracks the brand if
+                // those are ever retuned.
+                //
+                // Weighted so the bright end stays a small highlight on the lit
+                // limb: the wordmark sits across the sphere's middle, and
+                // running --grad-c across the face put near-cyan directly under
+                // white letterforms.
                 background:
-                  "radial-gradient(circle at 32% 26%, #1b2f52 0%, #12203a 42%, #0a1122 78%, #070d18 100%)",
+                  "radial-gradient(circle at 30% 24%," +
+                  "color-mix(in srgb, var(--grad-c) 70%, var(--grad-b)) 0%," +
+                  "var(--grad-b) 26%," +
+                  "var(--grad-a) 58%," +
+                  "color-mix(in srgb, var(--grad-a) 55%, #060c1a) 100%)",
                 boxShadow:
                   "inset 0 2px 1px color-mix(in srgb, #ffffff 12%, transparent)," +
                   "inset 0 -18px 34px -18px #000," +
