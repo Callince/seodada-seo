@@ -837,6 +837,25 @@ body {
 .sat-ring    { animation: sat-orbit   var(--orbit) linear infinite; }
 .sat-counter { animation: sat-counter var(--orbit) linear infinite; }
 
+/* Depth lighting, phase-locked to the orbit. A tile's screen depth is
+   cos(seat angle + orbit angle): with the ring tilted toward the viewer the
+   nearest point of the ellipse is at 90° (25% of a revolution) and the
+   farthest at 270°. This animation shares the ring's --orbit duration, and
+   each tile carries animation-delay = -(seat/360)·orbit, so keyframe progress
+   ≡ (seat+orbit)/360 — the brightness cycle can never drift out of phase with
+   the tile's actual position, for the same reason the counter-spin can't:
+   one clock, not two. Brightness + opacity only — the tile's transform is
+   already owned by the centring translate, and `filter` here also promotes
+   the tile to its own layer, which keeps the whole system on the compositor.
+   Under prefers-reduced-motion this freezes at each tile's own delay offset,
+   which reads as static front-lit/back-shaded depth — not a glitch. */
+@keyframes sat-depth {
+  0%, 100% { opacity: 0.82; filter: brightness(0.78); }
+  25%      { opacity: 1;    filter: brightness(1.1); }
+  75%      { opacity: 0.5;  filter: brightness(0.48); }
+}
+.sat-depth { animation: sat-depth var(--orbit) linear infinite; }
+
 /* Reduced motion parks the orbit at 0%, where every tile still sits at its own
    `seat` angle — the ring reads as a static composition rather than collapsing
    all 24 tiles onto one point, which is what a translate-based orbit would do. */

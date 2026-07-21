@@ -34,9 +34,12 @@ const TILT = 64;
  * would make the whole system turn like a solid disc.
  */
 const RINGS = [
-  { radius: 132, orbit: "46s", tone: "var(--sat-1)", count: 7 },
-  { radius: 182, orbit: "64s", tone: "var(--sat-2)", count: 8 },
-  { radius: 232, orbit: "88s", tone: "var(--sat-3)", count: 9 },
+  // orbitS in seconds (a number, not a duration string): each tile derives its
+  // depth-lighting phase as -(seat angle / 360) · orbitS, and deriving both
+  // from one number is what keeps the brightness cycle locked to the orbit.
+  { radius: 132, orbitS: 46, tone: "var(--sat-1)", count: 7 },
+  { radius: 182, orbitS: 64, tone: "var(--sat-2)", count: 8 },
+  { radius: 232, orbitS: 88, tone: "var(--sat-3)", count: 9 },
 ];
 
 /**
@@ -65,6 +68,22 @@ export function ToolConstellation() {
       className="relative mx-auto grid aspect-square w-full max-w-[520px] place-items-center select-none"
       role="img"
       aria-label="The seodada platform — 24 SEO tools across research, audit, optimization and tracking"
+      // Cursor parallax: the whole system leans a few degrees toward the
+      // pointer. Written to CSS vars so React never re-renders on mouse move;
+      // the stage's transition smooths both the follow and the release. Gated
+      // on prefers-reduced-motion — parallax is motion, even if hover-driven.
+      onMouseMove={(e) => {
+        if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const r = e.currentTarget.getBoundingClientRect();
+        const dx = (e.clientX - r.left) / r.width - 0.5;
+        const dy = (e.clientY - r.top) / r.height - 0.5;
+        e.currentTarget.style.setProperty("--tilt-y", `${(dx * 10).toFixed(2)}deg`);
+        e.currentTarget.style.setProperty("--tilt-x", `${(-dy * 8).toFixed(2)}deg`);
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.setProperty("--tilt-y", "0deg");
+        e.currentTarget.style.setProperty("--tilt-x", "0deg");
+      }}
     >
       {/* Ambient bloom so the system reads as lit, not pasted on. */}
       <div
@@ -92,7 +111,13 @@ export function ToolConstellation() {
           transformStyle: "preserve-3d",
         }}
       >
-        <div className="relative grid h-[520px] w-[520px] place-items-center" style={{ transformStyle: "preserve-3d" }}>
+        <div
+          className="relative grid h-[520px] w-[520px] place-items-center [transition:transform_600ms_cubic-bezier(.32,.72,0,1)]"
+          style={{
+            transform: "rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))",
+            transformStyle: "preserve-3d",
+          }}
+        >
           {/* Ring plane */}
           <div
             className="absolute inset-0 grid place-items-center"
@@ -102,9 +127,10 @@ export function ToolConstellation() {
               <div
                 key={ring.radius}
                 className="sat-ring absolute"
-                // Both the orbit and every tile's counter-spin read this one
-                // value, so they cannot fall out of lockstep. See index.css.
-                style={{ ["--orbit" as string]: ring.orbit, transformStyle: "preserve-3d" }}
+                // The orbit, every tile's counter-spin AND every tile's depth
+                // lighting read this one value, so none can fall out of
+                // lockstep. See index.css.
+                style={{ ["--orbit" as string]: `${ring.orbitS}s`, transformStyle: "preserve-3d" }}
               >
                 {/* The band itself. Sits in the ring plane, so its near edge
                     crosses in front of the logo and its far edge behind — the
@@ -139,8 +165,12 @@ export function ToolConstellation() {
                             tile faces front however far round it has travelled */}
                         <div style={{ transform: `rotate(${-angle}deg) rotateX(${-TILT}deg)` }}>
                           <div
-                            className="grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-2xl border backdrop-blur-md"
+                            className="sat-depth grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-2xl border backdrop-blur-md"
                             style={{
+                              // Negative delay = start mid-cycle at this seat's
+                              // phase, so brightness tracks true depth from the
+                              // first frame. See sat-depth in index.css.
+                              animationDelay: `${(-(angle / 360) * ring.orbitS).toFixed(2)}s`,
                               borderColor: `color-mix(in srgb, ${ring.tone} 42%, transparent)`,
                               background: `linear-gradient(150deg, color-mix(in srgb, ${ring.tone} 20%, transparent), color-mix(in srgb, #0f1c33 78%, transparent))`,
                               boxShadow: `inset 0 1px 0 rgba(255,255,255,0.16), 0 10px 26px -10px color-mix(in srgb, ${ring.tone} 50%, transparent)`,
