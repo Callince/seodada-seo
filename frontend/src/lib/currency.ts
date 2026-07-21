@@ -153,7 +153,13 @@ export function formatMoney(
  * the INR->USD one it publishes (0.01036 -> 96.53).
  */
 export function useUsdToInr() {
-  const { data } = useSiteCurrency();
+  // useCurrencies (ALL rates), not useSiteCurrency (only the active one).
+  // The first version used the latter and silently did nothing: with the site
+  // on its default INR, /public/currency returns {"rates":{"INR":1}} — no USD
+  // key — so the rate lookup failed and every figure fell back to dollars.
+  // This conversion is about where DataForSEO bills from, which has nothing to
+  // do with which currency the site displays prices in.
+  const { data } = useCurrencies();
   const inrToUsd = data?.rates?.USD;
   const rate = inrToUsd ? 1 / inrToUsd : null;
 

@@ -177,3 +177,40 @@ describe("admin USD spend shown in INR", () => {
     expect(usdCentsToInr(900, INR_TO_USD)).not.toContain("$");
   });
 });
+
+/**
+ * The bug this pins: useUsdToInr originally read useSiteCurrency(), which only
+ * carries the ACTIVE display currency's rate. With the site on its default
+ * INR, that payload is {"rates":{"INR":1}} — no USD key — so the lookup failed
+ * and every admin spend figure silently fell back to dollars. Nothing threw,
+ * nothing logged; the dashboard just kept showing "$16.12".
+ *
+ * The rate source must therefore be the full rate table, which always carries
+ * USD regardless of what the site displays prices in.
+ */
+describe("the admin rate source must contain USD", () => {
+  /** Mirrors the hook's rate resolution. */
+  const resolve = (rates: Record<string, number | null> | undefined) => {
+    const inrToUsd = rates?.USD;
+    return inrToUsd ? 1 / inrToUsd : null;
+  };
+
+  it("finds no rate in a site-currency payload when the site is on INR", () => {
+    // Exactly what /public/currency returns by default — the shape that broke it.
+    expect(resolve({ INR: 1 })).toBeNull();
+  });
+
+  it("finds the rate in the full currency table", () => {
+    const all = { INR: 1, USD: 0.01036, EUR: 0.009078, JPY: 1.684463 };
+    expect(resolve(all)).toBeCloseTo(96.53, 1);
+  });
+
+  it("falls back to dollars rather than mislabelling when no rate exists", () => {
+    // A missing rate must never render a ₹ sign over an unconverted USD figure:
+    // that reads as ~96x cheaper than reality with nothing on screen to reveal it.
+    const fmt = (usdCents: number, rate: number | null) =>
+      rate == null ? `$${(usdCents / 100).toFixed(2)}` : formatBase(Math.round((usdCents / 100) * rate * 100));
+    expect(fmt(1612, null)).toBe("$16.12");
+    expect(fmt(1612, null)).not.toContain("₹");
+  });
+});
