@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import current_user, get_db_session
+from app.core.logging import log
 from app.db.models import User
 from app.integrations.dataforseo import keywords as kw
 from app.integrations.dataforseo import labs
@@ -54,9 +55,28 @@ async def trends(
     date_from, date_to = body.date_from, body.date_to
     if provider == "google":
         endpoint = "trends.google"
-        fetch_fn = lambda: free_trends.google_trends(  # noqa: E731
-            terms, body.location_code, body.language_code, body.time_range, date_from, date_to
-        )
+
+        async def fetch_fn():  # type: ignore[misc]
+            """Google Trends, falling back to DataForSEO if Google is unavailable.
+
+            Google is several times faster and free, but it throttles this
+            endpoint intermittently. Without a fallback a 429 would surface as
+            an empty chart — indistinguishable from a keyword with genuinely no
+            interest, which is the one failure mode a trends view must not
+            have. Same shape as the Brave/DataForSEO SERP fallback: prefer the
+            free source, never let it silently degrade the answer.
+            """
+            try:
+                return await free_trends.google_trends(
+                    terms, body.location_code, body.language_code, body.time_range,
+                    date_from, date_to,
+                )
+            except free_trends.TrendsUnavailable as exc:
+                log.info("trends_fallback_to_dataforseo", keywords=terms, reason=str(exc)[:200])
+                return await kw.google_trends(
+                    terms, body.location_code, body.language_code, body.time_range,
+                    date_from, date_to,
+                )
     else:
         endpoint = "keywords.google_trends"
         fetch_fn = lambda: kw.google_trends(  # noqa: E731

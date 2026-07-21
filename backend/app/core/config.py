@@ -30,7 +30,13 @@ class Settings(BaseSettings):
     #   content_provider: "dataforseo" | "local"  (VADER sentiment over the SERP corpus, $0)
     serp_provider: str = "dataforseo"
     onpage_provider: str = "dataforseo"
-    trends_provider: str = "dataforseo"
+    # Google, not DataForSEO, by default. Measured on identical queries through
+    # the same parser: both return 53 points over the same date range with
+    # values within 1 point of each other — DataForSEO's Google Trends endpoint
+    # is itself relaying Google Trends — but it takes 4.7-12.3s and 1.1c per
+    # call against 1.6-2.4s and $0. Same data, several times faster, free.
+    # Set TRENDS_PROVIDER=dataforseo to go back.
+    trends_provider: str = "google"
     content_provider: str = "dataforseo"
     # Free Brave Search API key (https://brave.com/search/api/). Enables real,
     # zero-cost SERP data; when serp_provider="brave" but this is unset we fall

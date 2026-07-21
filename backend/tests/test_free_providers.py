@@ -161,13 +161,40 @@ async def test_google_trends_maps_to_trends_shape():
 
 @respx.mock
 @pytest.mark.asyncio
-async def test_google_trends_degrades_on_error():
+async def test_google_trends_raises_when_google_is_unavailable(monkeypatch):
+    """Contract CHANGED — this test previously asserted that any failure
+    degrades to an empty graph, which was right while the provider was opt-in
+    and wrong once it became the default.
+
+    Google throttles this endpoint (429) intermittently, so "empty" made a
+    rate-limited request indistinguishable from a keyword nobody searches: the
+    chart rendered a confident absence that was really our own failed call.
+    It now raises after exhausting retries, and the endpoint falls back to
+    DataForSEO — slower and paid, but never a fabricated flat line.
+    """
+    monkeypatch.setattr(free_trends, "_BACKOFF_S", 0)
     respx.get("https://trends.google.com/trends/").mock(
         return_value=httpx.Response(200, text="ok")
     )
     respx.get("https://trends.google.com/trends/api/explore").mock(
         return_value=httpx.Response(500)
     )
+    with pytest.raises(free_trends.TrendsUnavailable):
+        await free_trends.google_trends(["bitcoin"], 2840, "en", "past_12_months")
+
+
+@respx.mock
+@pytest.mark.asyncio
+async def test_google_trends_still_empty_when_google_reports_no_data():
+    """The other half of the distinction: Google answering normally with no
+    timeseries widget is a genuine 'no interest for this term'. That must stay
+    an empty graph and must NOT trigger a paid fallback."""
+    respx.get("https://trends.google.com/trends/").mock(
+        return_value=httpx.Response(200, text="ok")
+    )
+    respx.get("https://trends.google.com/trends/api/explore").mock(
+        return_value=httpx.Response(200, text=")]}',\n" + '{"widgets": []}')
+    )
     result = await free_trends.google_trends(["bitcoin"], 2840, "en", "past_12_months")
     assert result.cost_cents == 0
-    assert kw.parse_trends(result.result)["graph"] == []  # empty, not an error
+    assert kw.parse_trends(result.result)["graph"] == []
