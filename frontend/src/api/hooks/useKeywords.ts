@@ -1,5 +1,6 @@
 import { useMeteredMutation } from "@/api/hooks/metered";
 import type {
+  BulkOverviewResponse,
   KeywordListResponse,
   KeywordOverviewResponse,
   TrendsResponse,
@@ -14,6 +15,13 @@ interface Loc {
 
 export const useVolume = () =>
   useMeteredMutation<{ keywords: string[] } & Loc, VolumeResponse>("/keywords/volume");
+
+/** Bulk metrics INCLUDING intent — Labs keyword_overview, not google_ads
+ *  search_volume: same volumes, ~7x cheaper, and it carries intent. */
+export const useBulkOverview = () =>
+  useMeteredMutation<{ keywords: string[] } & Loc, BulkOverviewResponse>(
+    "/keywords/bulk-overview",
+  );
 
 export const useTrends = () =>
   useMeteredMutation<

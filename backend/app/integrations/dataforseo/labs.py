@@ -233,6 +233,56 @@ async def keyword_overview(
     return await dfs_client.post(PATH_KEYWORD_OVERVIEW, payload)
 
 
+async def keywords_overview(
+    keywords: list[str], location_code: int, language_code: str
+) -> DfsResult:
+    """Overview for MANY keywords in one call — volume, CPC, competition,
+    difficulty AND search intent.
+
+    Same endpoint as keyword_overview, which already accepted a list; this
+    just names the bulk use. Measured against keywords_data/google_ads/
+    search_volume, which the bulk pane used before: identical search volumes on
+    every keyword tested, but 1.34c vs 9.0c for 12 keywords and it carries the
+    intent and difficulty that endpoint has no field for.
+    """
+    payload = {
+        "keywords": keywords[:700],  # endpoint's documented ceiling
+        "location_code": location_code,
+        "language_code": language_code,
+        "include_serp_info": False,
+    }
+    return await dfs_client.post(PATH_KEYWORD_OVERVIEW, payload)
+
+
+def parse_keywords_overview(result: list[dict[str, Any]]) -> list[dict]:
+    """One row per keyword, shaped like parse_volume_rows plus intent."""
+    items = (result[0].get("items") if result else None) or []
+    rows: list[dict] = []
+    for it in items:
+        info = it.get("keyword_info") or {}
+        props = it.get("keyword_properties") or {}
+        intent = it.get("search_intent_info") or {}
+        comp = info.get("competition")
+        rows.append(
+            {
+                "keyword": it.get("keyword"),
+                "search_volume": info.get("search_volume"),
+                "cpc": info.get("cpc"),
+                # Scale differs between the two sources and the table renders
+                # "{competition}/100": google_ads exposes competition_index on
+                # 0-100 while Labs exposes competition on 0-1. Verified against
+                # the same keywords — Labs 0.06 x 100 == google_ads index 6 —
+                # so this keeps the column's numbers identical to before rather
+                # than silently rendering "0/100" for everything.
+                "competition": None if comp is None else round(comp * 100),
+                "competition_level": info.get("competition_level"),
+                "keyword_difficulty": props.get("keyword_difficulty"),
+                "intent": intent.get("main_intent"),
+            }
+        )
+    return rows
+
+
 def parse_keyword_overview(result: list[dict[str, Any]]) -> dict:
     items = (result[0].get("items") if result else None) or []
     it = items[0] if items else {}

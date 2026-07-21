@@ -118,6 +118,17 @@ export interface VolumeRow {
   monthly_searches: MonthlyPoint[];
 }
 
+/** Bulk rows carry two fields the google_ads volume endpoint has no field for. */
+export interface BulkOverviewRow extends VolumeRow {
+  keyword_difficulty: number | null;
+  intent: string | null;
+}
+
+export interface BulkOverviewResponse {
+  rows: BulkOverviewRow[];
+  meta: Meta;
+}
+
 export interface VolumeResponse {
   rows: VolumeRow[];
   meta: Meta;

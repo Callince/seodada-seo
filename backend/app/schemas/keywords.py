@@ -68,6 +68,19 @@ class VolumeResponse(BaseModel):
     meta: Meta
 
 
+class BulkOverviewRow(VolumeRow):
+    """A bulk row: everything VolumeRow carries, plus the two fields the
+    google_ads volume endpoint has no equivalent for."""
+
+    keyword_difficulty: int | None = None
+    intent: str | None = None
+
+
+class BulkOverviewResponse(BaseModel):
+    rows: list[BulkOverviewRow]
+    meta: Meta
+
+
 class TrendsPoint(BaseModel):
     date: str | None = None
     values: list[int | None] = []

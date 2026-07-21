@@ -8,6 +8,7 @@ import {
   useRelated,
   useSuggestions,
   useTrends,
+  useBulkOverview,
   useVolume,
 } from "@/api/hooks/useKeywords";
 import { AreaChart, ScoreRing } from "@/components/public/landingKit";
@@ -30,13 +31,16 @@ import { cn } from "@/lib/cn";
 import { fmtInt } from "@/lib/format";
 import { PERIOD_PRESETS, periodRange, type PeriodKey } from "@/lib/period";
 import type {
+  BulkOverviewRow,
   KeywordListResponse,
   KeywordOverviewResponse,
   Meta,
   TrendsResponse,
   VolumeResponse,
-  VolumeRow,
 } from "@/types";
+
+/** Two jobs, two inputs: one keyword in depth, or many keywords compared. */
+type Mode = "single" | "bulk";
 
 type TabKey = "overview" | "trends" | "longtail" | "related" | "ideas";
 const TAB_LABELS: Record<TabKey, string> = {
@@ -248,9 +252,22 @@ function PeriodBar({
   );
 }
 
-const bulkCols: Column<VolumeRow>[] = [
+/** Intent pill — same vocabulary and colour logic as the single-keyword card,
+ *  so the two never describe one keyword differently. */
+function IntentPill({ intent }: { intent: string | null }) {
+  if (!intent) return <span className="text-text-muted">—</span>;
+  return (
+    <span className="rounded-full bg-[color:var(--section-soft)] px-2.5 py-0.5 text-xs font-medium capitalize text-[color:var(--section-ink)]">
+      {intent}
+    </span>
+  );
+}
+
+const bulkCols: Column<BulkOverviewRow>[] = [
   { key: "keyword", header: "Keyword", sortValue: (r) => r.keyword, render: (r) => <span className="font-medium text-text">{r.keyword}</span> },
+  { key: "intent", header: "Intent", sortValue: (r) => r.intent ?? "", render: (r) => <IntentPill intent={r.intent} /> },
   { key: "search_volume", header: "Volume", align: "right", mono: true, sortValue: (r) => r.search_volume ?? -1, render: (r) => (r.search_volume == null ? "—" : r.search_volume.toLocaleString()) },
+  { key: "keyword_difficulty", header: "Difficulty", align: "right", mono: true, sortValue: (r) => r.keyword_difficulty ?? -1, render: (r) => (r.keyword_difficulty == null ? "—" : String(r.keyword_difficulty)) },
   { key: "cpc", header: "CPC", align: "right", mono: true, sortValue: (r) => r.cpc ?? -1, render: (r) => (r.cpc == null ? "—" : `$${r.cpc.toFixed(2)}`) },
   { key: "competition", header: "Competition", align: "right", mono: true, sortValue: (r) => r.competition ?? -1, render: (r) => (r.competition == null ? "—" : `${r.competition}/100`) },
 ];
@@ -258,7 +275,10 @@ const bulkCols: Column<VolumeRow>[] = [
 /** Paste up to 100 keywords; one call returns volume/CPC/competition for all. */
 function BulkPane({ loc }: { loc: { location_code: number; language_code: string } }) {
   const [raw, setRaw] = useState("");
-  const volume = useVolume();
+  // Labs keyword_overview, not google_ads search_volume. Measured on identical
+  // keyword sets: same volumes to the number, but it also returns intent and
+  // difficulty, and costs 1.34c against 9.0c for 12 keywords.
+  const volume = useBulkOverview();
   const keywords = [...new Set(raw.split(/[\n,]+/).map((k) => k.trim().toLowerCase()).filter(Boolean))].slice(0, 100);
 
   const run = () => {
@@ -266,7 +286,7 @@ function BulkPane({ loc }: { loc: { location_code: number; language_code: string
   };
 
   return (
-    <Card className="mt-6">
+    <Card>
       <CardBody className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="inline-flex items-center gap-2 text-sm font-semibold text-text">
@@ -366,8 +386,13 @@ function OverviewStrip({
               {o.competition == null ? "—" : `${Math.round(o.competition * 100)}%`}
             </p>
           </div>
+          {/* No max-width: the chart is the only elastic item in the row, so
+              capping it at 20rem left the rest of a wide card empty — the
+              metrics bunched left and the sparkline stopped well short of the
+              right edge. Letting it absorb the remaining width makes the card
+              read as one strip at every breakpoint. */}
           {trend.length > 1 && (
-            <div className="min-w-[10rem] max-w-xs flex-1">
+            <div className="min-w-[12rem] flex-1">
               <p className="mb-1 text-xs text-text-muted">12-month trend</p>
               <div className="h-12">
                 <AreaChart values={trend} height={48} id="kw-overview" tone="blue" />
@@ -382,6 +407,7 @@ function OverviewStrip({
 
 export default function KeywordResearch({ embedded }: { embedded?: boolean }) {
   // Persisted so the seed, tab and loaded results survive navigating away and back.
+  const [mode, setMode] = usePersistedState<Mode>("keywords.mode", "single");
   const [seed, setSeed] = usePersistedState("keywords.seed", "");
   const [loc, setLoc] = usePersistedState<Loc>("keywords.loc", { location_code: 2840, language_code: "en" });
   const [tab, setTab] = usePersistedState<TabKey>("keywords.tab", "overview");
@@ -586,6 +612,28 @@ export default function KeywordResearch({ embedded }: { embedded?: boolean }) {
         />
       )}
 
+      {/* Mode switch. The bulk pane used to sit permanently below the single
+          keyword results, so the page carried two different inputs at once and
+          the bulk box was easy to miss below a full page of tabs. These are two
+          distinct jobs — one keyword in depth, or many keywords compared — so
+          they are two modes with one input each. */}
+      <div className="mb-4">
+      <Tabs value={mode} onChange={(v) => setMode(v as Mode)}>
+        <TabsList>
+          <TabsTrigger value="single">
+            <Search size={14} className="mr-1.5" /> Keyword
+          </TabsTrigger>
+          <TabsTrigger value="bulk">
+            <Layers size={14} className="mr-1.5" /> Bulk keywords
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+      </div>
+
+      {mode === "bulk" ? (
+        <BulkPane loc={loc} />
+      ) : (
+      <>
       <Card className="mb-5">
         <CardBody>
           <form onSubmit={submit} className="flex flex-col gap-3 sm:flex-row">
@@ -674,7 +722,8 @@ export default function KeywordResearch({ embedded }: { embedded?: boolean }) {
           )}
         </div>
       )}
-      <BulkPane loc={loc} />
+      </>
+      )}
     </div>
   );
 }
