@@ -6,7 +6,7 @@ import { PublicHero } from "@/components/public/PublicHero";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { Seo } from "@/lib/seo";
-import { BASE_CURRENCY, formatBase, formatMoney, useSiteCurrency } from "@/lib/currency";
+import { BASE_CURRENCY, formatMoney, useSiteCurrency } from "@/lib/currency";
 
 /** The real, active seodada subscription plans — migrated from the production
  *  database (public.subscriptions). Prices in ₹/month (India, Razorpay + GST).
@@ -164,14 +164,8 @@ export default function Pricing() {
                   <ArrowRight size={16} />
                 </Button>
               </Link>
-              {/* The charged figure, whenever the shown one is a conversion.
-                  A site-wide currency means this visitor never chose it, so
-                  the price above may be in a currency they will not actually
-                  be billed in — saying which is which is the minimum. */}
               <p className="mt-3 text-center text-xs text-text-muted">
-                {show(p.price).converted
-                  ? `≈ approx. — billed ${formatBase(p.price * 100)} · GST invoice included`
-                  : "30-day billing · GST invoice included"}
+                30-day billing · GST invoice included
               </p>
             </div>
           ))}

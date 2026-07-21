@@ -36,16 +36,16 @@ function CurrencyCard({ current, onPick, saving }: {
     <Card className="mb-5">
       <CardHeader><CardTitle>Display currency</CardTitle></CardHeader>
       <CardBody className="space-y-4">
-        {/* Louder than the old per-user version on purpose. That one was opted
-            into by the person reading it; this applies to every visitor, so
-            the site can show "$51.79" to someone who never chose USD and will
-            still be charged in rupees. Saying so is not optional. */}
+        {/* Admin-facing only — the customer-side "billed in ₹" lines were
+            removed by request, which is exactly why this has to stay accurate:
+            it is now the only place the ₹/display split is stated at all. */}
         <div className="rounded-md border border-[color:var(--warning)]/35 bg-[color:var(--warning)]/10 px-3.5 py-3 text-sm">
-          <p className="font-medium text-text">Display only — billing stays in Indian Rupees.</p>
+          <p className="font-medium text-text">Display only — charges are still in Indian Rupees.</p>
           <p className="mt-1 text-text-muted">
-            This converts every price shown on the site, including the public pricing
-            page, at today's rate. Razorpay still charges ₹, and the ₹ figure stays
-            visible at checkout and on invoices. It does not change what customers pay.
+            Every price on the site, including the public pricing page, is converted at
+            today's live rate. Payments still process in ₹, so a customer seeing $51.79
+            is charged ₹4,999 and their bank applies its own rate. Invoices and payment
+            history remain in ₹.
           </p>
         </div>
 

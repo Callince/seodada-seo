@@ -54,14 +54,7 @@ function PlanCard({
         <span className="text-3xl font-extrabold text-text">{price.text}</span>
         <span className="text-sm text-text-muted">/{plan.period_days}d</span>
       </div>
-      {/* The charged amount, always visible when the displayed one is a
-          conversion. Subscribing bills INR through Razorpay, so showing only
-          "$51.79" here would be the number nobody is actually charged. */}
-      <p className="mt-1 text-xs text-text-muted">
-        {price.converted
-          ? `≈ approx. — billed ${formatBase(plan.price_cents)} incl. 18% GST`
-          : "Incl. 18% GST"}
-      </p>
+      <p className="mt-1 text-xs text-text-muted">Incl. 18% GST</p>
       <div className="mt-4 rounded-xl bg-primary-soft px-3 py-2 text-sm font-medium text-primary">
         {plan.usage_per_day} analyses / day
       </div>

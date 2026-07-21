@@ -115,12 +115,7 @@ export function Pricing() {
             </div>
           </Reveal>
         </div>
-        <p className="mt-6 text-center text-xs text-text-muted">
-          {/* Converted prices are estimates; the charge is always ₹. */}
-          {show(1).converted
-            ? "Prices converted at today's rate — billed in ₹ (India, incl. Razorpay + GST). Cancel any time."
-            : "Prices in ₹ (India, incl. Razorpay + GST). Cancel any time."}
-        </p>
+        <p className="mt-6 text-center text-xs text-text-muted">Incl. GST. Cancel any time.</p>
       </div>
     </section>
   );
