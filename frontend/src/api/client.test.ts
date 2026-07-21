@@ -77,25 +77,58 @@ describe("401 → silent refresh → retry", () => {
 
 describe("apiErrorMessage", () => {
   const respErr = (status: number, data: unknown) =>
-    new AxiosError("Request failed", "ERR_BAD_REQUEST", undefined, {}, {
+    new AxiosError("Request failed with status code " + status, "ERR_BAD_RESPONSE", undefined, {}, {
       status,
       statusText: "",
       data,
       headers: {},
       config: {} as never,
     });
+  /** No `response` at all — connection refused, offline, DNS, CORS. */
+  const networkErr = (code = "ERR_NETWORK") =>
+    new AxiosError("Network Error", code, undefined, {});
 
-  it("prefers RFC 7807 detail", () => {
+  it("prefers the API's own message: detail, then title", () => {
     expect(apiErrorMessage(respErr(400, { detail: "Bad keyword" }))).toBe("Bad keyword");
+    expect(apiErrorMessage(respErr(500, { title: "Boom" }))).toBe("Boom");
+    // Blank strings are not a message — fall through rather than render nothing.
+    expect(apiErrorMessage(respErr(500, { detail: "   " }))).not.toBe("   ");
   });
 
   it("maps 402 to the budget message", () => {
     expect(apiErrorMessage(respErr(402, {}))).toBe("Monthly API budget exhausted.");
   });
 
-  it("falls back to title, then message, then a generic string", () => {
-    expect(apiErrorMessage(respErr(500, { title: "Boom" }))).toBe("Boom");
-    expect(apiErrorMessage(respErr(500, {}))).toBe("Request failed");
-    expect(apiErrorMessage(new Error("x"))).toBe("Something went wrong.");
+  /** The regression this file previously asserted as CORRECT: with no
+   *  problem+json body the helper returned axios's own string, so a stopped
+   *  backend printed "Request failed with status code 502" under the login
+   *  form. Developer text must never reach the user. */
+  it("never leaks the raw axios message", () => {
+    for (const status of [400, 401, 403, 404, 409, 413, 429, 500, 502, 503, 504]) {
+      const msg = apiErrorMessage(respErr(status, {}));
+      expect(msg).not.toMatch(/status code|Request failed|Network Error|axios/i);
+      expect(msg.length).toBeGreaterThan(10);
+    }
+    expect(apiErrorMessage(networkErr())).not.toMatch(/Network Error/);
+  });
+
+  it("says a gateway failure is temporary, not the user's fault", () => {
+    for (const status of [502, 503, 504]) {
+      expect(apiErrorMessage(respErr(status, {}))).toMatch(/temporarily unavailable/i);
+    }
+  });
+
+  it("distinguishes unreachable from timed out", () => {
+    expect(apiErrorMessage(networkErr())).toMatch(/can't reach the server/i);
+    expect(apiErrorMessage(networkErr("ECONNABORTED"))).toMatch(/took too long/i);
+  });
+
+  it("gives 401 actionable sign-in copy and 429 a wait instruction", () => {
+    expect(apiErrorMessage(respErr(401, {}))).toMatch(/email or password/i);
+    expect(apiErrorMessage(respErr(429, {}))).toMatch(/wait a moment/i);
+  });
+
+  it("handles non-axios errors", () => {
+    expect(apiErrorMessage(new Error("x"))).toBe("Something went wrong. Please try again.");
   });
 });
