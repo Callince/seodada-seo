@@ -56,11 +56,18 @@ export interface PageAnalysis {
     top_keywords: { phrase: string; count: number; density: number }[];
     top_phrases: { phrase: string; count: number; density: number }[];
     /** The page's copy as tagged lines, in document order — so a keyword's
-     *  occurrences can be shown WHERE they live, not just counted. */
-    blocks: { tag: string; text: string }[];
+     *  occurrences can be shown WHERE they live, not just counted.
+     *
+     *  OPTIONAL on purpose. Analyses are persisted to localStorage and cached
+     *  server-side, so a payload produced before these fields existed can and
+     *  does come back. Declaring them required made tsc bless `k.blocks.map`,
+     *  which then threw "Cannot read properties of undefined" on the first
+     *  stale result. Any field added to a cached payload is optional at the
+     *  consumer until every cached copy has expired. */
+    blocks?: { tag: string; text: string }[];
     /** Placement slots a keyword is scored against. Sent with the page so
-     *  checking a keyword costs no extra request. */
-    targets: {
+     *  checking a keyword costs no extra request. Optional — see `blocks`. */
+    targets?: {
       title: string;
       description: string;
       h1: string;

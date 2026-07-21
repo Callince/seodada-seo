@@ -62,3 +62,46 @@ describe("keyword matching", () => {
     expect(termRegex("   ")).toBeNull();
   });
 });
+
+/** Mirrors the guard in KeywordResult. Analyses are persisted to localStorage
+ *  AND cached server-side, so a payload created before `blocks`/`targets`
+ *  existed comes back long after the deploy. The first version typed those
+ *  fields as required, tsc blessed `k.blocks.map(...)`, and the tool crashed
+ *  with "Cannot read properties of undefined (reading 'map')" on the first
+ *  stale result. */
+type Payload = { blocks?: { tag: string; text: string }[]; targets?: object };
+
+function inspect(k: Payload, re: RegExp | null) {
+  const { blocks, targets } = k;
+  const stale = !blocks || !targets;
+  const hits =
+    re && blocks
+      ? blocks.map((b, i) => ({ ...b, i, n: countIn(b.text, re) })).filter((b) => b.n > 0)
+      : [];
+  return { stale, searching: !!re && !stale, hits };
+}
+
+describe("stale analysis payloads", () => {
+  const re = termRegex("seo")!;
+  const fresh: Payload = { blocks: [{ tag: "h1", text: "seo guide" }], targets: {} };
+
+  it("does not throw when blocks or targets are missing", () => {
+    expect(() => inspect({}, re)).not.toThrow();
+    expect(() => inspect({ blocks: undefined, targets: undefined }, re)).not.toThrow();
+    // Half-populated is possible too if the shape ever changes again.
+    expect(() => inspect({ blocks: [{ tag: "p", text: "seo" }] }, re)).not.toThrow();
+  });
+
+  it("marks an old payload stale and shows no placement view", () => {
+    expect(inspect({}, re).stale).toBe(true);
+    expect(inspect({}, re).searching).toBe(false);
+    expect(inspect({}, re).hits).toEqual([]);
+  });
+
+  it("a current payload is not stale and still matches", () => {
+    const r = inspect(fresh, re);
+    expect(r.stale).toBe(false);
+    expect(r.searching).toBe(true);
+    expect(r.hits).toHaveLength(1);
+  });
+});

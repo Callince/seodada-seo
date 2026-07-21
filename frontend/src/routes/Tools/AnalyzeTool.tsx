@@ -292,7 +292,7 @@ type Advice = { status: "ok" | "warning" | "danger"; label: string; detail: stri
 function buildAdvice(
   term: string,
   re: RegExp,
-  targets: PageAnalysis["keywords"]["targets"],
+  targets: NonNullable<PageAnalysis["keywords"]["targets"]>,
   totalCount: number,
   wordCount: number,
 ): { advice: Advice[]; density: number } {
@@ -341,14 +341,20 @@ function KeywordResult({ k }: { k: PageAnalysis["keywords"] }) {
   const volume = useBulkOverview();
 
   const re = termRegex(term);
-  const searching = !!re;
+
+  // A result analysed before the inspector shipped has no blocks/targets — it
+  // is still in localStorage and in the server-side result cache. Detect it and
+  // ask for a re-run rather than rendering half a feature (or, as the first
+  // version did, throwing on `undefined.map`).
+  const { blocks, targets } = k;
+  const stale = !blocks || !targets;
+  const searching = !!re && !stale;
 
   // Per-block counts drive both the tag summary and the line list.
-  const hits = re
-    ? k.blocks
-        .map((b, i) => ({ ...b, i, n: countIn(b.text, re) }))
-        .filter((b) => b.n > 0)
-    : [];
+  const hits =
+    re && blocks
+      ? blocks.map((b, i) => ({ ...b, i, n: countIn(b.text, re) })).filter((b) => b.n > 0)
+      : [];
   const totalCount = hits.reduce((s, h) => s + h.n, 0);
   const byTag = hits.reduce<Record<string, number>>((acc, h) => {
     acc[h.tag] = (acc[h.tag] ?? 0) + h.n;
@@ -357,9 +363,10 @@ function KeywordResult({ k }: { k: PageAnalysis["keywords"] }) {
   const tagsPresent = TAG_WEIGHT.filter((t) => byTag[t]);
   const shown = tagFilter ? hits.filter((h) => h.tag === tagFilter) : hits;
 
-  const { advice } = re
-    ? buildAdvice(term, re, k.targets, totalCount, k.word_count)
-    : { advice: [] as Advice[] };
+  const { advice } =
+    re && targets
+      ? buildAdvice(term, re, targets, totalCount, k.word_count)
+      : { advice: [] as Advice[] };
 
   const vol = volume.data?.rows?.[0];
 
@@ -393,10 +400,20 @@ function KeywordResult({ k }: { k: PageAnalysis["keywords"] }) {
               {!volume.isPending && <BarChart3 size={15} />} Get search volume
             </Button>
           </form>
-          <p className="text-xs text-text-muted">
-            Placement and density update as you type — the button additionally
-            looks up live search volume, which costs an API credit.
-          </p>
+          {stale ? (
+            // Say why the placement view is absent. Silently hiding it would
+            // look like the feature is broken; volume lookup still works here,
+            // since it does not depend on the page payload.
+            <p className="rounded-md border border-border bg-surface-2 px-3 py-2 text-xs text-text-muted">
+              This result was analysed before the placement view existed. Re-run
+              the analysis above to see where a keyword appears and what to fix.
+            </p>
+          ) : (
+            <p className="text-xs text-text-muted">
+              Placement and density update as you type — the button additionally
+              looks up live search volume, which costs an API credit.
+            </p>
+          )}
 
           {volume.isError && <p className="text-sm text-danger">{apiErrorMessage(volume.error)}</p>}
           {vol && (
