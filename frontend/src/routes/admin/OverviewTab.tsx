@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fmtInt } from "@/lib/format";
+import { useUsdToInr } from "@/lib/currency";
 import { fmtDate, inr } from "@/routes/admin/ui";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -25,6 +26,8 @@ const CRITICAL_BALANCE_CENTS = 500; // $5
 /** Live DataForSEO credit — the upstream account every billed lookup draws on. */
 function DfsAccountCard() {
   const { data, isPending, refetch, isFetching } = useDfsAccount();
+  // DataForSEO bills in USD; these figures are USD cents.
+  const { fmt: inrFromUsd } = useUsdToInr();
 
   const tone =
     !data || data.error
@@ -65,7 +68,13 @@ function DfsAccountCard() {
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-wide text-text-muted">Balance</p>
-              <p className={`font-mono text-3xl font-extrabold ${tone}`}>{usd(data.balance_cents)}</p>
+              <p className={`font-mono text-3xl font-extrabold ${tone}`}>{inrFromUsd(data.balance_cents)}</p>
+              {/* The USD figure stays on THIS one number, small, because the
+                  DataForSEO account is denominated in dollars — you top it up
+                  in dollars, and their console shows dollars. Every other
+                  spend figure below is analysis, where rupees is what's
+                  wanted; this one is an account balance you have to reconcile. */}
+              <p className="mt-0.5 font-mono text-xs text-text-muted">{usd(data.balance_cents)} in the DataForSEO account</p>
               {data.balance_cents < LOW_BALANCE_CENTS && (
                 <p className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-warning">
                   <AlertTriangle size={12} /> Low — top up to keep billed lookups working
@@ -75,7 +84,7 @@ function DfsAccountCard() {
             <div className="flex gap-8 text-sm">
               <div>
                 <p className="text-xs uppercase tracking-wide text-text-muted">Spent all-time</p>
-                <p className="font-mono text-text">{usd(data.spent_total_cents)}</p>
+                <p className="font-mono text-text">{inrFromUsd(data.spent_total_cents)}</p>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wide text-text-muted">Account</p>

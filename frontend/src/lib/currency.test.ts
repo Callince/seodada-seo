@@ -138,3 +138,42 @@ describe("formatBase", () => {
     expect(BASE_CURRENCY).toBe("INR");
   });
 });
+
+/**
+ * Mirrors useUsdToInr's arithmetic. Kept as a copy because the hook needs a
+ * QueryClient; the part worth pinning is the maths, not the plumbing.
+ *
+ * The admin panel mixes currencies by nature: DataForSEO bills in USD, Razorpay
+ * revenue is INR. Converting in the wrong direction is invisible in the UI —
+ * ₹1.06 and ₹9,873 both look like plausible spend figures — so the direction
+ * itself needs a test.
+ */
+const usdCentsToInr = (usdCents: number, inrToUsd: number) =>
+  formatBase(Math.round((usdCents / 100) * (1 / inrToUsd) * 100));
+
+describe("admin USD spend shown in INR", () => {
+  const INR_TO_USD = 0.01036; // live value; USD->INR is its inverse, ~96.53
+
+  it("multiplies by the INVERSE rate, not the rate", () => {
+    // $9.00 of DataForSEO spend is ~₹869. Using the rate directly instead of
+    // its inverse would give ₹0.09 — small, plausible, and wrong by ~9300x.
+    expect(digits(usdCentsToInr(900, INR_TO_USD))).toBe("868.73");
+  });
+
+  it("keeps sub-cent API calls from rounding to zero", () => {
+    // An AI Overview call costs $0.002. At 2dp in rupees that is ₹0.19, which
+    // must survive: rounding it to ₹0 would make per-call costs vanish while
+    // the totals kept growing.
+    expect(digits(usdCentsToInr(0.2, INR_TO_USD))).not.toBe("0.00");
+  });
+
+  it("scales linearly across the range the dashboard shows", () => {
+    expect(digits(usdCentsToInr(110, INR_TO_USD))).toBe("106.18");
+    expect(digits(usdCentsToInr(25000, INR_TO_USD))).toBe("24,131.27");
+  });
+
+  it("renders in rupees, not dollars", () => {
+    expect(usdCentsToInr(900, INR_TO_USD)).toContain("₹");
+    expect(usdCentsToInr(900, INR_TO_USD)).not.toContain("$");
+  });
+});

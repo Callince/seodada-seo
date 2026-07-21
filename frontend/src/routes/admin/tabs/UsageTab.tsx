@@ -8,10 +8,12 @@ import { Card, CardBody } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fmtCents } from "@/lib/format";
+import { useUsdToInr } from "@/lib/currency";
 import { fmtDateTime, MiniStats } from "@/routes/admin/ui";
 
 export function UsageTab() {
+  // DataForSEO bills in USD; these are USD cents.
+  const { fmt: inrFromUsd } = useUsdToInr();
   const [user, setUser] = useState("");
   const [tool, setTool] = useState("");
   const [days, setDays] = useState(30);
@@ -25,7 +27,7 @@ export function UsageTab() {
           { label: "Events", value: data?.total ?? "—" },
           { label: "Billed", value: data?.billed_count ?? "—", accent: true },
           { label: "From cache", value: data?.cached_count ?? "—" },
-          { label: "Spend", value: data ? fmtCents(data.total_cost_cents) : "—" },
+          { label: "Spend", value: data ? inrFromUsd(data.total_cost_cents) : "—" },
         ]}
       />
       <div className="flex flex-wrap items-center gap-2">
@@ -69,7 +71,7 @@ export function UsageTab() {
                     <td className="py-2.5 pl-4 pr-4 text-text">{r.user_email}</td>
                     <td className="py-2.5 pr-4 text-text-muted">{r.org_name}</td>
                     <td className="py-2.5 pr-4 font-mono text-xs">{r.endpoint}</td>
-                    <td className="py-2.5 pr-4 text-right font-mono">{fmtCents(r.cost_cents)}</td>
+                    <td className="py-2.5 pr-4 text-right font-mono">{inrFromUsd(r.cost_cents)}</td>
                     <td className="py-2.5 pr-4">
                       <Badge tone={r.from_cache ? "neutral" : "info"}>{r.from_cache ? "cache" : "billed"}</Badge>
                     </td>

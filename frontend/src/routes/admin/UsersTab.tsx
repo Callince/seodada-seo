@@ -23,7 +23,8 @@ import { Card, CardBody } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fmtCents, fmtInt } from "@/lib/format";
+import { fmtInt } from "@/lib/format";
+import { useUsdToInr } from "@/lib/currency";
 import { useAuth } from "@/store/auth";
 import { toast } from "@/store/toast";
 import { Line, Section } from "@/routes/admin/shared";
@@ -31,6 +32,9 @@ import { Field, Modal, ModalActions, fmtDate, fmtDateTime, inr } from "@/routes/
 import type { AdminUser } from "@/types";
 
 const buildColumns = (
+  /** USD cents -> INR. Passed in rather than imported: buildColumns is a plain
+   *  function, so it cannot call the hook that reads the live rate. */
+  inrFromUsd: (usdCents: number | null | undefined) => string,
   onEdit: (u: AdminUser) => void,
   onView: (u: AdminUser) => void,
   onReset: (u: AdminUser) => void,
@@ -63,8 +67,10 @@ const buildColumns = (
   {
     key: "total_cents", header: "Spend (total)", align: "right", mono: true,
     sortValue: (r) => r.total_cents,
-    render: (r) => <span className="font-semibold">{fmtCents(r.total_cents)}</span>,
-    csvValue: (r) => (r.total_cents / 100).toFixed(2),
+    render: (r) => <span className="font-semibold">{inrFromUsd(r.total_cents)}</span>,
+    // Same currency as the rendered cell: a CSV that exported USD under a
+    // column showing rupees would be silently ~96x off in any spreadsheet.
+    csvValue: (r) => inrFromUsd(r.total_cents).replace(/[^\d.]/g, ""),
   },
   { key: "calls", header: "API calls", align: "right", mono: true, sortValue: (r) => r.calls, render: (r) => fmtInt(r.calls) },
   {
@@ -180,6 +186,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
 }
 
 function UserDetailModal({ user, onClose }: { user: AdminUser; onClose: () => void }) {
+  const { fmt: inrFromUsd } = useUsdToInr();
   const { data, isPending } = useUserDetail(user.id);
   return (
     <Modal title={user.email} onClose={onClose} wide>
@@ -188,8 +195,8 @@ function UserDetailModal({ user, onClose }: { user: AdminUser; onClose: () => vo
       ) : (
         <div className="space-y-4 text-sm">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatCard label="Spend (total)" value={fmtCents(data.total_cents)} />
-            <StatCard label="Spend (month)" value={fmtCents(data.month_cents)} accent />
+            <StatCard label="Spend (total)" value={inrFromUsd(data.total_cents)} />
+            <StatCard label="Spend (month)" value={inrFromUsd(data.month_cents)} accent />
             <StatCard label="API calls" value={fmtInt(data.calls)} />
             <StatCard label="Org" value={data.org_name} />
           </div>
@@ -205,7 +212,7 @@ function UserDetailModal({ user, onClose }: { user: AdminUser; onClose: () => vo
           </Section>
           <Section title="Recent activity">
             {data.recent_usage.map((u, i) => (
-              <Line key={i} left={<span className="font-mono text-xs">{u.endpoint}</span>} mid={u.from_cache ? "cache" : fmtCents(u.cost_cents)} right={fmtDateTime(u.created_at)} />
+              <Line key={i} left={<span className="font-mono text-xs">{u.endpoint}</span>} mid={u.from_cache ? "cache" : inrFromUsd(u.cost_cents)} right={fmtDateTime(u.created_at)} />
             ))}
           </Section>
         </div>
@@ -215,6 +222,8 @@ function UserDetailModal({ user, onClose }: { user: AdminUser; onClose: () => vo
 }
 
 export function UsersTab() {
+  // DataForSEO bills in USD, so every spend figure here is USD cents.
+  const { fmt: inrFromUsd } = useUsdToInr();
   const { data, isPending, isError, error, refetch } = useAdminUsers();
   const me = useAuth((s) => s.user);
   const reset = useResetUserPassword();
@@ -243,15 +252,15 @@ export function UsersTab() {
     <>
       <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <MetricCard icon={Users} label="Users" value={fmtInt(data.users.length)} />
-        <MetricCard icon={Wallet} label="Spend this month" value={fmtCents(data.total_month_cents)} />
-        <MetricCard icon={TrendingUp} label="Spend all time" value={fmtCents(data.total_cents)} />
+        <MetricCard icon={Wallet} label="Spend this month" value={inrFromUsd(data.total_month_cents)} />
+        <MetricCard icon={TrendingUp} label="Spend all time" value={inrFromUsd(data.total_cents)} />
       </div>
       <div className="mb-3 flex justify-end">
         <Button onClick={() => setCreating(true)}><Plus size={15} /> Add user</Button>
       </div>
       <Card>
         <CardBody className="p-0">
-          <DataTable columns={buildColumns(setEditing, setViewing, onReset, onDelete, me?.id)} rows={data.users} csvName="admin-users" />
+          <DataTable columns={buildColumns(inrFromUsd, setEditing, setViewing, onReset, onDelete, me?.id)} rows={data.users} csvName="admin-users" />
         </CardBody>
       </Card>
       {editing && <EditUserModal user={editing} onClose={() => setEditing(null)} />}

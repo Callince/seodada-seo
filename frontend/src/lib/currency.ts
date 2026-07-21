@@ -138,6 +138,37 @@ export function formatMoney(
   return { text: f.format(major * rate), converted: true };
 }
 
+/**
+ * USD -> INR, for the admin panel's API-spend figures.
+ *
+ * The admin screens genuinely mix two currencies and always have:
+ *   - DataForSEO bills in USD, so every cost_cents / balance_cents / spend
+ *     figure is USD cents (see integrations/dataforseo/client._to_cents)
+ *   - Razorpay revenue (MRR, all-time revenue, plan prices) is INR paise
+ * Converting the wrong set would double-convert the rupee ones, so this is
+ * deliberately a separate function from formatMoney rather than a flag on it —
+ * the two take different inputs and can't be mixed up at the call site.
+ *
+ * The rates endpoint is based on INR, so the USD->INR rate is the inverse of
+ * the INR->USD one it publishes (0.01036 -> 96.53).
+ */
+export function useUsdToInr() {
+  const { data } = useSiteCurrency();
+  const inrToUsd = data?.rates?.USD;
+  const rate = inrToUsd ? 1 / inrToUsd : null;
+
+  /** USD cents -> "₹1,234.56". Falls back to the USD figure when no rate is
+   *  available, so a spend number is never silently mislabelled. */
+  const fmt = (usdCents: number | null | undefined): string => {
+    const cents = usdCents ?? 0;
+    if (!rate) return `$${(cents / 100).toFixed(2)}`;
+    // Sub-cent API calls are normal (an AI Overview call is $0.002), so keep
+    // 2dp rather than rounding a real cost to ₹0.
+    return formatBase(Math.round((cents / 100) * rate * 100));
+  };
+  return { rate, fmt, available: rate != null };
+}
+
 /** The INR figure, always — for the places that must state what is charged. */
 export function formatBase(amountInrMinor: number): string {
   const f = formatter(BASE_CURRENCY);
