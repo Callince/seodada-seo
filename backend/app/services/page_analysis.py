@@ -13,6 +13,7 @@ from urllib.parse import urljoin, urlparse
 from app.integrations.scraper import Persona, get_config
 from app.integrations.scraper.blocking import block_message, detect_block
 from app.integrations.scraper.extractors import (
+    extract_blocks,
     extract_headings,
     extract_images,
     extract_links,
@@ -110,9 +111,9 @@ async def analyze_page(raw_url: str, refresh: bool = False) -> dict:
     depth = len([p for p in parsed.path.split("/") if p])
     slug = (parsed.path.rstrip("/").split("/")[-1]) if parsed.path.strip("/") else ""
     robots_lc = (meta.robots or "").lower()
-    internal_links = [l for l in links if getattr(l, "is_internal", False)]
-    external_links = [l for l in links if not getattr(l, "is_internal", False)]
-    nofollow_links = [l for l in links if "nofollow" in (getattr(l, "rel", "") or "").lower()]
+    internal_links = [ln for ln in links if getattr(ln, "is_internal", False)]
+    external_links = [ln for ln in links if not getattr(ln, "is_internal", False)]
+    nofollow_links = [ln for ln in links if "nofollow" in (getattr(ln, "rel", "") or "").lower()]
 
     def _chk(label: str, status: str, detail: str) -> dict:
         return {"label": label, "status": status, "detail": detail}
@@ -177,13 +178,13 @@ async def analyze_page(raw_url: str, refresh: bool = False) -> dict:
         "total": len(links),
         "samples": [
             {
-                "url": l.url,
-                "anchor": (l.anchor_text or "")[:100],
-                "rel": l.rel or "",
-                "internal": l.is_internal,
-                "nofollow": "nofollow" in (l.rel or "").lower(),
+                "url": ln.url,
+                "anchor": (ln.anchor_text or "")[:100],
+                "rel": ln.rel or "",
+                "internal": ln.is_internal,
+                "nofollow": "nofollow" in (ln.rel or "").lower(),
             }
-            for l in _sample_links
+            for ln in _sample_links
         ],
     }
 
@@ -256,12 +257,28 @@ async def analyze_page(raw_url: str, refresh: bool = False) -> dict:
     top_keywords = [_kw(r) for r in rows if " " not in r["keyword"]]
     top_phrases = [_kw(r) for r in rows if " " in r["keyword"]]
     unique_words = len(set(re.findall(r"[a-z0-9']+", body_text.lower())))
+    # Tagged lines, so the UI can show WHERE a keyword sits rather than only
+    # how often it appears. `first_paragraph` is singled out because "in the
+    # opening paragraph" is a placement rule people actually act on, and it
+    # cannot be recovered from the block list without re-deriving the order.
+    blocks = [{"tag": b.tag, "text": b.text} for b in extract_blocks(doc)]
+    first_para = next((b["text"] for b in blocks if b["tag"] == "p"), "")
     keyword_section = {
         "word_count": words,
         "unique_words": unique_words,
         "reading_time_min": max(1, round(words / 200)) if words else 0,
         "top_keywords": top_keywords,
         "top_phrases": top_phrases,
+        "blocks": blocks,
+        # The placement targets the UI scores a searched keyword against. Sent
+        # once with the page so checking a keyword needs no second request.
+        "targets": {
+            "title": meta.title or "",
+            "description": meta.description or "",
+            "h1": h1_text,
+            "url": final,
+            "first_paragraph": first_para,
+        },
     }
 
     return {

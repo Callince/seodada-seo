@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   FileSearch,
   Heading,
   Image as ImageIcon,
@@ -12,6 +13,7 @@ import {
 import { lazy, Suspense, useState } from "react";
 
 import { apiErrorMessage } from "@/api/client";
+import { useBulkOverview } from "@/api/hooks/useKeywords";
 import {
   useAnalyzePage,
   useAnalyzeSitemap,
@@ -25,6 +27,8 @@ import { usePersistedState } from "@/lib/persist";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/cn";
 
 export type Tool = "url" | "keyword" | "heading" | "image" | "meta" | "sitemap";
 
@@ -221,6 +225,282 @@ function DensityTable({ title, rows }: { title: string; rows: DensityRow[] }) {
 
 /** Heading audit — the H1–H6 count chips are clickable; tapping one filters the
  *  document outline to just that level. */
+
+/* ===================== Keyword inspector ===================== */
+
+const TAG_LABEL: Record<string, string> = {
+  title: "Title", h1: "H1", h2: "H2", h3: "H3", h4: "H4", h5: "H5", h6: "H6",
+  p: "Paragraph", li: "List item", td: "Table cell", th: "Table header",
+  blockquote: "Quote", figcaption: "Caption", dd: "Definition", dt: "Term",
+};
+/** Weight order for "where does it appear" — the tags Google leans on most
+ *  come first, so the summary reads as a priority list, not alphabetical. */
+const TAG_WEIGHT = ["title", "h1", "h2", "h3", "h4", "h5", "h6", "p", "li", "blockquote", "td", "th", "figcaption", "dt", "dd"];
+
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** Whole-word-ish match: "seo" should not light up inside "seoul". Falls back
+ *  to a plain substring when the term has no word characters at its edges
+ *  (e.g. "c++"), where \b would never fire. */
+function termRegex(term: string): RegExp | null {
+  const t = term.trim();
+  if (!t) return null;
+  const body = escapeRe(t).replace(/\s+/g, "\\s+");
+  const lead = /^\w/.test(t) ? "\\b" : "";
+  const tail = /\w$/.test(t) ? "\\b" : "";
+  return new RegExp(`${lead}${body}${tail}`, "gi");
+}
+
+/** A /g regex carries a mutable `lastIndex`, so passing one around and
+ *  resetting it before each use makes every caller depend on every other
+ *  caller's bookkeeping — one missed reset silently skips matches. Each
+ *  consumer gets its own clone instead; the pattern is shared, the cursor is
+ *  not. (The React compiler flags the mutation too, which is what surfaced it.) */
+const fresh = (re: RegExp) => new RegExp(re.source, re.flags);
+
+function countIn(text: string, re: RegExp): number {
+  return (text.match(fresh(re)) || []).length;
+}
+
+/** Text with every match wrapped — the whole point of the tag-by-tag view. */
+function Highlight({ text, re }: { text: string; re: RegExp }) {
+  const parts: React.ReactNode[] = [];
+  let last = 0;
+  for (const m of text.matchAll(fresh(re))) {
+    const i = m.index ?? 0;
+    if (i > last) parts.push(text.slice(last, i));
+    parts.push(
+      <mark key={`${i}-${m[0]}`} className="rounded bg-[color:var(--section-soft)] px-0.5 font-semibold text-[color:var(--section-ink)]">
+        {m[0]}
+      </mark>,
+    );
+    last = i + m[0].length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return <>{parts}</>;
+}
+
+type Advice = { status: "ok" | "warning" | "danger"; label: string; detail: string };
+
+/**
+ * Turn placement + density into things to actually do.
+ *
+ * Density alone is a number nobody can act on; "not in your H1" is. Each rule
+ * states the finding AND the fix, and the thresholds are the conventional SEO
+ * ranges (0.5–2.5% density, keyword in title/H1/first paragraph/URL).
+ */
+function buildAdvice(
+  term: string,
+  re: RegExp,
+  targets: PageAnalysis["keywords"]["targets"],
+  totalCount: number,
+  wordCount: number,
+): { advice: Advice[]; density: number } {
+  const density = wordCount ? (totalCount / wordCount) * 100 : 0;
+  const inTitle = countIn(targets.title, re) > 0;
+  const inH1 = countIn(targets.h1, re) > 0;
+  const inDesc = countIn(targets.description, re) > 0;
+  const inFirst = countIn(targets.first_paragraph, re) > 0;
+  // URL is matched loosely: slugs hyphenate, so "running shoes" -> "running-shoes".
+  const slugRe = new RegExp(escapeRe(term.trim()).replace(/\s+/g, "[-_ ]?"), "i");
+  const inUrl = slugRe.test(targets.url);
+
+  const advice: Advice[] = [
+    inTitle
+      ? { status: "ok", label: "In the title tag", detail: "The strongest on-page signal — good." }
+      : { status: "danger", label: "Missing from the title tag", detail: `Work "${term}" into the <title>, ideally near the front.` },
+    inH1
+      ? { status: "ok", label: "In the H1", detail: "Your main heading matches the target." }
+      : { status: "danger", label: "Missing from the H1", detail: `Add "${term}" to the H1 so the page's topic is unambiguous.` },
+    inFirst
+      ? { status: "ok", label: "In the opening paragraph", detail: "Confirms the topic early, for readers and crawlers." }
+      : { status: "warning", label: "Not in the opening paragraph", detail: `Mention "${term}" in the first paragraph — ideally the first sentence.` },
+    inDesc
+      ? { status: "ok", label: "In the meta description", detail: "Matching terms get bolded in the SERP snippet." }
+      : { status: "warning", label: "Not in the meta description", detail: `Include "${term}" — it is bolded in results, which lifts click-through.` },
+    inUrl
+      ? { status: "ok", label: "In the URL", detail: "The slug reflects the target term." }
+      : { status: "warning", label: "Not in the URL slug", detail: `Consider a slug containing "${term.replace(/\s+/g, "-")}" — only worth changing on a new page, redirects cost more than they gain.` },
+  ];
+
+  if (totalCount === 0) {
+    advice.unshift({ status: "danger", label: "Not on the page at all", detail: `No occurrence of "${term}" in the body copy. If this is the target term, the page needs to be written around it.` });
+  } else if (density < 0.5) {
+    advice.unshift({ status: "warning", label: `Density ${density.toFixed(2)}% — thin`, detail: `${totalCount} mention${totalCount === 1 ? "" : "s"} in ${wordCount.toLocaleString()} words. Around 0.5–2.5% reads naturally; add a few more where they fit.` });
+  } else if (density > 2.5) {
+    advice.unshift({ status: "danger", label: `Density ${density.toFixed(2)}% — over-used`, detail: `${totalCount} mentions is high enough to read as stuffing. Replace some with synonyms or pronouns.` });
+  } else {
+    advice.unshift({ status: "ok", label: `Density ${density.toFixed(2)}% — healthy`, detail: `${totalCount} mention${totalCount === 1 ? "" : "s"} across ${wordCount.toLocaleString()} words sits in the natural range.` });
+  }
+  return { advice, density };
+}
+
+function KeywordResult({ k }: { k: PageAnalysis["keywords"] }) {
+  const [term, setTerm] = usePersistedState("tools.kw.term", "");
+  const [tagFilter, setTagFilter] = useState<string | null>(null);
+  const volume = useBulkOverview();
+
+  const re = termRegex(term);
+  const searching = !!re;
+
+  // Per-block counts drive both the tag summary and the line list.
+  const hits = re
+    ? k.blocks
+        .map((b, i) => ({ ...b, i, n: countIn(b.text, re) }))
+        .filter((b) => b.n > 0)
+    : [];
+  const totalCount = hits.reduce((s, h) => s + h.n, 0);
+  const byTag = hits.reduce<Record<string, number>>((acc, h) => {
+    acc[h.tag] = (acc[h.tag] ?? 0) + h.n;
+    return acc;
+  }, {});
+  const tagsPresent = TAG_WEIGHT.filter((t) => byTag[t]);
+  const shown = tagFilter ? hits.filter((h) => h.tag === tagFilter) : hits;
+
+  const { advice } = re
+    ? buildAdvice(term, re, k.targets, totalCount, k.word_count)
+    : { advice: [] as Advice[] };
+
+  const vol = volume.data?.rows?.[0];
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-3">
+        <StatTile label="Words" value={k.word_count} />
+        <StatTile label="Unique words" value={k.unique_words} />
+        <StatTile label="Reading time" value={`${k.reading_time_min} min`} />
+      </div>
+
+      {/* ---- Search a specific keyword ---- */}
+      <Card>
+        <CardBody className="space-y-3">
+          <p className="text-sm font-semibold text-text">Check a keyword</p>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (term.trim()) volume.mutate({ keywords: [term.trim()], location_code: 2840, language_code: "en" });
+            }}
+            className="flex flex-col gap-2 sm:flex-row"
+          >
+            <Input
+              value={term}
+              onChange={(e) => { setTerm(e.target.value); setTagFilter(null); }}
+              placeholder="Target keyword, e.g. running shoes"
+              className="sm:flex-1"
+              aria-label="Keyword to check on this page"
+            />
+            <Button type="submit" variant="secondary" loading={volume.isPending} disabled={!term.trim()}>
+              {!volume.isPending && <BarChart3 size={15} />} Get search volume
+            </Button>
+          </form>
+          <p className="text-xs text-text-muted">
+            Placement and density update as you type — the button additionally
+            looks up live search volume, which costs an API credit.
+          </p>
+
+          {volume.isError && <p className="text-sm text-danger">{apiErrorMessage(volume.error)}</p>}
+          {vol && (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <StatTile label="Search volume" value={vol.search_volume?.toLocaleString() ?? "—"} />
+              <StatTile label="Difficulty" value={vol.keyword_difficulty ?? "—"} />
+              <StatTile label="Intent" value={<span className="capitalize">{vol.intent ?? "—"}</span>} />
+              <StatTile label="CPC" value={vol.cpc == null ? "—" : `$${vol.cpc.toFixed(2)}`} />
+            </div>
+          )}
+        </CardBody>
+      </Card>
+
+      {searching && (
+        <>
+          {/* ---- How to improve ---- */}
+          <Card>
+            <CardBody>
+              <p className="mb-3 text-sm font-semibold text-text">
+                How to improve “{term.trim()}” on this page
+              </p>
+              <div className="space-y-2">
+                {advice.map((a) => (
+                  <div key={a.label} className="flex items-start gap-2.5 text-sm">
+                    <Badge tone={STATUS_TONE[a.status]} className="mt-0.5 shrink-0">
+                      {STATUS_MARK[a.status]}
+                    </Badge>
+                    <span>
+                      <span className="font-medium text-text">{a.label}</span>
+                      <span className="text-text-muted"> — {a.detail}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+
+          {/* ---- Where it appears, tag by tag ---- */}
+          <Card>
+            <CardBody>
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm font-semibold text-text">
+                  Where it appears — {totalCount} mention{totalCount === 1 ? "" : "s"} in {hits.length} line{hits.length === 1 ? "" : "s"}
+                </p>
+                {tagsPresent.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    <button
+                      onClick={() => setTagFilter(null)}
+                      className={cn(
+                        "rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors",
+                        tagFilter === null
+                          ? "border-transparent bg-[color:var(--section)] text-white"
+                          : "border-border text-text-muted hover:text-text",
+                      )}
+                    >
+                      All
+                    </button>
+                    {tagsPresent.map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => setTagFilter(t === tagFilter ? null : t)}
+                        className={cn(
+                          "rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors",
+                          tagFilter === t
+                            ? "border-transparent bg-[color:var(--section)] text-white"
+                            : "border-border text-text-muted hover:text-text",
+                        )}
+                      >
+                        {TAG_LABEL[t] ?? t} · {byTag[t]}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {shown.length === 0 ? (
+                <p className="py-6 text-center text-sm text-text-muted">
+                  “{term.trim()}” does not appear in the page copy.
+                </p>
+              ) : (
+                <ul className="divide-y divide-border">
+                  {shown.map((h) => (
+                    <li key={h.i} className="flex gap-3 py-2.5 text-sm">
+                      <span className="mt-0.5 shrink-0 rounded bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] uppercase text-text-muted">
+                        {h.tag}
+                      </span>
+                      <span className="min-w-0 leading-relaxed text-text">
+                        <Highlight text={h.text} re={re!} />
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardBody>
+          </Card>
+        </>
+      )}
+
+      <DensityTable title="Top keywords" rows={k.top_keywords} />
+      {k.top_phrases.length > 0 && <DensityTable title="Top phrases (2–3 words)" rows={k.top_phrases} />}
+    </div>
+  );
+}
+
 function HeadingResult({ h }: { h: PageAnalysis["headings"] }) {
   const [level, setLevel] = useState(0); // 0 = all levels
   const items = level === 0 ? h.items : h.items.filter((i) => i.level === level);
@@ -475,18 +755,7 @@ export function PageResult({ tool, data }: { tool: Tool; data: PageAnalysis }) {
     );
   }
   if (tool === "keyword") {
-    const k = data.keywords;
-    return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-3 gap-3">
-          <StatTile label="Words" value={k.word_count} />
-          <StatTile label="Unique words" value={k.unique_words} />
-          <StatTile label="Reading time" value={`${k.reading_time_min} min`} />
-        </div>
-        <DensityTable title="Top keywords" rows={k.top_keywords} />
-        {k.top_phrases.length > 0 && <DensityTable title="Top phrases (2–3 words)" rows={k.top_phrases} />}
-      </div>
-    );
+    return <KeywordResult k={data.keywords} />;
   }
   if (tool === "heading") {
     return <HeadingResult h={data.headings} />;

@@ -11,7 +11,7 @@ from app.integrations.scraper.extractors.images import extract_images
 from app.integrations.scraper.extractors.links import extract_links
 from app.integrations.scraper.extractors.meta import extract_meta
 from app.integrations.scraper.extractors.schema import extract_json_ld
-from app.integrations.scraper.extractors.text import extract_text
+from app.integrations.scraper.extractors.text import extract_blocks, extract_text
 
 __all__ = [
     "extract_headings",
@@ -19,5 +19,6 @@ __all__ = [
     "extract_links",
     "extract_meta",
     "extract_json_ld",
+    "extract_blocks",
     "extract_text",
 ]

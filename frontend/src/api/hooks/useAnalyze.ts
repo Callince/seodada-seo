@@ -55,6 +55,18 @@ export interface PageAnalysis {
     reading_time_min: number;
     top_keywords: { phrase: string; count: number; density: number }[];
     top_phrases: { phrase: string; count: number; density: number }[];
+    /** The page's copy as tagged lines, in document order — so a keyword's
+     *  occurrences can be shown WHERE they live, not just counted. */
+    blocks: { tag: string; text: string }[];
+    /** Placement slots a keyword is scored against. Sent with the page so
+     *  checking a keyword costs no extra request. */
+    targets: {
+      title: string;
+      description: string;
+      h1: string;
+      url: string;
+      first_paragraph: string;
+    };
   };
   meta: {
     title: string;
