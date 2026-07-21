@@ -326,6 +326,16 @@ export default function AiVisibility() {
         </CardBody>
       </Card>
 
+      {/* Sits ABOVE the check flow and outside its gate on purpose. Everything
+          below requires keywords you already have; this is the tool for when
+          you do not — locking it behind a finished check meant you had to guess
+          keywords and pay for a run before you could discover the real ones.
+          It was placed inside that block first, which made it invisible until
+          the one thing it replaces had already been done. */}
+      <div className="mb-5">
+        <DomainKeywordsCard domain={domain} live={live} />
+      </div>
+
       {!taskId && !start.isPending && !start.isError && (
         <EmptyState
           title="Check your AI search visibility"
@@ -484,12 +494,6 @@ export default function AiVisibility() {
             )}
           </CardBody>
         </Card>
-
-        {/* Reverse discovery — the questions that surface this domain. Sits
-            after the mentions summary (how much) and before AI search volume
-            (how much demand for keywords YOU supplied), because it is the step
-            that produces those keywords in the first place. */}
-        <DomainKeywordsCard domain={domain} live={live} />
 
         {/* 2 — AI (LLM prompt) search volume for the entered keywords */}
         <Card>
