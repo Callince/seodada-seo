@@ -54,7 +54,9 @@ const TAB_MODULES: Record<TabKey, string> = {
   ideas: "keywords.ideas",
 };
 type Loc = { location_code: number; language_code: string; force_live?: boolean };
-type TrendsBundle = { trends: TrendsResponse; volume: VolumeResponse };
+/** Both halves are optional: they arrive independently (volume ~0.2s, the
+ *  Google Trends series ~4.7s) and each renders as soon as it lands. */
+type TrendsBundle = { trends?: TrendsResponse; volume?: VolumeResponse };
 
 const MONTHS = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -95,8 +97,8 @@ function OverviewPane({ data }: { data: VolumeResponse }) {
   );
 }
 
-function monthlySorted(v: VolumeResponse) {
-  const row = v.rows[0];
+function monthlySorted(v: VolumeResponse | undefined) {
+  const row = v?.rows[0];
   if (!row) return [];
   return [...row.monthly_searches]
     .filter((m) => m.year && m.month)
@@ -107,12 +109,12 @@ function TrendsPane({ data }: { data: TrendsBundle }) {
   const { trends, volume } = data;
 
   // 1) Google Trends — relative interest over time.
-  const googleData = trends.graph.map((p) => {
+  const googleData = (trends?.graph ?? []).map((p) => {
     const r: Record<string, number | string | null> = { date: p.date ?? "" };
-    trends.keywords.forEach((_, i) => (r[`s${i}`] = p.values[i] ?? null));
+    (trends?.keywords ?? []).forEach((_, i) => (r[`s${i}`] = p.values[i] ?? null));
     return r;
   });
-  const googleSeries = trends.keywords.map((k, i) => ({ key: `s${i}`, label: k }));
+  const googleSeries = (trends?.keywords ?? []).map((k, i) => ({ key: `s${i}`, label: k }));
 
   // 2) Provider trend — absolute 12-month search volume.
   const monthly = monthlySorted(volume);
@@ -140,7 +142,20 @@ function TrendsPane({ data }: { data: TrendsBundle }) {
 
   return (
     <div className="space-y-5">
-      {googleData.length > 0 ? (
+      {/* Three states, not two: still loading (this half is the slow one, so
+          it is worth saying so rather than showing an empty-result message
+          that is not yet true), loaded-with-data, and loaded-but-empty. */}
+      {!trends ? (
+        <ChartCard title="Google Trends — relative interest over time">
+          <div
+            className="grid h-[300px] place-items-center rounded-md bg-surface-2/50"
+            role="status"
+            aria-live="polite"
+          >
+            <span className="text-sm text-text-muted">Fetching the Google Trends series…</span>
+          </div>
+        </ChartCard>
+      ) : googleData.length > 0 ? (
         <ChartCard title="Google Trends — relative interest over time">
           <TrendChart data={googleData} series={googleSeries} height={300} />
         </ChartCard>
@@ -419,16 +434,33 @@ export default function KeywordResearch({ embedded }: { embedded?: boolean }) {
       let data: unknown;
       if (t === "trends") {
         const { date_from, date_to } = periodRange(pk, cf, ct);
-        const [tr, vol] = await Promise.all([
-          trends.mutateAsync({
-            keywords: [s],
-            date_from: date_from || undefined,
-            date_to: date_to || undefined,
-            ...l,
-          }),
-          volForTrends.mutateAsync({ keywords: [s], ...l }),
-        ]);
-        data = { trends: tr, volume: vol } as TrendsBundle;
+        // Render each half as it lands instead of blocking on the slower one.
+        // Measured against the live providers: search volume returns in ~0.2s
+        // and drives two of this tab's three charts, while the Google Trends
+        // series takes ~4.7s. Promise.all meant an empty tab for the full 4.7s
+        // even though most of it was ready almost immediately.
+        const volP = volForTrends.mutateAsync({ keywords: [s], ...l });
+        const trP = trends.mutateAsync({
+          keywords: [s],
+          date_from: date_from || undefined,
+          date_to: date_to || undefined,
+          ...l,
+        });
+        // Merge into whatever is already there — the two resolve in either
+        // order, and a stale half from a previous keyword must not survive, so
+        // this load seeds an empty bundle first.
+        setResults((r) => ({ ...r, trends: {} as TrendsBundle }));
+        const merge = (patch: Partial<TrendsBundle>) =>
+          setResults((r) => ({ ...r, trends: { ...(r.trends as TrendsBundle), ...patch } }));
+        void volP.then((vol) => merge({ volume: vol })).catch(() => {});
+        void trP.then((tr) => merge({ trends: tr })).catch(() => {});
+
+        // allSettled, not all: one provider failing should not blank the tab —
+        // whichever half succeeded is already rendered.
+        const [volRes, trRes] = await Promise.allSettled([volP, trP]);
+        if (volRes.status === "rejected" && trRes.status === "rejected") throw volRes.reason;
+        setPendingTab(null);
+        return;
       } else if (t === "overview") {
         data = await volume.mutateAsync({ keywords: [s], ...l });
       } else if (t === "ideas") {
@@ -474,6 +506,15 @@ export default function KeywordResearch({ embedded }: { embedded?: boolean }) {
 
   const current = results[tab];
   const isPending = pendingTab === tab;
+
+  // The trends tab fills in two halves independently, so its skeleton clears
+  // as soon as EITHER lands — otherwise the progressive fetch above would be
+  // invisible behind a full-pane skeleton that waits for the slower call.
+  // Every other tab is a single request and keeps all-or-nothing behaviour.
+  const trendsHalves = tab === "trends" ? (current as TrendsBundle | undefined) : undefined;
+  const trendsHasSomething = !!(trendsHalves?.volume || trendsHalves?.trends);
+  const showSkeleton = tab === "trends" ? isPending && !trendsHasSomething : isPending;
+  const showPane = tab === "trends" ? trendsHasSomething : !isPending && !!current;
   const meta =
     tab === "trends"
       ? (current as TrendsBundle | undefined)?.trends?.meta
@@ -615,11 +656,11 @@ export default function KeywordResearch({ embedded }: { embedded?: boolean }) {
             />
           )}
 
-          {isPending && <Skeleton className="h-72 w-full" />}
-          {!isPending && error && (
+          {showSkeleton && <Skeleton className="h-72 w-full" />}
+          {!showSkeleton && error && (
             <ErrorState message={error} onRetry={() => load(tab, submitted, loc, true)} />
           )}
-          {!isPending && !error && !!current && (
+          {!showSkeleton && !error && showPane && (
             <>
               {tab === "overview" && <OverviewPane data={current as VolumeResponse} />}
               {tab === "trends" && <TrendsPane data={current as TrendsBundle} />}
