@@ -9,8 +9,6 @@ import { Magnetic, Particles } from "@/components/public/landingKit";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/store/auth";
 
-import { ToolConstellation } from "./ToolConstellation";
-
 /** A URL is analysable here; a bare keyword isn't — route those to the app. */
 const looksLikeUrl = (q: string) => /\.[a-z]{2,}(\/|$|\?)/i.test(q.replace(/^https?:\/\//i, ""));
 
@@ -26,7 +24,7 @@ function InstantResult({
 }) {
   if (state.isPending) {
     return (
-      <p className="mt-3 text-sm text-text-muted lg:text-left">
+      <p className="mt-3 text-sm text-text-muted">
         Fetching and analysing that page…
       </p>
     );
@@ -34,7 +32,7 @@ function InstantResult({
   if (state.isError) {
     const status = (state.error as { response?: { status?: number } })?.response?.status;
     return (
-      <p className="mt-3 text-sm text-danger lg:text-left">
+      <p className="mt-3 text-sm text-danger">
         {status === 429
           ? "That's a few checks in a row — give it a minute, or create a free account for unlimited runs."
           : apiErrorMessage(state.error)}
@@ -51,7 +49,7 @@ function InstantResult({
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mx-auto mt-4 max-w-lg rounded-2xl border border-border bg-[var(--lp-glass)] p-4 text-left shadow-lg backdrop-blur lg:mx-0"
+      className="mx-auto mt-4 max-w-lg rounded-2xl border border-border bg-[var(--lp-glass)] p-4 text-left shadow-lg backdrop-blur"
     >
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
@@ -173,13 +171,15 @@ export function Hero() {
         }}
       />
 
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 pb-12 pt-24 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:gap-10 lg:pb-14 lg:pt-20">
-        {/* Left */}
+      {/* Single centred column — the 3D model that used to fill a right
+          column is gone, and centred copy carries a hero better than
+          left-aligned copy beside empty space. */}
+      <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-24 sm:px-6 lg:pb-14 lg:pt-20">
         <motion.div
           initial="hidden"
           animate="show"
           variants={{ show: { transition: { staggerChildren: 0.09 } } }}
-          className="relative z-10 text-center lg:text-left"
+          className="relative z-10 mx-auto max-w-3xl text-center"
         >
           <motion.span
             variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0 } }}
@@ -201,7 +201,7 @@ export function Hero() {
           </motion.h1>
           <motion.p
             variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-            className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-text-muted sm:text-lg lg:mx-0"
+            className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-text-muted sm:text-lg"
           >
             One platform to research, audit, optimize and track — across classic search, AI answer
             engines and generative results. Paste a URL and get a full breakdown in seconds.
@@ -210,7 +210,7 @@ export function Hero() {
           <motion.form
             variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
             onSubmit={onAnalyze}
-            className="mx-auto mt-6 flex max-w-lg items-center gap-2 rounded-full border border-border bg-[var(--lp-glass)] p-1.5 pl-4 shadow-lg backdrop-blur lg:mx-0"
+            className="mx-auto mt-6 flex max-w-lg items-center gap-2 rounded-full border border-border bg-[var(--lp-glass)] p-1.5 pl-4 shadow-lg backdrop-blur"
           >
             <Search size={18} className="shrink-0 text-text-muted" />
             <input
@@ -236,7 +236,7 @@ export function Hero() {
 
           <motion.div
             variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-            className="mt-5 flex flex-wrap items-center justify-center gap-3 lg:justify-start"
+            className="mt-5 flex flex-wrap items-center justify-center gap-3"
           >
             <Magnetic>
               <RouterLink to={primaryTo}>
@@ -258,7 +258,7 @@ export function Hero() {
               hero, so the two sections can never disagree. */}
           <motion.div
             variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-            className="mx-auto mt-8 grid max-w-lg grid-cols-3 divide-x divide-border border-t border-border pt-5 text-left lg:mx-0"
+            className="mx-auto mt-8 grid max-w-lg grid-cols-3 divide-x divide-border border-t border-border pt-5 text-left"
           >
             {[
               { n: "1.2M+", l: "URLs analysed" },
@@ -274,17 +274,6 @@ export function Hero() {
               </div>
             ))}
           </motion.div>
-        </motion.div>
-
-        {/* Right — floating dashboard */}
-        <motion.div
-          initial={{ opacity: 0, y: 40, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.8, ease: [0.2, 0.7, 0.2, 1], delay: 0.2 }}
-          className="relative z-10 hidden lg:block"
-        >
-          <div className="absolute inset-8 -z-10 rounded-[2.5rem] bg-gradient-to-tr from-[color-mix(in_srgb,var(--signal-1)_40%,transparent)] to-[color-mix(in_srgb,var(--signal-2)_40%,transparent)] blur-3xl" />
-          <ToolConstellation />
         </motion.div>
       </div>
     </section>

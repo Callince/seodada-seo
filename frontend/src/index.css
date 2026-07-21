@@ -802,48 +802,6 @@ body {
 .lp-float-2 { animation: lp-float 8.5s ease-in-out infinite; }
 @keyframes lp-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
 
-/* ===================== Radar tool-constellation =====================
-   The hero's 24 tools as blips on a tilted tactical radar; a sweep beam
-   rotates and each blip flares exactly as the beam crosses it.
-
-   The flare is phase-locked to the sweep by the same one-clock rule as the
-   old orbit's counter-spin: both animations read the same --sweep duration,
-   and each blip starts at animation-delay = ((θ/360) − 1)·sweep, so its
-   keyframe progress ≡ beam angle at its own bearing. Two durations that must
-   match are two durations that eventually don't.
-
-   The ping is brightness/box-shadow/outline-color ONLY — never transform:
-   the blip's billboard div already owns a rotateX counter-tilt and the card
-   owns a centring translate, and a same-node transform animation silently
-   overwrites both (this file documents that trap twice already).
-
-   Reduced motion: the global kill-switch freezes the sweep at 0° and every
-   blip at its own phase — the display reads as a paused scan, not a bug. */
-@keyframes radar-sweep { to { transform: rotate(360deg); } }
-.radar-sweep { animation: radar-sweep var(--sweep) linear infinite; }
-
-@keyframes radar-ping {
-  0% {
-    filter: brightness(1.8);
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--hero-glow) 55%, transparent),
-      0 0 18px 2px color-mix(in srgb, var(--hero-glow) 45%, transparent);
-  }
-  6% {
-    filter: brightness(1.45);
-    box-shadow: 0 0 0 10px transparent,
-      0 0 12px 1px color-mix(in srgb, var(--hero-glow) 25%, transparent);
-  }
-  30%, 100% {
-    filter: brightness(0.9);
-    box-shadow: 0 0 0 0 transparent, 0 0 0 0 transparent;
-  }
-}
-.radar-ping { animation: radar-ping var(--sweep) linear infinite; }
-
-/* (The Saturn orbit design that previously lived here — sat-orbit/sat-counter/
-   sat-depth and the --sat-* ring tones — was replaced by the radar above; its
-   one-clock phase-lock rule carries on in radar-sweep/radar-ping. History has
-   the full version if the orbit ever comes back.) */
 
 /* Draw-on chart line (dashboard sparklines/areas). */
 .lp-draw { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: lp-draw 1.8s ease forwards; }
