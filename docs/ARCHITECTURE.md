@@ -1,5 +1,12 @@
 # Architecture
 
+> **Companion:** [DATA_AND_ALGORITHMS.md](./DATA_AND_ALGORITHMS.md) — column-level
+> data structures, the full request lifecycle, and every non-trivial algorithm
+> (AIMD crawl concurrency, the coalescer's cost split, the scoring rubric's
+> weights, keyword dedup, keyset cursors, the FX failure ladder) with the
+> reasoning behind each. This file covers *what the pieces are*; that one covers
+> *how they work*.
+
 This repo is the **unified FourDM SEO platform** — the merge of "data for seo"
 (FastAPI + React SEO intelligence on DataForSEO v3) and "SEO RENEW"/seodada,
 which adds Razorpay/GST billing, a public marketing site, an admin CMS/back-office,
