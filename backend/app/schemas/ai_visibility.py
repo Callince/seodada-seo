@@ -76,6 +76,34 @@ class MentionsResponse(BaseModel):
     meta: Meta
 
 
+class DomainKeywordsRequest(BaseModel):
+    domain: str = Field(min_length=3, max_length=255)
+    # Upstream caps at 100 per call. This is a ~11c request either way, so
+    # fetching fewer saves nothing — the limit exists to bound the payload.
+    limit: int = Field(default=100, ge=1, le=100)
+    force_live: bool = False
+
+
+class DomainKeywordRow(BaseModel):
+    question: str
+    ai_search_volume: int = 0
+    platform: str = ""
+    platforms: list[str] = Field(default_factory=list)
+    answer_snippet: str = ""
+    source_count: int = 0
+    location_code: int | None = None
+
+
+class DomainKeywordsResponse(BaseModel):
+    domain: str
+    rows: list[DomainKeywordRow]
+    # Upstream match count vs what this call returned — "12 of 15,938" is
+    # honest, "12 results" is not.
+    total_count: int = 0
+    returned: int = 0
+    meta: Meta
+
+
 class AiVolumeRequest(BaseModel):
     keywords: list[str] = Field(min_length=1, max_length=20)
     location_name: str = "United States"

@@ -2,6 +2,7 @@
 responses. Covered by the account's LLM-mentions subscription."""
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from app.integrations.dataforseo.client import DfsResult, dfs_client
@@ -103,4 +104,85 @@ def parse_llm_response(result: list[dict[str, Any]]) -> dict:
         "answer": "\n".join(parts),
         "input_tokens": res.get("input_tokens"),
         "output_tokens": res.get("output_tokens"),
+    }
+
+
+PATH_MENTION_SEARCH = "/v3/ai_optimization/llm_mentions/search/live"
+
+
+async def domain_ai_keywords(domain: str, limit: int = 100) -> DfsResult:
+    """The questions people ask AI engines that surface this domain.
+
+    The reverse of /ai-visibility/check: that one tests keywords you already
+    suspect, this one discovers the ones you would never have guessed. Verified
+    live against ahrefs.com — 15,938 matching questions, including "9xmovies
+    into" and "digitalconnectmag com", which no amount of brainstorming would
+    have produced.
+
+    `target` is a list of OBJECTS, not strings: the API rejects
+    ["ahrefs.com"] with "Each 'target' item must be an object".
+    """
+    return await dfs_client.post(
+        PATH_MENTION_SEARCH,
+        {"target": [{"domain": domain}], "limit": min(max(limit, 1), 100)},
+    )
+
+
+# Questions differing only by word order, filler or a plural come back as
+# separate rows — the live sample had "keyword research", "keyword keyword
+# research" AND "research keywords", all the same intent, eating three of the
+# top ten slots. Collapsing on a sorted word-SET handles order and repetition;
+# the naive plural strip handles the rest.
+#
+# Deliberately crude: proper stemming would need a dependency for a cosmetic
+# gain, and merging "seo tool"/"seo tools" is right anyway. The 4-char floor
+# stops it mangling short words ("ads" -> "ad" is fine, "is" -> "i" is not).
+def _singular(word: str) -> str:
+    return word[:-1] if len(word) > 3 and word.endswith("s") and not word.endswith("ss") else word
+
+
+def _dedupe_key(question: str) -> str:
+    words = re.findall(r"[a-z0-9]+", (question or "").lower())
+    return " ".join(sorted({_singular(w) for w in words}))
+
+
+def parse_domain_ai_keywords(result: list[dict[str, Any]]) -> dict:
+    block = (result[0] if result else {}) or {}
+    items = block.get("items") or []
+
+    best: dict[str, dict] = {}
+    for it in items:
+        q = (it.get("question") or "").strip()
+        if not q:
+            continue
+        key = _dedupe_key(q)
+        vol = it.get("ai_search_volume") or 0
+        prev = best.get(key)
+        # Keep the highest-volume phrasing, but remember every platform the
+        # question surfaced on — the same prompt can appear on several.
+        if prev is None or vol > (prev.get("ai_search_volume") or 0):
+            sources = it.get("sources") or []
+            best[key] = {
+                "question": q,
+                "ai_search_volume": vol,
+                "platform": it.get("model_name") or it.get("platform") or "",
+                # The answer is long-form markdown with inline citations; the UI
+                # shows a snippet, so trim rather than ship kilobytes per row.
+                "answer_snippet": (it.get("answer") or "")[:400],
+                "source_count": len(sources) if isinstance(sources, list) else 0,
+                "location_code": it.get("location_code"),
+                "platforms": sorted({*(prev or {}).get("platforms", []), it.get("model_name") or ""} - {""}),
+            }
+        elif prev is not None:
+            plat = it.get("model_name") or ""
+            if plat and plat not in prev["platforms"]:
+                prev["platforms"] = sorted([*prev["platforms"], plat])
+
+    rows = sorted(best.values(), key=lambda r: r["ai_search_volume"] or 0, reverse=True)
+    return {
+        "rows": rows,
+        # total_count is the FULL match count upstream, not len(rows) — worth
+        # surfacing so "10 of 15,938" is honest about what was fetched.
+        "total_count": block.get("total_count") or len(items),
+        "returned": len(items),
     }

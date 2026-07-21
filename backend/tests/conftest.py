@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -23,12 +25,17 @@ def pinned_settings(monkeypatch):
 
 
 @pytest_asyncio.fixture
-async def db() -> AsyncSession:
-    """A fresh in-memory SQLite database per test."""
-    engine = create_async_engine("sqlite+aiosqlite:///:memory:")
+async def db(monkeypatch) -> AsyncSession:
+    """A fresh in-memory SQLite database per test.
+
+    Shared-cache URI + a patched SessionLocal so code that opens its own
+    session (usage.metered_parallel, engine.revalidate) sees the same DB."""
+    url = f"sqlite+aiosqlite:///file:test_{uuid.uuid4().hex}?mode=memory&cache=shared&uri=true"
+    engine = create_async_engine(url)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     maker = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+    monkeypatch.setattr("app.db.session.SessionLocal", maker)
     async with maker() as session:
         yield session
     await engine.dispose()
@@ -36,7 +43,8 @@ async def db() -> AsyncSession:
 
 @pytest.fixture(autouse=True)
 def fresh_cache(monkeypatch):
-    """Isolate the engine's L1 cache between tests."""
+    """Isolate the engine's L1 cache (and the audit job mirror) between tests."""
     backend = MemoryBackend()
     monkeypatch.setattr("app.services.engine.cache_backend", backend)
+    monkeypatch.setattr("app.services.crawler.cache_backend", backend)
     return backend

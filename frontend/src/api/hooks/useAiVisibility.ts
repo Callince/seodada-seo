@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "@/api/client";
-import type { AiVisibilityStartResponse, AiVisibilityStatusResponse, AiVolumeResponse, AskResponse, MentionsResponse } from "@/types";
+import type { AiVisibilityStartResponse, AiVisibilityStatusResponse, AiVolumeResponse, AskResponse, MentionsResponse, Meta } from "@/types";
 
 export interface AiVisibilityInput {
   domain: string;
@@ -41,6 +41,37 @@ export function useAiVisibilityStatus(taskId: string | null) {
 }
 
 /** LLM mentions of a domain (AI Optimization API). */
+export interface DomainKeywordRow {
+  question: string;
+  ai_search_volume: number;
+  platform: string;
+  platforms: string[];
+  answer_snippet: string;
+  source_count: number;
+  location_code: number | null;
+}
+export interface DomainKeywordsResponse {
+  domain: string;
+  rows: DomainKeywordRow[];
+  /** Upstream match count — usually far larger than rows.length. */
+  total_count: number;
+  returned: number;
+  meta: Meta;
+}
+
+/** Questions asked of AI engines that surface a domain — the reverse of the
+ *  keyword check. ~11c a call, so it is never fired automatically. */
+export function useDomainKeywords() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { domain: string; limit?: number; force_live?: boolean }) => {
+      const { data } = await api.post<DomainKeywordsResponse>("/ai-visibility/domain-keywords", input);
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["usage", "summary"] }),
+  });
+}
+
 export function useLlmMentions() {
   const qc = useQueryClient();
   return useMutation({

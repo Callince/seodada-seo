@@ -14,6 +14,8 @@ from app.db.models import User
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.integrations.dataforseo import ai_optimization as aio
 from app.schemas.ai_visibility import (
+    DomainKeywordsRequest,
+    DomainKeywordsResponse,
     AiVolumeRequest,
     AiVolumeResponse,
     AskRequest,
@@ -92,6 +94,44 @@ async def mentions(
         mentions=parsed["mentions"],
         ai_search_volume=parsed["ai_search_volume"],
         dimensions=parsed["dimensions"],
+        meta=resolved.meta(),
+    )
+
+
+@router.post("/domain-keywords", response_model=DomainKeywordsResponse)
+async def domain_keywords(
+    body: DomainKeywordsRequest,
+    db: AsyncSession = Depends(get_db_session),
+    user: User = Depends(current_user),
+) -> DomainKeywordsResponse:
+    """Questions asked of AI engines that surface this domain.
+
+    The reverse of /check: that tests keywords you already suspect, this finds
+    the ones you would never guess. Verified against ahrefs.com — 15,938
+    matches, including "9xmovies into", which no brainstorm produces.
+
+    ~11c a call, roughly 10x a keyword lookup, so it reuses the ai_mentions TTL
+    rather than getting a shorter one. Nothing about a domain's AI footprint
+    moves fast enough to justify paying twice in a day.
+    """
+    domain = (
+        body.domain.strip().lower()
+        .removeprefix("https://").removeprefix("http://").removeprefix("www.")
+        .split("/")[0]
+    )
+    resolved = await usage.metered(
+        db, user, "ai_visibility.domain_keywords",
+        {"domain": domain, "limit": body.limit},
+        engine.TTL["ai_mentions"],
+        lambda: aio.domain_ai_keywords(domain, body.limit),
+        force_live=body.force_live,
+    )
+    parsed = aio.parse_domain_ai_keywords(resolved.data)
+    return DomainKeywordsResponse(
+        domain=domain,
+        rows=parsed["rows"],
+        total_count=parsed["total_count"],
+        returned=parsed["returned"],
         meta=resolved.meta(),
     )
 

@@ -170,3 +170,24 @@ def test_challenge_message_explains_the_block():
     assert "komaki.in" in msg
     # Names the culprit and points to the real fix (Cloudflare / lower protection).
     assert "Cloudflare" in msg and ("Bot Fight Mode" in msg or "WAF" in msg)
+
+
+# --------------------------------------------------------- shared job store
+
+async def test_get_job_reads_published_state_when_not_local(monkeypatch):
+    """A poll landing on a replica that didn't run the crawl (or after a restart)
+    must still find the job via the shared cache mirror."""
+    job = crawler.CrawlJob(id="j1", domain="site.test", max_pages=10)
+    job.progress = "finished"
+    job.pages_crawled = 7
+    job.result = {"onpage_score": 90}
+    await crawler._publish(job)
+    crawler._JOBS.pop("j1", None)  # simulate a different process
+
+    restored = await crawler.get_job("j1")
+    assert restored is not None
+    assert restored.progress == "finished"
+    assert restored.pages_crawled == 7
+    assert restored.result == {"onpage_score": 90}
+
+    assert await crawler.get_job("missing") is None

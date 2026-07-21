@@ -11,6 +11,7 @@ import { AreaChart } from "@/components/public/landingKit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
+import { DomainKeywordsCard } from "@/routes/ai/DomainKeywordsCard";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -483,6 +484,12 @@ export default function AiVisibility() {
             )}
           </CardBody>
         </Card>
+
+        {/* Reverse discovery — the questions that surface this domain. Sits
+            after the mentions summary (how much) and before AI search volume
+            (how much demand for keywords YOU supplied), because it is the step
+            that produces those keywords in the first place. */}
+        <DomainKeywordsCard domain={domain} live={live} />
 
         {/* 2 — AI (LLM prompt) search volume for the entered keywords */}
         <Card>

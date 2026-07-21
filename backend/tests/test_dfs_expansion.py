@@ -126,6 +126,23 @@ def test_parse_target_metrics_sums_location_dimension():
     assert p["dimensions"]["location"][0]["key"] == 2356
 
 
+def test_parse_target_metrics_prefers_total_and_keeps_all_dimensions():
+    res = [{"aggregated_metrics": {
+        "total": [{"key": None, "mentions": 790, "ai_search_volume": 1996770}],
+        "location": [{"key": 2356, "mentions": 661, "ai_search_volume": 1916470}],
+        "platform": [
+            {"key": "google", "mentions": 769, "ai_search_volume": 1996540},
+            {"key": "chat_gpt", "mentions": 22, "ai_search_volume": 300},
+        ],
+        "sources_domain": [{"key": "www.bikedekho.com", "mentions": 414, "ai_search_volume": 674340}],
+    }}]
+    p = aio.parse_target_metrics(res)
+    assert p["mentions"] == 790 and p["ai_search_volume"] == 1996770
+    assert "total" not in p["dimensions"]
+    assert p["dimensions"]["platform"][0]["key"] == "google"
+    assert p["dimensions"]["sources_domain"][0]["mentions"] == 414
+
+
 def test_parse_llm_response_joins_sections():
     res = [{"model_name": "gpt-4o-mini-2024-07-18", "input_tokens": 21, "output_tokens": 5,
             "items": [{"type": "message", "sections": [{"type": "text", "text": "Blue and yellow."}]}]}]
@@ -145,6 +162,40 @@ def test_parse_ai_keyword_volume():
 
 def test_parse_sentiment_handles_empty():
     assert content.parse_sentiment([{"items": []}]) == {"total_citations": None, "connotations": {}, "types": {}}
+    assert content.parse_sentiment([]) == {"total_citations": None, "connotations": {}, "types": {}}
+
+
+def test_parse_sentiment_aggregates_polarity_distribution():
+    """Real live shape: one block with a per-polarity summary under
+    `positive_connotation_distribution` (no `items` wrapper)."""
+    res = [{
+        "type": "content_analysis_sentiment_analysis",
+        "positive_connotation_distribution": {
+            "positive": {"total_count": 100, "sentiment_connotations": {"happiness": 30, "love": 5}},
+            "negative": {"total_count": 40, "sentiment_connotations": {"anger": 12, "sadness": 3}},
+            "neutral": {"total_count": 60, "sentiment_connotations": {"happiness": 1}},
+        },
+    }]
+    out = content.parse_sentiment(res)
+    assert out["total_citations"] == 200
+    assert out["types"] == {"positive": 100, "negative": 40, "neutral": 60}
+    assert out["connotations"]["happiness"] == 31
+    assert out["connotations"]["anger"] == 12
+
+
+def test_parse_phrase_trends_reads_top_level_rows():
+    """Real live shape: one `content_analysis_trends` block per period,
+    directly in `result`."""
+    res = [
+        {"type": "content_analysis_trends", "date": "2026-06-01", "total_count": 38392},
+        {"type": "content_analysis_trends", "date": "2026-07-01", "total_count": 40100},
+    ]
+    rows = content.parse_phrase_trends(res)
+    assert rows == [
+        {"date": "2026-06-01", "citations": 38392},
+        {"date": "2026-07-01", "citations": 40100},
+    ]
+    assert content.parse_phrase_trends([]) == []
 
 
 def test_parse_listings():
