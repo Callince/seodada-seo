@@ -86,16 +86,6 @@
   --hero-tide: #0f74b2;
   --hero-glow: #22d3ee;
 
-  /* Saturn ring tones for the hero constellation. Theme-independent for the
-     same reason as --hero-* above: they only ever sit on the dark hero.
-     Ordered inner→outer and, like the planet's, the middle band is the bright
-     one — a uniform gold reads as a flat target rather than a ring system.
-     Warm gold is the one family that stays clearly outside the Signal Spectrum
-     (blue→cyan), so the rings can never be misread as encoding tool visibility
-     the way a blue-tinted tile would. */
-  --sat-1: #f6e3b4;
-  --sat-2: #e6c489;
-  --sat-3: #ab8757;
 
   /* ---- Per-module accents (light) — L=.62 C=.15, hue only. `-soft` derives
      via color-mix, so overriding the base in .dark auto-updates the tint.
@@ -812,53 +802,48 @@ body {
 .lp-float-2 { animation: lp-float 8.5s ease-in-out infinite; }
 @keyframes lp-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
 
-/* ===================== Saturn tool-constellation =====================
-   The hero's 24 tools orbit the logo as a ringed planet. The rings are tilted
-   toward the viewer inside a preserve-3d context, so each icon's Z position
-   carries it BEHIND the logo through half of every orbit and in front through
-   the other half — that 3D sort, not a z-index, is what makes it read as a
-   planet with rings rather than a spinning wheel.
+/* ===================== Radar tool-constellation =====================
+   The hero's 24 tools as blips on a tilted tactical radar; a sweep beam
+   rotates and each blip flares exactly as the beam crosses it.
 
-   Every tile's orientation is the product of four nested transforms:
+   The flare is phase-locked to the sweep by the same one-clock rule as the
+   old orbit's counter-spin: both animations read the same --sweep duration,
+   and each blip starts at animation-delay = ((θ/360) − 1)·sweep, so its
+   keyframe progress ≡ beam angle at its own bearing. Two durations that must
+   match are two durations that eventually don't.
 
-     ring  rotate(φ)          the orbit, animated
-     seat  rotate(θ) X(r)     the tile's fixed slot on the ring
-     spin  rotate(-φ)         cancels the orbit  ← this rule
-     face  rotate(-θ) rX(-t)  cancels the slot and the ring tilt
+   The ping is brightness/box-shadow/outline-color ONLY — never transform:
+   the blip's billboard div already owns a rotateX counter-tilt and the card
+   owns a centring translate, and a same-node transform animation silently
+   overwrites both (this file documents that trap twice already).
 
-   so the tile travels the ellipse while staying upright and facing front.
+   Reduced motion: the global kill-switch freezes the sweep at 0° and every
+   blip at its own phase — the display reads as a paused scan, not a bug. */
+@keyframes radar-sweep { to { transform: rotate(360deg); } }
+.radar-sweep { animation: radar-sweep var(--sweep) linear infinite; }
 
-   The cancellation is only exact while the two animations stay in lockstep, so
-   they read the SAME inherited `--orbit` off the ring rather than each being
-   given its own duration — two numbers that must match are two numbers that
-   eventually don't, and any mismatch shows up as tiles slowly tumbling. */
-@keyframes sat-orbit   { to { transform: rotate(360deg); } }
-@keyframes sat-counter { to { transform: rotate(-360deg); } }
-.sat-ring    { animation: sat-orbit   var(--orbit) linear infinite; }
-.sat-counter { animation: sat-counter var(--orbit) linear infinite; }
-
-/* Depth lighting, phase-locked to the orbit. A tile's screen depth is
-   cos(seat angle + orbit angle): with the ring tilted toward the viewer the
-   nearest point of the ellipse is at 90° (25% of a revolution) and the
-   farthest at 270°. This animation shares the ring's --orbit duration, and
-   each tile carries animation-delay = -(seat/360)·orbit, so keyframe progress
-   ≡ (seat+orbit)/360 — the brightness cycle can never drift out of phase with
-   the tile's actual position, for the same reason the counter-spin can't:
-   one clock, not two. Brightness + opacity only — the tile's transform is
-   already owned by the centring translate, and `filter` here also promotes
-   the tile to its own layer, which keeps the whole system on the compositor.
-   Under prefers-reduced-motion this freezes at each tile's own delay offset,
-   which reads as static front-lit/back-shaded depth — not a glitch. */
-@keyframes sat-depth {
-  0%, 100% { opacity: 0.82; filter: brightness(0.78); }
-  25%      { opacity: 1;    filter: brightness(1.1); }
-  75%      { opacity: 0.5;  filter: brightness(0.48); }
+@keyframes radar-ping {
+  0% {
+    filter: brightness(1.8);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--hero-glow) 55%, transparent),
+      0 0 18px 2px color-mix(in srgb, var(--hero-glow) 45%, transparent);
+  }
+  6% {
+    filter: brightness(1.45);
+    box-shadow: 0 0 0 10px transparent,
+      0 0 12px 1px color-mix(in srgb, var(--hero-glow) 25%, transparent);
+  }
+  30%, 100% {
+    filter: brightness(0.9);
+    box-shadow: 0 0 0 0 transparent, 0 0 0 0 transparent;
+  }
 }
-.sat-depth { animation: sat-depth var(--orbit) linear infinite; }
+.radar-ping { animation: radar-ping var(--sweep) linear infinite; }
 
-/* Reduced motion parks the orbit at 0%, where every tile still sits at its own
-   `seat` angle — the ring reads as a static composition rather than collapsing
-   all 24 tiles onto one point, which is what a translate-based orbit would do. */
+/* (The Saturn orbit design that previously lived here — sat-orbit/sat-counter/
+   sat-depth and the --sat-* ring tones — was replaced by the radar above; its
+   one-clock phase-lock rule carries on in radar-sweep/radar-ping. History has
+   the full version if the orbit ever comes back.) */
 
 /* Draw-on chart line (dashboard sparklines/areas). */
 .lp-draw { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: lp-draw 1.8s ease forwards; }

@@ -1,77 +1,55 @@
 import { NAV_ITEMS } from "@/lib/nav";
 
 /**
- * The hero's right-hand visual: the logo as a ringed planet, with every tool in
- * the platform orbiting it.
+ * The hero's right-hand visual: every tool in the platform as a blip on a
+ * tilted tactical radar, with a sweep beam that flares each blip as it
+ * passes. Radar is the product's own metaphor — continuous monitoring of
+ * everything on the board — where the previous Saturn orbit was only
+ * decoration. All 24 blips come from NAV_ITEMS so the display can never
+ * drift from the sidebar; decorative to assistive tech (one labelled image),
+ * since the tools are named in text further down the page.
  *
- * Shows the actual surface area of the product — all 24 tools, drawn from
- * NAV_ITEMS so it can never drift from the sidebar. Decorative: the tools are
- * named in text further down the page, so this is one labelled image to
- * assistive tech rather than 24 stray words.
+ * Geometry: blips sit at golden-angle bearings (i·137.508°) so no two share
+ * a spoke and no sector clusters, on three range rings cycled by index.
+ * Deterministic — no Math.random — so the prerendered markup matches the
+ * client's byte for byte.
  *
- * Replaces a flat 5-column plane. That version had the tools bobbing in place;
- * this one puts them in orbit, and because the rings are tilted inside a
- * preserve-3d context each icon passes BEHIND the logo for half of every
- * revolution. The pass-behind is the whole effect — it's what separates a
- * planet from a spinning wheel — and it comes from the browser's 3D sort, so
- * there is deliberately no z-index anywhere in here to fight with it.
+ * The flare timing is phase-locked to the sweep (see index.css): both read
+ * one --sweep clock and each blip's negative delay equals its bearing's
+ * fraction of a revolution. Bearings are measured from 12 o'clock clockwise
+ * BECAUSE that is where a conic-gradient starts — the beam and the maths
+ * must agree on zero or every ping fires early by the offset.
  */
 
-/** How far the rings are tipped toward the viewer. 0° = face-on circles, 90° =
- *  edge-on lines. 64° keeps the ellipses open enough to read as rings while
- *  still throwing tiles convincingly front and back. */
-const TILT = 64;
+/** Dish tilt. 0° = face-on circle, 90° = edge-on line. Shallower than the old
+ *  Saturn rings (64°): a radar reads as a DISPLAY, and past ~55° the icons
+ *  crowd each other at the ellipse's waist. */
+const TILT = 52;
 
-/**
- * Three rings, and deliberately NOT eight tiles each.
- *
- * Equal counts put every ring's tiles at the same set of angles, which lines
- * them up into visible radial spokes that rotate as one wheel. 7/8/9 share no
- * factor, so the three rings never re-align and the field always reads as
- * scattered. The counts also sum to exactly NAV_ITEMS.length.
- *
- * Periods rise with radius, as they do on the real planet — a uniform period
- * would make the whole system turn like a solid disc.
- */
-const RINGS = [
-  // orbitS in seconds (a number, not a duration string): each tile derives its
-  // depth-lighting phase as -(seat angle / 360) · orbitS, and deriving both
-  // from one number is what keeps the brightness cycle locked to the orbit.
-  { radius: 132, orbitS: 46, tone: "var(--sat-1)", count: 7 },
-  { radius: 182, orbitS: 64, tone: "var(--sat-2)", count: 8 },
-  { radius: 232, orbitS: 88, tone: "var(--sat-3)", count: 9 },
-];
+/** One sweep revolution, seconds. Shared by beam and every ping. */
+const SWEEP_S = 9;
 
-/**
- * Planet diameter.
- *
- * Ring radii are compared against PLANET/2 on the HORIZONTAL axis only. The
- * tilt squashes each ring vertically by cos(TILT) ≈ 0.44, so a 132px ring is
- * only ~58px tall on screen and its tiles do pass within the planet's 95px
- * radius near the top and bottom of the ellipse — measured, and correct: those
- * are exactly the points where a tile is furthest front or back, so it should
- * be crossing the face or hidden behind the body. What must clear PLANET/2 is
- * the radius itself, or the ring is swallowed even at its widest.
- */
-const PLANET = 190;
+/** Range rings, inner→outer. Radii in the 520px stage's coordinate system. */
+const RANGE = [98, 152, 206];
 
-/** Deal the tools out across the rings in order. Derived from two module
- *  constants, so it is computed once here rather than on every render. */
-const RING_TOOLS = RINGS.map((ring, i) => {
-  const start = RINGS.slice(0, i).reduce((n, r) => n + r.count, 0);
-  return { ...ring, tools: NAV_ITEMS.slice(start, start + ring.count) };
-});
+const GOLDEN = 137.508;
+
+/** Blip layout: bearing from 12 o'clock (conic-gradient zero), range ring by
+ *  index cycle. Both derived from the index alone — stable across renders. */
+const BLIPS = NAV_ITEMS.map((item, i) => ({
+  ...item,
+  bearing: +((i * GOLDEN) % 360).toFixed(2),
+  radius: RANGE[i % RANGE.length],
+}));
 
 export function ToolConstellation() {
   return (
     <div
       className="relative mx-auto grid aspect-square w-full max-w-[520px] place-items-center select-none"
       role="img"
-      aria-label="The seodada platform — 24 SEO tools across research, audit, optimization and tracking"
-      // Cursor parallax: the whole system leans a few degrees toward the
-      // pointer. Written to CSS vars so React never re-renders on mouse move;
-      // the stage's transition smooths both the follow and the release. Gated
-      // on prefers-reduced-motion — parallax is motion, even if hover-driven.
+      aria-label="The seodada platform — 24 SEO tools under continuous watch, from research to AI visibility"
+      // Cursor parallax, unchanged from the previous design: CSS vars only, no
+      // re-renders, gated on prefers-reduced-motion.
       onMouseMove={(e) => {
         if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
         const r = e.currentTarget.getBoundingClientRect();
@@ -85,31 +63,20 @@ export function ToolConstellation() {
         e.currentTarget.style.setProperty("--tilt-x", "0deg");
       }}
     >
-      {/* Ambient bloom so the system reads as lit, not pasted on. */}
+      {/* Ambient bloom so the dish reads as lit instrumentation. */}
       <div
         aria-hidden
         className="absolute inset-10 -z-10 rounded-full blur-3xl"
         style={{
           background:
-            "radial-gradient(60% 60% at 30% 20%, color-mix(in srgb, var(--hero-tide) 55%, transparent), transparent 70%)," +
-            "radial-gradient(55% 55% at 75% 75%, color-mix(in srgb, var(--sat-2) 26%, transparent), transparent 70%)",
+            "radial-gradient(60% 60% at 50% 40%, color-mix(in srgb, var(--hero-tide) 45%, transparent), transparent 70%)",
         }}
       />
 
-      {/* The 3D stage. Everything that must sort against everything else in
-          depth — both rings and the planet — has to live in this one
-          preserve-3d context; split them across two and the browser flattens
-          each and sorts the groups, which loses the pass-behind entirely.
-          Scaled rather than re-measured per breakpoint so the ring radii stay
-          in one coordinate system. */}
       <div
         aria-hidden
         className="[--sat-scale:0.56] sm:[--sat-scale:0.76] lg:[--sat-scale:1]"
-        style={{
-          perspective: "1100px",
-          transform: "scale(var(--sat-scale))",
-          transformStyle: "preserve-3d",
-        }}
+        style={{ perspective: "1100px", transform: "scale(var(--sat-scale))", transformStyle: "preserve-3d" }}
       >
         <div
           className="relative grid h-[520px] w-[520px] place-items-center [transition:transform_600ms_cubic-bezier(.32,.72,0,1)]"
@@ -118,126 +85,91 @@ export function ToolConstellation() {
             transformStyle: "preserve-3d",
           }}
         >
-          {/* Ring plane */}
+          {/* The dish plane — everything on the radar surface tilts together. */}
           <div
-            className="absolute inset-0 grid place-items-center"
+            className="absolute inset-0"
             style={{ transform: `rotateX(${TILT}deg)`, transformStyle: "preserve-3d" }}
           >
-            {RING_TOOLS.map((ring) => (
-              <div
-                key={ring.radius}
-                className="sat-ring absolute"
-                // The orbit, every tile's counter-spin AND every tile's depth
-                // lighting read this one value, so none can fall out of
-                // lockstep. See index.css.
-                style={{ ["--orbit" as string]: `${ring.orbitS}s`, transformStyle: "preserve-3d" }}
-              >
-                {/* The band itself. Sits in the ring plane, so its near edge
-                    crosses in front of the logo and its far edge behind — the
-                    detail that sells the whole thing as a planet. */}
-                <div
-                  className="absolute rounded-full border"
-                  style={{
-                    width: ring.radius * 2,
-                    height: ring.radius * 2,
-                    left: -ring.radius,
-                    top: -ring.radius,
-                    borderColor: `color-mix(in srgb, ${ring.tone} 26%, transparent)`,
-                    boxShadow: `0 0 24px -6px color-mix(in srgb, ${ring.tone} 30%, transparent)`,
-                  }}
-                />
-
-                {ring.tools.map(({ to, label, icon: Icon }, j) => {
-                  const angle = (360 / ring.count) * j;
-                  return (
-                    // seat — the tile's fixed slot on the ring
-                    <div
-                      key={to}
-                      className="absolute"
-                      style={{
-                        transform: `rotate(${angle}deg) translateX(${ring.radius}px)`,
-                        transformStyle: "preserve-3d",
-                      }}
-                    >
-                      {/* cancels the orbit */}
-                      <div className="sat-counter" style={{ transformStyle: "preserve-3d" }}>
-                        {/* cancels the slot angle and the ring tilt, so the
-                            tile faces front however far round it has travelled */}
-                        <div style={{ transform: `rotate(${-angle}deg) rotateX(${-TILT}deg)` }}>
-                          <div
-                            className="sat-depth grid h-11 w-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-2xl border backdrop-blur-md"
-                            style={{
-                              // Negative delay = start mid-cycle at this seat's
-                              // phase, so brightness tracks true depth from the
-                              // first frame. See sat-depth in index.css.
-                              animationDelay: `${(-(angle / 360) * ring.orbitS).toFixed(2)}s`,
-                              borderColor: `color-mix(in srgb, ${ring.tone} 42%, transparent)`,
-                              background: `linear-gradient(150deg, color-mix(in srgb, ${ring.tone} 20%, transparent), color-mix(in srgb, #0f1c33 78%, transparent))`,
-                              boxShadow: `inset 0 1px 0 rgba(255,255,255,0.16), 0 10px 26px -10px color-mix(in srgb, ${ring.tone} 50%, transparent)`,
-                            }}
-                          >
-                            <Icon size={19} strokeWidth={1.8} style={{ color: ring.tone }} aria-hidden />
-                            <span className="sr-only">{label}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-
-          {/* The planet — a sibling of the ring plane rather than a child, so the
-              browser sorts it against individual tiles by depth instead of
-              against the plane as a whole. That sort is what lets the near half
-              of each ring cross the logo while the far half disappears behind.
-
-              It needs to be a BODY and not just the wordmark: on its own the
-              logo is a 190x51 strip of text, and tiles crossing it shredded it
-              into something unreadable. A solid disc gives the crossing tiles
-              something to read against and gives the far half of the orbit
-              something to actually hide behind — a planet you can see through
-              isn't one. Lit from the upper left, matching the hero's own bloom. */}
-          <div className="relative grid place-items-center" style={{ transform: "translateZ(0)" }}>
+            {/* Dish face + range rings + crosshairs. */}
             <div
-              className="absolute rounded-full"
+              className="absolute inset-[24px] rounded-full border"
               style={{
-                width: PLANET,
-                height: PLANET,
-                // The logo's own gradient, via the brand tokens rather than
-                // sampled hexes — the wordmark runs rgb(38,56,122) to
-                // rgb(11,116,179) across its width, which is what --grad-a and
-                // --grad-b already encode, so the planet tracks the brand if
-                // those are ever retuned.
-                //
-                // Weighted so the bright end stays a small highlight on the lit
-                // limb: the wordmark sits across the sphere's middle, and
-                // running --grad-c across the face put near-cyan directly under
-                // white letterforms.
+                borderColor: "color-mix(in srgb, var(--hero-glow) 22%, transparent)",
                 background:
-                  "radial-gradient(circle at 30% 24%," +
-                  "color-mix(in srgb, var(--grad-c) 70%, var(--grad-b)) 0%," +
-                  "var(--grad-b) 26%," +
-                  "var(--grad-a) 58%," +
-                  "color-mix(in srgb, var(--grad-a) 55%, #060c1a) 100%)",
-                boxShadow:
-                  "inset 0 2px 1px color-mix(in srgb, #ffffff 12%, transparent)," +
-                  "inset 0 -18px 34px -18px #000," +
-                  "0 0 0 1px color-mix(in srgb, var(--sat-1) 14%, transparent)," +
-                  "0 24px 60px -20px rgba(0,0,0,0.7)",
+                  "radial-gradient(circle, color-mix(in srgb, var(--hero-mid) 55%, transparent) 0%, color-mix(in srgb, var(--hero-deep) 70%, transparent) 78%)," +
+                  "repeating-radial-gradient(circle, transparent 0 53px, color-mix(in srgb, var(--hero-glow) 13%, transparent) 53px 54px)",
+                boxShadow: "inset 0 0 60px color-mix(in srgb, var(--hero-glow) 10%, transparent)",
               }}
             />
-            {/* Atmosphere on the lit limb. Kept tight (transparent by 38%) and
-                weak: at 26% out to 62% it bloomed across the whole face and
-                washed the wordmark down to a grey smear. */}
+            {[0, 90].map((deg) => (
+              <div
+                key={deg}
+                className="absolute left-1/2 top-1/2 h-[464px] w-px -translate-x-1/2 -translate-y-1/2"
+                style={{
+                  transform: `translate(-50%,-50%) rotate(${deg}deg)`,
+                  background: "color-mix(in srgb, var(--hero-glow) 14%, transparent)",
+                }}
+              />
+            ))}
+
+            {/* The sweep beam: a soft 70° trail ending at the leading edge.
+                Conic zero is 12 o'clock — the blips' bearing zero, by design. */}
             <div
-              className="absolute rounded-full blur-xl"
+              className="radar-sweep absolute inset-[24px] rounded-full"
               style={{
-                width: PLANET * 1.18,
-                height: PLANET * 1.18,
+                ["--sweep" as string]: `${SWEEP_S}s`,
                 background:
-                  "radial-gradient(circle at 30% 24%, color-mix(in srgb, var(--hero-glow) 18%, transparent), transparent 38%)",
+                  "conic-gradient(from -70deg, transparent 0deg, color-mix(in srgb, var(--hero-glow) 26%, transparent) 62deg, color-mix(in srgb, var(--hero-glow) 55%, transparent) 69deg, transparent 70deg)",
+              }}
+            />
+
+            {/* Blips. Positioned on the dish, billboarded upright. */}
+            {BLIPS.map(({ to, label, icon: Icon, bearing, radius }) => {
+              const rad = (bearing * Math.PI) / 180;
+              const x = Math.sin(rad) * radius;
+              const y = -Math.cos(rad) * radius;
+              return (
+                <div
+                  key={to}
+                  className="absolute left-1/2 top-1/2"
+                  style={{
+                    transform: `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`,
+                    transformStyle: "preserve-3d",
+                  }}
+                >
+                  {/* Counter-tilt so the icon faces the viewer, not the dish. */}
+                  <div style={{ transform: `rotateX(${-TILT}deg)` }}>
+                    <div
+                      className="radar-ping grid h-10 w-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-xl border backdrop-blur-md"
+                      style={{
+                        ["--sweep" as string]: `${SWEEP_S}s`,
+                        // ((bearing/360) − 1)·sweep: negative, so the cycle is
+                        // already at this bearing's phase on the first frame.
+                        animationDelay: `${(((bearing / 360) - 1) * SWEEP_S).toFixed(2)}s`,
+                        borderColor: "color-mix(in srgb, var(--hero-glow) 38%, transparent)",
+                        background:
+                          "linear-gradient(150deg, color-mix(in srgb, var(--hero-tide) 30%, transparent), color-mix(in srgb, #0f1c33 80%, transparent))",
+                        color: "var(--hero-glow)",
+                      }}
+                    >
+                      <Icon size={17} strokeWidth={1.9} aria-hidden />
+                      <span className="sr-only">{label}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Hub — the logo as the radar station, facing front. */}
+          <div className="relative grid place-items-center" style={{ transform: "translateZ(0)" }}>
+            <div
+              className="absolute h-24 w-24 rounded-full"
+              style={{
+                background:
+                  "radial-gradient(circle at 34% 28%, var(--grad-b) 0%, var(--grad-a) 55%, color-mix(in srgb, var(--grad-a) 55%, #060c1a) 100%)",
+                boxShadow:
+                  "0 0 0 1px color-mix(in srgb, var(--hero-glow) 30%, transparent), 0 14px 40px -12px rgba(0,0,0,0.7), 0 0 34px -6px color-mix(in srgb, var(--hero-glow) 40%, transparent)",
               }}
             />
             <img
@@ -245,7 +177,7 @@ export function ToolConstellation() {
               alt=""
               width={202}
               height={54}
-              className="relative w-[132px] max-w-none drop-shadow-[0_4px_14px_rgba(0,0,0,0.7)]"
+              className="relative w-[104px] max-w-none drop-shadow-[0_4px_14px_rgba(0,0,0,0.7)]"
             />
           </div>
         </div>
