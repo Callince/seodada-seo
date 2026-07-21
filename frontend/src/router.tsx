@@ -65,6 +65,7 @@ const Competitors = lazy(() => import("@/routes/Competitors"));
 const SiteAudit = lazy(() => import("@/routes/SiteAudit"));
 const AiVisibility = lazy(() => import("@/routes/AiVisibility"));
 const Billing = lazy(() => import("@/routes/Billing/Billing"));
+const Settings = lazy(() => import("@/routes/Settings"));
 const AnalyzeTool = lazy(() => import("@/routes/Tools/AnalyzeTool"));
 const AllInOne = lazy(() => import("@/routes/Tools/AllInOne"));
 
@@ -145,6 +146,7 @@ export const routes: RouteObject[] = [
       { path: "/audit", element: <SiteAudit /> },
       { path: "/ai-visibility", element: <AiVisibility /> },
       { path: "/billing", element: <Billing /> },
+      { path: "/settings", element: <Settings /> },
       { path: "/tools", element: <AllInOne /> },
       { path: "/tools/url", element: <AnalyzeTool tool="url" /> },
       { path: "/tools/keyword", element: <AnalyzeTool tool="keyword" /> },

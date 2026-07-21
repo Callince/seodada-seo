@@ -15,6 +15,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
+import { useUserSettings } from "@/api/hooks/useSettings";
+import { BASE_CURRENCY, formatBase, formatMoney, useCurrencies } from "@/lib/currency";
 
 const inr = (cents: number) => "₹" + (cents / 100).toLocaleString("en-IN");
 const fmtDate = (iso: string | null) =>
@@ -25,13 +27,20 @@ function PlanCard({
   current,
   onSubscribe,
   busy,
+  currency,
+  rates,
+  options,
 }: {
   plan: Plan;
   current: boolean;
   onSubscribe: () => void;
   busy: boolean;
+  currency: string;
+  rates: Record<string, number | null> | undefined;
+  options: { code: string; symbol: string; label: string }[];
 }) {
   const popular = plan.tier === 2;
+  const price = formatMoney(plan.price_cents, currency, rates, options);
   return (
     <div
       className={cn(
@@ -46,10 +55,17 @@ function PlanCard({
       )}
       <h3 className="text-lg font-semibold text-text">{plan.name}</h3>
       <div className="mt-3 flex items-baseline gap-1">
-        <span className="text-3xl font-extrabold text-text">{inr(plan.price_cents)}</span>
+        <span className="text-3xl font-extrabold text-text">{price.text}</span>
         <span className="text-sm text-text-muted">/{plan.period_days}d</span>
       </div>
-      <p className="mt-1 text-xs text-text-muted">Incl. 18% GST</p>
+      {/* The charged amount, always visible when the displayed one is a
+          conversion. Subscribing bills INR through Razorpay, so showing only
+          "$51.79" here would be the number nobody is actually charged. */}
+      <p className="mt-1 text-xs text-text-muted">
+        {price.converted
+          ? `≈ approx. — billed ${formatBase(plan.price_cents)} incl. 18% GST`
+          : "Incl. 18% GST"}
+      </p>
       <div className="mt-4 rounded-xl bg-primary-soft px-3 py-2 text-sm font-medium text-primary">
         {plan.usage_per_day} analyses / day
       </div>
@@ -78,6 +94,11 @@ export default function Billing() {
   const { data: sub } = useSubscription();
   const { data: payments } = usePayments();
   const subscribe = useSubscribe();
+  const { data: settings } = useUserSettings();
+  const { data: fx } = useCurrencies();
+  const currency = settings?.display_currency || BASE_CURRENCY;
+  const rates = fx?.rates;
+  const options = fx?.currencies ?? [];
 
   const onSubscribe = (slug: string) =>
     subscribe.mutate(slug, {
@@ -120,11 +141,18 @@ export default function Billing() {
             current={sub?.plan_slug === p.slug && sub?.status === "active"}
             onSubscribe={() => onSubscribe(p.slug)}
             busy={subscribe.isPending}
+            currency={currency}
+            rates={rates}
+            options={options}
           />
         ))}
       </div>
 
-      {/* Payment history */}
+      {/* Payment history — ALWAYS in ₹, never converted.
+          These are completed charges. Converting a payment from six months ago
+          at today's rate would state an amount that was never paid, and it
+          would change every time the rate moved. A receipt has one correct
+          value: the one on the invoice. */}
       <Card className="mt-8">
         <CardHeader>
           <CardTitle>Payment history</CardTitle>

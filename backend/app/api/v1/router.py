@@ -24,6 +24,7 @@ from app.api.v1 import (
     serp,
     usage,
     webhooks,
+    settings_user,
 )
 
 # Per-organization budget for the billed API groups.
@@ -49,6 +50,7 @@ api_router.include_router(ai_visibility.router, prefix="/ai-visibility", tags=["
 api_router.include_router(projects.router, prefix="/projects", tags=["projects"])
 api_router.include_router(schedules.router, prefix="/schedules", tags=["schedules"])
 api_router.include_router(usage.router, prefix="/usage", tags=["usage"])
+api_router.include_router(settings_user.router, prefix="/settings", tags=["settings"])
 api_router.include_router(
     admin.router, prefix="/admin", tags=["admin"], dependencies=[Depends(enforce_admin_permission)]
 )

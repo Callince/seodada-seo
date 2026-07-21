@@ -25,6 +25,7 @@ const BLURB: Record<string, string> = {
   "/schedules": "Re-run any analysis weekly and email the result.",
   "/projects": "Group domains, keywords and reports per client.",
   "/billing": "Usage, invoices and GST-compliant receipts.",
+  "/settings": "Your profile and the currency figures are shown in.",
   "/tools": "Every free check on one URL.",
   "/tools/url": "Status, redirects and canonical in one shot.",
   "/tools/keyword": "Density and prominence for any page.",

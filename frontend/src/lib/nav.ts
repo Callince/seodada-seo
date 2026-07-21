@@ -17,6 +17,7 @@ import {
   Network,
   Radar,
   Search,
+  SlidersHorizontal,
   Sparkles,
   Swords,
   Tags,
@@ -71,6 +72,7 @@ export const NAV_ITEMS: NavItem[] = [
   // ---- Step 5 · Manage ----
   { to: "/projects", label: "Projects", icon: Folder, section: "5 · Manage" },
   { to: "/billing", label: "Billing", icon: CreditCard, section: "5 · Manage" },
+  { to: "/settings", label: "Settings", icon: SlidersHorizontal, section: "5 · Manage" },
 
   // ---- Free instant tools (utilities, available any time) ----
   { to: "/tools", label: "All-in-One", icon: LayoutGrid, end: true, section: "Free tools" },

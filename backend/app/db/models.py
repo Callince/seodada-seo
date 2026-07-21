@@ -7,6 +7,7 @@ from sqlalchemy import (
     JSON,
     Boolean,
     DateTime,
+    Float,
     ForeignKey,
     Index,
     Integer,
@@ -60,6 +61,14 @@ class User(Base):
     # admin_permissions (a list of permission slugs).
     is_staff: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
     admin_permissions: Mapped[list] = mapped_column(JsonType, default=list)
+    # Admin-granted unlimited usage — exempt from the daily analysis quota
+    # (like a comped subscription). Only matters while QUOTA_ENABLED=true.
+    unlimited_usage: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
+    # DISPLAY currency only (ISO 4217), "" = not chosen. Billing is unaffected:
+    # Razorpay charges INR and every stored amount stays in INR minor units, so
+    # this converts figures for reading and never for charging. Anywhere money
+    # is actually committed must still show the INR amount.
+    display_currency: Mapped[str] = mapped_column(String(3), default="", server_default="")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     org: Mapped[Organization] = relationship(back_populates="users")
@@ -72,7 +81,9 @@ class ApiCache(Base):
     endpoint: Mapped[str] = mapped_column(String(255))
     params_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
     response: Mapped[dict] = mapped_column(JsonType)
-    cost_cents: Mapped[int] = mapped_column(Integer, default=0)
+    # Float: DataForSEO bills in fractions of a cent (an AI Overview call is
+    # $0.002 = 0.2c). Integer cents rounded those to 0 — real spend went unseen.
+    cost_cents: Mapped[float] = mapped_column(Float, default=0.0)
     fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
 
@@ -84,7 +95,8 @@ class UsageLog(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     org_id: Mapped[str] = mapped_column(ForeignKey("organizations.id"))
     endpoint: Mapped[str] = mapped_column(String(255))
-    cost_cents: Mapped[int] = mapped_column(Integer, default=0)
+    # Float — see ApiCache.cost_cents. Sub-cent calls used to record as free.
+    cost_cents: Mapped[float] = mapped_column(Float, default=0.0)
     from_cache: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
@@ -308,10 +320,23 @@ class Blog(Base):
     category: Mapped[BlogCategory | None] = relationship()
 
 
+class WebStoryCategory(Base):
+    __tablename__ = "web_story_categories"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    name: Mapped[str] = mapped_column(String(255))
+    slug: Mapped[str] = mapped_column(String(255), index=True)
+    sort_order: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 class WebStory(Base):
     __tablename__ = "web_stories"
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    category_id: Mapped[str | None] = mapped_column(
+        ForeignKey("web_story_categories.id"), nullable=True, index=True
+    )
     title: Mapped[str] = mapped_column(String(500))
     slug: Mapped[str] = mapped_column(String(255), unique=True, index=True)
     meta_description: Mapped[str] = mapped_column(Text, default="")
@@ -321,6 +346,8 @@ class WebStory(Base):
     status: Mapped[str] = mapped_column(String(20), default="draft")
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+    category: Mapped[WebStoryCategory | None] = relationship()
 
 
 # ---------------------------------------------------------------------------
@@ -342,6 +369,19 @@ class ContactSubmission(Base):
     ip: Mapped[str] = mapped_column(String(64), default="")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
     responded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class RefreshToken(Base):
+    """Issued refresh tokens, keyed by the JWT's `jti` — makes sessions revocable
+    (logout, password reset) and lets /refresh rotate tokens."""
+
+    __tablename__ = "refresh_tokens"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)  # the JWT jti
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    revoked: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
 class EmailLog(Base):
