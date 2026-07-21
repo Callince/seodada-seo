@@ -15,8 +15,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_db_session
 from app.api.limiter import enforce_public_demo_rate_limit
 from app.core.config import settings
-from app.db.models import Blog, BlogCategory, ContactSubmission, WebStory
-from app.services import page_analysis
+from app.db.models import Blog, BlogCategory, ContactSubmission, WebsiteSettings, WebStory
+from app.services import fx, page_analysis
 from app.services.cache_backend import cache_backend
 
 router = APIRouter()
@@ -273,3 +273,67 @@ async def sitemap(db: AsyncSession = Depends(get_db_session)) -> Response:
         media_type="application/xml",
         headers={"Cache-Control": "public, max-age=3600"},
     )
+
+
+# ------------------------------------------------------------------- currency
+
+@router.get("/currency")
+async def public_currency(db: AsyncSession = Depends(get_db_session)) -> dict:
+    """The site's display currency and the rates needed to convert to it.
+
+    PUBLIC because the marketing pages price things too — /pricing and the
+    landing page are the surfaces most visitors see, and an authed-only
+    endpoint would have left them stuck on the base currency while the rest of
+    the app followed the admin's choice.
+
+    `base` is always the billing currency. Anything the UI renders in `code` is
+    a conversion for reading; Razorpay charges `base`, which is why every
+    caller also gets what it needs to show the real figure.
+    """
+    row = await db.scalar(select(WebsiteSettings).limit(1))
+    code = (getattr(row, "display_currency", "") or "").upper()
+
+    if not code or code == fx.BASE:
+        return {"code": fx.BASE, "base": fx.BASE, "rates": {fx.BASE: 1}, "converted": False, "available": True}
+
+    try:
+        data = await fx.get_rates()
+    except fx.RatesUnavailable:
+        # Fall back to the billing currency rather than showing the admin's
+        # chosen symbol over unconverted numbers.
+        return {"code": fx.BASE, "base": fx.BASE, "rates": {fx.BASE: 1}, "converted": False, "available": False}
+
+    rate = data["rates"].get(code)
+    if not rate:
+        return {"code": fx.BASE, "base": fx.BASE, "rates": {fx.BASE: 1}, "converted": False, "available": False}
+
+    return {
+        "code": code,
+        "base": fx.BASE,
+        "rates": {fx.BASE: 1, code: rate},
+        "converted": True,
+        "available": True,
+        "date": data.get("date", ""),
+        "stale": data.get("stale", False),
+    }
+
+
+@router.get("/currencies")
+async def public_currencies() -> dict:
+    """Every currency the admin may choose, with live rates — for the picker."""
+    try:
+        data = await fx.get_rates()
+    except fx.RatesUnavailable:
+        return {"currencies": fx.SUPPORTED_CURRENCIES, "base": fx.BASE, "rates": {}, "available": False}
+    return {
+        "currencies": fx.SUPPORTED_CURRENCIES,
+        "base": fx.BASE,
+        "rates": {
+            c["code"]: data["rates"].get(c["code"])
+            for c in fx.SUPPORTED_CURRENCIES
+            if data["rates"].get(c["code"]) or c["code"] == fx.BASE
+        },
+        "date": data.get("date", ""),
+        "stale": data.get("stale", False),
+        "available": True,
+    }

@@ -12,6 +12,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.integrations.dataforseo.client import DfsResult, dfs_client
+from app.services.normalize import clean_domain as _clean  # single shared normalizer
 
 PATH_SUMMARY = "/v3/backlinks/summary/live"
 PATH_BACKLINKS = "/v3/backlinks/backlinks/live"
@@ -22,9 +23,6 @@ PATH_NEW_LOST = "/v3/backlinks/timeseries_new_lost_summary/live"
 PATH_COMPETITORS = "/v3/backlinks/competitors/live"
 PATH_BULK_SPAM = "/v3/backlinks/bulk_spam_score/live"
 PATH_DOMAIN_INTERSECTION = "/v3/backlinks/domain_intersection/live"
-
-
-from app.services.normalize import clean_domain as _clean  # single shared normalizer
 
 
 async def summary(target: str) -> DfsResult:

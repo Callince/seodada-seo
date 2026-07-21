@@ -227,6 +227,9 @@ export function useAdminPayments() {
 // ---------------------------------------------------------------- site config
 
 export interface WebsiteSettings {
+  /** Site-wide display currency (ISO 4217). "" = show prices in the billing
+   *  currency. Display only — Razorpay still charges INR. */
+  display_currency: string;
   company_name: string;
   support_email: string;
   tagline: string;

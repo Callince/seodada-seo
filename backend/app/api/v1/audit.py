@@ -40,7 +40,7 @@ async def status(
     task_id: str,
     user: User = Depends(current_user),
 ) -> AuditStatusResponse:
-    job = crawler.get_job(task_id)
+    job = await crawler.get_job(task_id)
     if job is None:
         return AuditStatusResponse(
             task_id=task_id, progress="unknown",

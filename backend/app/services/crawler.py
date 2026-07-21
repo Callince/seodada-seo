@@ -10,7 +10,9 @@ The public surface is unchanged — a crawl runs as a background asyncio task,
 `start_crawl` hands back a job id, and the client polls `get_job`. The per-page
 SEO checks and the issue roll-up still flow through the DataForSEO-compatible
 `build_issues` so the Site Audit UI is untouched; only the crawl underneath is
-far stronger. Job state lives in-memory (single uvicorn worker serves start+poll).
+far stronger. The crawl itself runs in-process, but job status/results are
+mirrored to the shared cache (Redis in prod) so any replica can serve polls and
+an API restart doesn't 404 recently-finished audits.
 """
 from __future__ import annotations
 
@@ -28,6 +30,7 @@ from app.core.logging import log
 from app.integrations.dataforseo.audit import build_issues, label_for, severity_for
 from app.integrations.scraper import CrawlerConfig, Persona, TieredCrawler
 from app.services import density
+from app.services.cache_backend import cache_backend
 
 _PENALTY = {"error": 12, "warning": 5, "notice": 1}
 
@@ -58,6 +61,7 @@ class CrawlJob:
 
 _JOBS: dict[str, CrawlJob] = {}
 _MAX_JOBS = 50
+_JOB_TTL = 3600  # how long a job stays pollable across replicas/restarts
 
 
 def _remember(job: CrawlJob) -> None:
@@ -67,8 +71,39 @@ def _remember(job: CrawlJob) -> None:
             _JOBS.pop(jid, None)
 
 
-def get_job(job_id: str) -> CrawlJob | None:
-    return _JOBS.get(job_id)
+def _job_key(job_id: str) -> str:
+    return f"audit:job:{job_id}"
+
+
+async def _publish(job: CrawlJob) -> None:
+    """Mirror job state to the shared cache (best-effort) so polls work from any
+    replica and survive an API restart. Local polls never depend on this."""
+    payload = {
+        "id": job.id, "domain": job.domain, "max_pages": job.max_pages,
+        "progress": job.progress, "pages_crawled": job.pages_crawled,
+        "pages_in_queue": job.pages_in_queue, "result": job.result, "error": job.error,
+    }
+    try:
+        await cache_backend.set(_job_key(job.id), payload, _JOB_TTL)
+    except Exception as exc:  # noqa: BLE001 — cache down; same-process polls still work
+        log.warning("audit_job_publish_failed", job_id=job.id, error=str(exc))
+
+
+async def get_job(job_id: str) -> CrawlJob | None:
+    job = _JOBS.get(job_id)
+    if job is not None:
+        return job
+    payload = await cache_backend.get(_job_key(job_id))
+    if payload is None:
+        return None
+    # ponytail: a mirrored "in_progress" job whose runner process died stays
+    # visible until the 1h TTL lapses; move to a real job queue if that hurts.
+    return CrawlJob(
+        id=payload["id"], domain=payload["domain"], max_pages=payload["max_pages"],
+        progress=payload["progress"], pages_crawled=payload["pages_crawled"],
+        pages_in_queue=payload["pages_in_queue"], result=payload["result"],
+        error=payload["error"],
+    )
 
 
 # ------------------------------------------------------------------ scoping
@@ -133,7 +168,7 @@ def _checks_for(rec) -> dict[str, bool]:
 def _audit_record(rec) -> dict:
     """Compact per-page record in the shape `_aggregate` consumes."""
     link_refs = rec.extras.get("_link_refs", [])
-    internal = sum(1 for l in link_refs if getattr(l, "is_internal", False))
+    internal = sum(1 for ref in link_refs if getattr(ref, "is_internal", False))
     external = len(link_refs) - internal
     meta = rec.extras.get("_meta")
     text = rec.extras.get("_text")
@@ -275,6 +310,7 @@ async def _run(job: CrawlJob) -> None:
 
     async with _job_gate:
         job.progress = "in_progress"
+        await _publish(job)
         seed_host = _normalize_host(job.domain.lower())
         # Verify the host is real & public before crawling (SSRF guard).
         if not await density._is_public_host(seed_host):  # noqa: SLF001
@@ -300,6 +336,8 @@ async def _run(job: CrawlJob) -> None:
 
         def _on_page(_doc, _rec) -> None:
             job.pages_crawled += 1
+            if job.pages_crawled % 5 == 0:  # coarse cross-replica progress
+                asyncio.get_running_loop().create_task(_publish(job))
 
         try:
             async with TieredCrawler(
@@ -368,6 +406,7 @@ def start_crawl(job_id: str, domain: str, max_pages: int) -> CrawlJob:
             # The TieredCrawler has closed its SQLite connections by now, so the
             # per-audit cache/frontier files can be removed.
             _cleanup_job_db(job.id)
+            await _publish(job)  # final state (finished/error) for other replicas
 
     asyncio.create_task(_runner())
     return job

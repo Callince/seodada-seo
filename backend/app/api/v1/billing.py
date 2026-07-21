@@ -5,6 +5,8 @@ current subscription + payment history, all org-scoped.
 """
 from __future__ import annotations
 
+import asyncio
+
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -117,7 +119,9 @@ async def payment_invoice(
     org = await db.get(Organization, user.org_id)
     buyer = await db.scalar(select(InvoiceAddress).where(InvoiceAddress.org_id == user.org_id))
     plan = await db.get(Plan, payment.plan_id) if payment.plan_id else None
-    pdf = invoices.generate_invoice_pdf(
+    # reportlab is CPU-bound — keep it off the event loop.
+    pdf = await asyncio.to_thread(
+        invoices.generate_invoice_pdf,
         payment, buyer_name=(org.name if org else user.email), buyer=buyer,
         plan_name=plan.name if plan else "Subscription",
     )

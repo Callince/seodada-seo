@@ -1,4 +1,4 @@
-"""Fixed-window rate limiting.
+"""Sliding-window rate limiting.
 
 Two FastAPI dependencies backed by the shared cache (Redis in prod, in-process
 in dev) so limits hold across workers:
@@ -26,11 +26,17 @@ WINDOW = 60  # seconds
 
 
 async def _hit(key: str, limit: int) -> None:
-    now = int(time.time())
-    window_start = now - (now % WINDOW)
-    count = await cache_backend.incr(f"{key}:{window_start}", WINDOW)
-    if count > limit:
-        retry_after = WINDOW - (now % WINDOW)
+    # Sliding-window counter: the previous window's count, weighted by how much
+    # of it still overlaps the trailing 60s, plus the current window's count.
+    # Closes the 2x burst a plain fixed window allows at the boundary.
+    now = time.time()
+    window_start = int(now) - (int(now) % WINDOW)
+    # TTL of 2 windows so the count is still readable as the "previous" window.
+    count = await cache_backend.incr(f"{key}:{window_start}", WINDOW * 2)
+    prev = await cache_backend.get_count(f"{key}:{window_start - WINDOW}")
+    weighted = prev * (1 - (now - window_start) / WINDOW) + count
+    if weighted > limit:
+        retry_after = WINDOW - (int(now) % WINDOW)
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail=f"Rate limit of {limit} requests per minute exceeded. Retry in {retry_after}s.",
@@ -51,3 +57,16 @@ async def enforce_login_rate_limit(request: Request) -> None:
         return
     ip = request.client.host if request.client else "unknown"
     await _hit(f"rl:ip:{ip}", settings.login_rate_limit_per_minute)
+
+
+async def enforce_public_demo_rate_limit(request: Request) -> None:
+    """Per-IP throttle for the anonymous landing-page analyzer.
+
+    Tighter than the login limit: every call fetches a third-party page, so an
+    unthrottled endpoint is both an abuse vector and a way to make our server
+    look like a crawler to someone else's site.
+    """
+    if not settings.rate_limit_enabled:
+        return
+    ip = request.client.host if request.client else "unknown"
+    await _hit(f"rl:demo:{ip}", settings.public_demo_rate_limit_per_minute)

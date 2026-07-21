@@ -51,19 +51,17 @@ async def analyze(
             meta=resolved.meta(),
         )
 
-    # DataForSEO Content Analysis path.
-    summary = await usage.metered(
-        db, user, "content.summary",
-        {"keyword": keyword},
-        engine.TTL["content"],
-        lambda: content_api.summary(keyword),
-        force_live=body.force_live,
-    )
-    citations = await usage.metered(
-        db, user, "content.search",
-        {"keyword": keyword, "limit": body.citation_limit},
-        engine.TTL["content"],
-        lambda: content_api.search(keyword, body.citation_limit),
+    # DataForSEO Content Analysis path — the two calls are independent, so they
+    # run concurrently.
+    summary, citations = await usage.metered_parallel(
+        db, user,
+        [
+            ("content.summary", {"keyword": keyword}, engine.TTL["content"],
+             lambda: content_api.summary(keyword)),
+            ("content.search", {"keyword": keyword, "limit": body.citation_limit},
+             engine.TTL["content"],
+             lambda: content_api.search(keyword, body.citation_limit)),
+        ],
         force_live=body.force_live,
     )
 

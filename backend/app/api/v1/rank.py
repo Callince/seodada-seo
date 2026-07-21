@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, Query, status
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import current_user, get_db_session
@@ -116,6 +116,36 @@ async def history(
     dom = ranking.normalize_domain(domain)
     snaps = await _history(db, user.org_id, kw, dom)
     return RankHistoryResponse(keyword=kw, domain=dom, history=_points(snaps))
+
+
+@router.delete("/tracked", status_code=status.HTTP_204_NO_CONTENT)
+async def untrack(
+    keyword: str = Query(...),
+    domain: str = Query(...),
+    location_code: int = Query(...),
+    language_code: str = Query(...),
+    device: str = Query("desktop"),
+    db: AsyncSession = Depends(get_db_session),
+    user: User = Depends(current_user),
+) -> None:
+    """Stop tracking a keyword — deletes its position history for this org.
+
+    Tracked pairs are *derived* from RankSnapshot (there is no separate table),
+    so removing the snapshots both drops it from the list and stops the daily
+    auto-recheck. The position history is gone for good — the UI confirms first.
+    Org-scoped: one tenant can never delete another's history.
+    """
+    await db.execute(
+        delete(RankSnapshot).where(
+            RankSnapshot.org_id == user.org_id,
+            RankSnapshot.keyword == keyword.strip().lower(),
+            RankSnapshot.domain == ranking.normalize_domain(domain),
+            RankSnapshot.location_code == location_code,
+            RankSnapshot.language_code == language_code,
+            RankSnapshot.device == device,
+        )
+    )
+    await db.commit()
 
 
 @router.get("/tracked", response_model=TrackedListResponse)

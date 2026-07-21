@@ -10,7 +10,7 @@ class AuditStartRequest(BaseModel):
 
 class AuditStartResponse(BaseModel):
     task_id: str
-    cost_cents: int
+    cost_cents: float
     max_crawl_pages: int
 
 

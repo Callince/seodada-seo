@@ -1,3 +1,4 @@
+import asyncio
 from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends
@@ -95,12 +96,25 @@ async def analyze(
     # DataForSEO path: instant_pages gives the technical score + meta; we fetch
     # the HTML once locally to run the SAME scoring rubric + density model, so
     # the On-Page score and recommendations are consistent across providers.
-    resolved = await usage.metered(
-        db, user, "onpage.instant_pages",
-        {"url": url},
-        engine.TTL["on_page"],
-        lambda: onpage_api.instant_pages(url),
-        force_live=body.force_live,
+    # The two fetches are independent — run them concurrently (only the metered
+    # call touches the request session, so a plain gather is safe).
+    async def _local_page() -> dict | None:
+        try:
+            raw = await density.fetch_html(url)
+            return local_onpage.extract_page(raw, url, body.target_keyword)
+        except density.FetchError as exc:
+            log.info("density_skip", url=url, reason=str(exc))
+            return None
+
+    resolved, page = await asyncio.gather(
+        usage.metered(
+            db, user, "onpage.instant_pages",
+            {"url": url},
+            engine.TTL["on_page"],
+            lambda: onpage_api.instant_pages(url),
+            force_live=body.force_live,
+        ),
+        _local_page(),
     )
     parsed = onpage_api.parse_instant_pages(resolved.data)
 
@@ -120,9 +134,7 @@ async def analyze(
     heading_count = 0
     issues = list(parsed["issues"])
 
-    try:
-        raw = await density.fetch_html(url)
-        page = local_onpage.extract_page(raw, url, body.target_keyword)
+    if page is not None:
         ev = scoring.evaluate(page["signals"])
         # Our rubric is the headline content score; DataForSEO's is technical.
         content_score = ev["score"]
@@ -144,8 +156,6 @@ async def analyze(
         heading_count = page["heading_count"]
         # Merge: rubric issues first, then any DataForSEO technical checks.
         issues = ev["issues"] + [i for i in issues if i not in ev["issues"]]
-    except density.FetchError as exc:
-        log.info("density_skip", url=url, reason=str(exc))
 
     benchmark = await _maybe_benchmark(
         db, user, body, url, page_terms, word_count, heading_count

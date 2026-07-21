@@ -442,7 +442,7 @@ class TieredCrawler:
         # Stash the raw extractor outputs for callers that want them
         record.extras = {
             "_meta": meta,
-            "_links": [l.url for l in links],
+            "_links": [ln.url for ln in links],
             "_link_refs": links,
             "_images": images,
             "_headings": headings,

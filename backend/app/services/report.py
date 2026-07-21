@@ -8,9 +8,10 @@ Given a domain (and optional target keyword), assembles ONE complete report:
   * the domain's ranking for the target keyword (if given),
   * an aggregate health score, key findings, and prioritized recommendations.
 
-The billed DataForSEO calls run sequentially (a single AsyncSession is not
-concurrency-safe); the per-page HTML fetch + scoring is local ($0) and runs
-concurrently. Every billed call flows through the cost engine, so repeat reports
+The billed DataForSEO calls are independent, so they run concurrently through
+`usage.metered_parallel` (each on its own session — a single AsyncSession is
+not concurrency-safe); the per-page HTML fetch + scoring is local ($0) and also
+concurrent. Every billed call flows through the cost engine, so repeat reports
 are largely cache-served.
 """
 from __future__ import annotations
@@ -73,48 +74,46 @@ async def site_report(
     domain = clean_domain(domain)
     cost = 0
 
-    # --- Billed Labs calls (sequential; shared session is not concurrency-safe).
-    ranked_res = await usage.metered(
-        db, user, "labs.ranked_keywords",
-        {"target": domain, "location_code": location_code, "language_code": language_code, "limit": 50},
-        engine.TTL["labs"],
-        lambda: labs.ranked_keywords(domain, location_code, language_code, 50),
-        force_live=force_live,
-    )
-    cost += ranked_res.cost_cents
-    ranked = labs.parse_ranked_keywords(ranked_res.data)
-
-    overview_res = await usage.metered(
-        db, user, "labs.domain_rank_overview",
-        {"target": domain, "location_code": location_code, "language_code": language_code},
-        engine.TTL["labs"],
-        lambda: labs.domain_rank_overview(domain, location_code, language_code),
-        force_live=force_live,
-    )
-    cost += overview_res.cost_cents
-    overview = labs.parse_domain_overview(overview_res.data)
-
-    comp_res = await usage.metered(
-        db, user, "labs.competitors_domain",
-        {"target": domain, "location_code": location_code, "language_code": language_code, "limit": 10},
-        engine.TTL["labs"],
-        lambda: labs.competitors_domain(domain, location_code, language_code, 10),
-        force_live=force_live,
-    )
-    cost += comp_res.cost_cents
-    competitors = labs.parse_competitors(comp_res.data)
-
-    ranking_info = None
+    # --- Billed Labs calls — independent, so they run concurrently.
+    calls: list[tuple] = [
+        (
+            "labs.ranked_keywords",
+            {"target": domain, "location_code": location_code, "language_code": language_code, "limit": 50},
+            engine.TTL["labs"],
+            lambda: labs.ranked_keywords(domain, location_code, language_code, 50),
+        ),
+        (
+            "labs.domain_rank_overview",
+            {"target": domain, "location_code": location_code, "language_code": language_code},
+            engine.TTL["labs"],
+            lambda: labs.domain_rank_overview(domain, location_code, language_code),
+        ),
+        (
+            "labs.competitors_domain",
+            {"target": domain, "location_code": location_code, "language_code": language_code, "limit": 10},
+            engine.TTL["labs"],
+            lambda: labs.competitors_domain(domain, location_code, language_code, 10),
+        ),
+    ]
     if keyword:
-        serp_res = await usage.metered(
-            db, user, "serp.organic",
+        calls.append((
+            "serp.organic",
             {"keyword": keyword, "location_code": location_code,
              "language_code": language_code, "depth": 100, "provider": "dataforseo"},
             engine.TTL["serp"],
             lambda: serp_api.organic(keyword, location_code, language_code, 100),
-            force_live=force_live,
-        )
-        cost += serp_res.cost_cents
+        ))
+
+    results = await usage.metered_parallel(db, user, calls, force_live=force_live)
+    ranked_res, overview_res, comp_res = results[0], results[1], results[2]
+    cost += sum(r.cost_cents for r in results)
+    ranked = labs.parse_ranked_keywords(ranked_res.data)
+    overview = labs.parse_domain_overview(overview_res.data)
+    competitors = labs.parse_competitors(comp_res.data)
+
+    ranking_info = None
+    if keyword:
+        serp_res = results[3]
         pos, url = ranking.find_position(serp_api.parse_organic(serp_res.data), domain)
         ranking_info = {"keyword": keyword, "position": pos, "url": url, "found": pos is not None}
 

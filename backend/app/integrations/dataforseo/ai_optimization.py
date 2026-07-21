@@ -19,7 +19,9 @@ async def target_metrics(domain: str) -> DfsResult:
 
 def parse_target_metrics(result: list[dict[str, Any]]) -> dict:
     """result[0] = {total_count, items, aggregated_metrics: {dimension:
-    [{key, mentions, ai_search_volume}, …]}}. Totals + per-dimension breakdowns."""
+    [{key, mentions, ai_search_volume}, …]}}. Totals + per-dimension breakdowns.
+    Dimensions include location, language, platform (google/chat_gpt/…) and
+    sources_domain (what LLMs cite when mentioning the target)."""
     res = result[0] if result else {}
     agg = res.get("aggregated_metrics") or {}
     dimensions: dict[str, list[dict]] = {}
@@ -37,10 +39,15 @@ def parse_target_metrics(result: list[dict[str, Any]]) -> dict:
             for r in rows
             if isinstance(r, dict)
         ]
+        if dim == "total":  # the API's own grand total — don't ship as a table
+            if parsed:
+                total_mentions = parsed[0]["mentions"]
+                total_volume = parsed[0]["ai_search_volume"]
+            continue
         dimensions[dim] = parsed[:20]
-        if dim == "location":  # count each mention once — location covers all
-            total_mentions = sum(p["mentions"] for p in parsed)
-            total_volume = sum(p["ai_search_volume"] for p in parsed)
+    if not total_mentions:  # older responses without a total block
+        total_mentions = sum(p["mentions"] for p in dimensions.get("location", []))
+        total_volume = sum(p["ai_search_volume"] for p in dimensions.get("location", []))
     return {
         "mentions": total_mentions,
         "ai_search_volume": total_volume,

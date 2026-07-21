@@ -41,7 +41,7 @@ class AiVisibilitySummary(BaseModel):
     ai_overview_present: int = 0   # keywords that triggered an AI Overview
     ai_overview_cited: int = 0     # ...where your domain is cited
     ai_mode_cited: int = 0         # keywords where you're cited in AI Mode
-    cost_cents: int = 0
+    cost_cents: float = 0
 
 
 class AiVisibilityStatusResponse(BaseModel):

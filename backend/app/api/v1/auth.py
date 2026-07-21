@@ -1,27 +1,29 @@
 import secrets
 import time
+import uuid
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import current_user, get_db_session, is_platform_admin
 from app.core.config import settings
 from app.core.security import (
     ACCESS,
-    REFRESH,
     RESET,
     create_access_token,
     create_refresh_token,
     create_reset_token,
+    decode_refresh,
     decode_token,
     hash_password,
     verify_password,
 )
-from app.db.models import Organization, User
+from app.db.models import Organization, RefreshToken, User
 from app.schemas.auth import (
     AuthResponse,
     ForgotPasswordRequest,
@@ -68,6 +70,21 @@ async def _upsert_google_user(db: AsyncSession, email: str, name: str) -> User:
     return user
 
 
+async def _token_pair(db: AsyncSession, user_id: str) -> dict:
+    """Issue an access+refresh pair, persisting the refresh token's jti so the
+    session can be revoked (logout, password reset) and rotated on refresh."""
+    jti = uuid.uuid4().hex
+    db.add(RefreshToken(
+        id=jti, user_id=user_id,
+        expires_at=datetime.now(timezone.utc) + timedelta(days=settings.refresh_token_days),
+    ))
+    await db.commit()
+    return {
+        "access_token": create_access_token(user_id),
+        "refresh_token": create_refresh_token(user_id, jti),
+    }
+
+
 def _user_out(user: User) -> dict:
     return {
         "id": user.id,
@@ -92,11 +109,7 @@ async def _create_account(db: AsyncSession, email: str, hashed_pw: str, full_nam
     db.add(user)
     await db.commit()
     await db.refresh(user)
-    return {
-        "access_token": create_access_token(user.id),
-        "refresh_token": create_refresh_token(user.id),
-        "user": _user_out(user),
-    }
+    return {**await _token_pair(db, user.id), "user": _user_out(user)}
 
 
 @router.post("/register")
@@ -147,11 +160,7 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db_session)):
     user = await db.scalar(select(User).where(User.email == body.email))
     if not user or not verify_password(body.password, user.hashed_password):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
-    return {
-        "access_token": create_access_token(user.id),
-        "refresh_token": create_refresh_token(user.id),
-        "user": _user_out(user),
-    }
+    return {**await _token_pair(db, user.id), "user": _user_out(user)}
 
 
 @router.post("/admin/login", response_model=AuthResponse)
@@ -163,22 +172,36 @@ async def admin_login(body: LoginRequest, db: AsyncSession = Depends(get_db_sess
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
     if not is_platform_admin(user):
         raise HTTPException(status.HTTP_403_FORBIDDEN, "This account is not an administrator.")
-    return {
-        "access_token": create_access_token(user.id),
-        "refresh_token": create_refresh_token(user.id),
-        "user": _user_out(user),
-    }
+    return {**await _token_pair(db, user.id), "user": _user_out(user)}
 
 
 @router.post("/refresh", response_model=TokenPair)
 async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db_session)):
-    user_id = decode_token(body.refresh_token, REFRESH)
-    if not user_id or not await db.get(User, user_id):
+    decoded = decode_refresh(body.refresh_token)
+    if not decoded:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid refresh token")
-    return {
-        "access_token": create_access_token(user_id),
-        "refresh_token": create_refresh_token(user_id),
-    }
+    user_id, jti = decoded
+    row = await db.get(RefreshToken, jti)
+    if not row or row.revoked:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid refresh token")
+    expires = row.expires_at if row.expires_at.tzinfo else row.expires_at.replace(tzinfo=timezone.utc)
+    if expires < datetime.now(timezone.utc) or not await db.get(User, user_id):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid refresh token")
+    # Rotate: each refresh token is single-use.
+    row.revoked = True
+    return await _token_pair(db, user_id)
+
+
+@router.post("/logout")
+async def logout(body: RefreshRequest, db: AsyncSession = Depends(get_db_session)):
+    """Revoke the session's refresh token. Idempotent — always returns ok."""
+    decoded = decode_refresh(body.refresh_token)
+    if decoded:
+        row = await db.get(RefreshToken, decoded[1])
+        if row:
+            row.revoked = True
+            await db.commit()
+    return {"ok": True}
 
 
 @router.post("/password/forgot")
@@ -206,13 +229,11 @@ async def reset_password(body: ResetPasswordRequest, db: AsyncSession = Depends(
     if not user:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "This reset link is invalid or has expired.")
     user.hashed_password = hash_password(body.password)
+    # A password reset invalidates every existing session.
+    await db.execute(update(RefreshToken).where(RefreshToken.user_id == user.id).values(revoked=True))
     await db.commit()
     await db.refresh(user)
-    return {
-        "access_token": create_access_token(user.id),
-        "refresh_token": create_refresh_token(user.id),
-        "user": _user_out(user),
-    }
+    return {**await _token_pair(db, user.id), "user": _user_out(user)}
 
 
 @router.get("/google/login")
@@ -264,10 +285,7 @@ async def google_callback(
     except HTTPException:
         return RedirectResponse(f"{base}/login?error=domain")
 
-    frag = urlencode({
-        "access_token": create_access_token(user.id),
-        "refresh_token": create_refresh_token(user.id),
-    })
+    frag = urlencode(await _token_pair(db, user.id))
     return RedirectResponse(f"{base}/oauth#{frag}")
 
 

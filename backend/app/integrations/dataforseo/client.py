@@ -33,7 +33,7 @@ class DataForSEOError(Exception):
 @dataclass(slots=True)
 class DfsResult:
     result: list[dict[str, Any]]
-    cost_cents: int
+    cost_cents: float  # fractional — DataForSEO prices below a cent
 
 
 class DataForSEOClient:
@@ -56,6 +56,30 @@ class DataForSEOClient:
         resp = await self._client.post(path, json=body)
         resp.raise_for_status()
         return resp.json()
+
+    @retry(
+        retry=retry_if_exception_type((httpx.TransportError, httpx.HTTPStatusError)),
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=0.5, max=8),
+        reraise=True,
+    )
+    async def get(self, path: str) -> DfsResult:
+        """GET endpoints (e.g. appendix/user_data) — same envelope, no body."""
+        resp = await self._client.get(path)
+        resp.raise_for_status()
+        data = resp.json()
+        if data.get("status_code") != OK:
+            raise DataForSEOError(
+                data.get("status_code", 0), data.get("status_message", "unknown error")
+            )
+        tasks = data.get("tasks") or []
+        if not tasks or tasks[0].get("status_code") != OK:
+            msg = tasks[0].get("status_message", "task error") if tasks else "no tasks"
+            raise DataForSEOError(tasks[0].get("status_code", 0) if tasks else 0, msg)
+        return DfsResult(
+            result=tasks[0].get("result") or [],
+            cost_cents=_to_cents(data.get("cost", 0)),
+        )
 
     async def post(self, path: str, payload: dict) -> DfsResult:
         data = await self._raw_post(path, [payload])
@@ -80,8 +104,15 @@ class DataForSEOClient:
         await self._client.aclose()
 
 
-def _to_cents(usd: float | int | None) -> int:
-    return int(round(float(usd or 0) * 100))
+def _to_cents(usd: float | int | None) -> float:
+    """USD -> cents, keeping sub-cent precision.
+
+    DataForSEO bills in fractions of a cent — an AI Overview call is $0.002
+    (0.2c). Rounding to whole cents recorded those as **free**, so real spend
+    never appeared in the usage log or the admin spend report. 4dp keeps every
+    real price exactly while trimming float noise.
+    """
+    return round(float(usd or 0) * 100, 4)
 
 
 # Single shared client (one upstream DataForSEO account proxied for all tenants).

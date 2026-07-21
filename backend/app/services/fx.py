@@ -28,6 +28,56 @@ BASE = "INR"
 _TTL_S = 6 * 3600
 _MAX_STALE_S = 7 * 24 * 3600
 
+# The currencies offered in the picker. A closed list, not "anything the rates
+# endpoint knows": offering all 166 would be a worse experience than offering a
+# curated set, and every one of these needs a live rate to be usable.
+#
+# Code and label only — NO symbol. Symbols are derived in the browser from
+# Intl.NumberFormat, which knows the correct glyph, its placement, and the
+# minor-unit count for every ISO code. A symbol column here would be a second
+# source of truth for the same fact, free to drift from what the formatted
+# amounts actually render.
+SUPPORTED_CURRENCIES: list[dict[str, str]] = [
+    {"code": "INR", "label": "Indian Rupee"},
+    {"code": "USD", "label": "US Dollar"},
+    {"code": "EUR", "label": "Euro"},
+    {"code": "GBP", "label": "British Pound"},
+    {"code": "AUD", "label": "Australian Dollar"},
+    {"code": "CAD", "label": "Canadian Dollar"},
+    {"code": "SGD", "label": "Singapore Dollar"},
+    {"code": "NZD", "label": "New Zealand Dollar"},
+    {"code": "HKD", "label": "Hong Kong Dollar"},
+    {"code": "CHF", "label": "Swiss Franc"},
+    {"code": "SEK", "label": "Swedish Krona"},
+    {"code": "AED", "label": "UAE Dirham"},
+    {"code": "SAR", "label": "Saudi Riyal"},
+    {"code": "JPY", "label": "Japanese Yen"},
+    {"code": "CNY", "label": "Chinese Yuan"},
+    {"code": "KRW", "label": "South Korean Won"},
+    {"code": "MYR", "label": "Malaysian Ringgit"},
+    {"code": "IDR", "label": "Indonesian Rupiah"},
+    {"code": "PHP", "label": "Philippine Peso"},
+    {"code": "THB", "label": "Thai Baht"},
+    {"code": "VND", "label": "Vietnamese Dong"},
+    {"code": "BDT", "label": "Bangladeshi Taka"},
+    {"code": "PKR", "label": "Pakistani Rupee"},
+    {"code": "LKR", "label": "Sri Lankan Rupee"},
+    {"code": "ZAR", "label": "South African Rand"},
+    {"code": "NGN", "label": "Nigerian Naira"},
+    {"code": "KES", "label": "Kenyan Shilling"},
+    {"code": "EGP", "label": "Egyptian Pound"},
+    {"code": "BRL", "label": "Brazilian Real"},
+    {"code": "MXN", "label": "Mexican Peso"},
+    {"code": "TRY", "label": "Turkish Lira"},
+    {"code": "PLN", "label": "Polish Zloty"},
+]
+_CODES = {c["code"] for c in SUPPORTED_CURRENCIES}
+
+
+def is_supported(code: str) -> bool:
+    return (code or "").upper() in _CODES
+
+
 _cache: dict[str, Any] = {"rates": None, "fetched_at": 0.0, "provider_date": ""}
 
 

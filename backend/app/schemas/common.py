@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class Meta(BaseModel):
     from_cache: bool
-    cost_cents: int
+    cost_cents: float
     source: str
     latency_ms: int
     # ISO timestamp of when the data was fetched upstream (cache age indicator).

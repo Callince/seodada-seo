@@ -67,15 +67,16 @@ async def enrich(
         return 0
 
     terms = [b.lower() for b in brands]
-    resolved = await engine.resolve(
+    # check_quota=False: this runs inside a SERP request that already passed the
+    # quota gate; re-checking would 402 after the primary call was recorded.
+    resolved = await usage.metered(
         db,
-        endpoint="keywords.search_volume",
+        user,
+        "keywords.search_volume",
         params={"keywords": terms, "location_code": location_code, "language_code": language_code},
         ttl_seconds=engine.TTL["search_volume"],
         fetch_fn=lambda: search_volume_coalescer.fetch(terms, location_code, language_code),
-    )
-    await usage.record(
-        db, user, "keywords.search_volume", resolved.cost_cents, resolved.from_cache
+        check_quota=False,
     )
 
     vol_by_term = kw.parse_search_volume(resolved.data)

@@ -6,6 +6,7 @@ import { PublicHero } from "@/components/public/PublicHero";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { Seo } from "@/lib/seo";
+import { BASE_CURRENCY, formatBase, formatMoney, useSiteCurrency } from "@/lib/currency";
 
 /** The real, active seodada subscription plans — migrated from the production
  *  database (public.subscriptions). Prices in ₹/month (India, Razorpay + GST).
@@ -35,7 +36,6 @@ const PLANS = [
   },
 ] as const;
 
-const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
 
 /**
  * The page LLMs read to answer "how much does seodada cost" — without this
@@ -94,6 +94,14 @@ function includedFeatures(): string[] {
 
 export default function Pricing() {
   const features = includedFeatures();
+  // Site-wide currency, set by an admin. Public endpoint, so this page can
+  // convert for anonymous visitors like everything else.
+  const { data: fx } = useSiteCurrency();
+  const currency = fx?.code || BASE_CURRENCY;
+  const rates = fx?.rates;
+  // PLANS holds major units (799); formatMoney takes minor units, like every
+  // stored amount does.
+  const show = (rupees: number) => formatMoney(rupees * 100, currency, rates);
 
   return (
     <div>
@@ -138,7 +146,7 @@ export default function Pricing() {
               <p className="mt-1 min-h-[2.5rem] text-sm text-text-muted">{p.blurb}</p>
               <div className="mt-5 flex items-baseline gap-1">
                 <span className="text-4xl font-extrabold tracking-tight text-text">
-                  {inr(p.price)}
+                  {show(p.price).text}
                 </span>
                 <span className="text-sm text-text-muted">/month</span>
               </div>
@@ -156,8 +164,14 @@ export default function Pricing() {
                   <ArrowRight size={16} />
                 </Button>
               </Link>
+              {/* The charged figure, whenever the shown one is a conversion.
+                  A site-wide currency means this visitor never chose it, so
+                  the price above may be in a currency they will not actually
+                  be billed in — saying which is which is the minimum. */}
               <p className="mt-3 text-center text-xs text-text-muted">
-                30-day billing · GST invoice included
+                {show(p.price).converted
+                  ? `≈ approx. — billed ${formatBase(p.price * 100)} · GST invoice included`
+                  : "30-day billing · GST invoice included"}
               </p>
             </div>
           ))}

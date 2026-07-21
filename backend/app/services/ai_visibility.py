@@ -3,9 +3,10 @@ whether a domain is cited in Google's AI Overview and AI Mode answers.
 
 Runs as a background asyncio task (like the site crawler): the API returns a job
 id and the client polls. Each keyword is one or two billed SERP calls routed
-through the cost engine, so repeats are cached/free. Keywords are processed
-sequentially because each uses the job's own DB session (one AsyncSession is not
-safe for concurrent use).
+through the cost engine, so repeats are cached/free. The two surfaces per
+keyword run concurrently and keywords are processed with bounded concurrency —
+each billed call gets its own DB session via `usage.metered_parallel` (one
+AsyncSession is not safe for concurrent use).
 """
 from __future__ import annotations
 
@@ -55,34 +56,37 @@ def get_job(job_id: str) -> CheckJob | None:
     return _JOBS.get(job_id)
 
 
-async def _check_one(db, user, job: CheckJob, kw: str, domain: str) -> dict:
+async def _check_one(user, job: CheckJob, kw: str, domain: str) -> dict:
     loc, lang, dev = job.location_code, job.language_code, job.device
-    cost = 0
-    ov = await usage.metered(
-        db, user, "serp.ai_overview",
+    # The two surfaces are independent — one concurrent round-trip, not two.
+    calls: list[tuple] = [(
+        "serp.ai_overview",
         {"keyword": kw, "location_code": loc, "language_code": lang,
          "device": dev, "surface": "ai_overview"},
         engine.TTL["serp"],
         lambda: aiv.ai_overview(kw, loc, lang, dev),
-        force_live=job.force_live,
+    )]
+    if job.include_ai_mode:
+        calls.append((
+            "serp.ai_mode",
+            {"keyword": kw, "location_code": loc, "language_code": lang,
+             "device": dev, "surface": "ai_mode"},
+            engine.TTL["serp"],
+            lambda: aiv.ai_mode(kw, loc, lang, dev),
+        ))
+    # Quota was asserted once in _run; each call records on its own session.
+    results = await usage.metered_parallel(
+        None, user, calls, force_live=job.force_live, check_quota=False
     )
-    cost += ov.cost_cents
-    ov_parsed = aiv.parse_surface(ov.data)
+    cost = sum(r.cost_cents for r in results)
+
+    ov_parsed = aiv.parse_surface(results[0].data)
     ov_cit = aiv.find_citation(ov_parsed["references"], domain)
 
     mode_parsed = {"present": False, "references": []}
     mode_cit = {"cited": False, "url": None, "position": None}
     if job.include_ai_mode:
-        md = await usage.metered(
-            db, user, "serp.ai_mode",
-            {"keyword": kw, "location_code": loc, "language_code": lang,
-             "device": dev, "surface": "ai_mode"},
-            engine.TTL["serp"],
-            lambda: aiv.ai_mode(kw, loc, lang, dev),
-            force_live=job.force_live,
-        )
-        cost += md.cost_cents
-        mode_parsed = aiv.parse_surface(md.data)
+        mode_parsed = aiv.parse_surface(results[1].data)
         mode_cit = aiv.find_citation(mode_parsed["references"], domain)
 
     cited_domains: list[str] = []
@@ -118,21 +122,37 @@ async def _run(job: CheckJob) -> None:
                 job.progress = "error"
                 job.error = "User not found."
                 return
-            for kw in job.keywords:
+            # One quota gate for the whole job; the billed calls themselves run
+            # on their own sessions inside metered_parallel.
+            await usage.assert_within_quota(db, user)
+
+        # Keywords are independent — process them with bounded concurrency.
+        # ponytail: 3 in flight is kind to DataForSEO; raise if runs feel slow.
+        kw_gate = asyncio.Semaphore(3)
+
+        async def _guarded(kw: str) -> dict:
+            async with kw_gate:
                 try:
-                    out = await _check_one(db, user, job, kw, domain)
-                    job.rows.append(out["row"])
-                    total_cost += out["cost"]
+                    out = await _check_one(user, job, kw, domain)
                 except Exception as exc:  # one bad keyword must not kill the run
                     log.info("ai_visibility_keyword_failed", keyword=kw, error=str(exc))
-                    job.rows.append({
-                        "keyword": kw, "ai_overview_present": False,
-                        "ai_overview": {"cited": False, "url": None, "position": None},
-                        "ai_mode_present": False,
-                        "ai_mode": {"cited": False, "url": None, "position": None},
-                        "cited_domains": [],
-                    })
+                    out = {
+                        "row": {
+                            "keyword": kw, "ai_overview_present": False,
+                            "ai_overview": {"cited": False, "url": None, "position": None},
+                            "ai_mode_present": False,
+                            "ai_mode": {"cited": False, "url": None, "position": None},
+                            "cited_domains": [],
+                        },
+                        "cost": 0,
+                    }
                 job.checked += 1
+                return out
+
+        outs = await asyncio.gather(*(_guarded(kw) for kw in job.keywords))
+        for out in outs:
+            job.rows.append(out["row"])
+            total_cost += out["cost"]
 
         job.summary = {
             "keywords": len(job.rows),

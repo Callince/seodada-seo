@@ -19,8 +19,6 @@ async def ranking(
     db: AsyncSession = Depends(get_db_session),
     user: User = Depends(current_user),
 ) -> SerpResponse:
-    await usage.assert_within_quota(db, user)
-
     provider = providers.serp_provider()
     params = {
         "keyword": body.keyword.strip().lower(),
@@ -41,15 +39,15 @@ async def ranking(
             body.keyword, body.location_code, body.language_code, body.depth, body.device
         )
 
-    resolved = await engine.resolve(
+    resolved = await usage.metered(
         db,
-        endpoint=endpoint,
-        params=params,
+        user,
+        endpoint,
+        params,
         ttl_seconds=engine.TTL["serp"],
         fetch_fn=fetch_fn,
         force_live=body.force_live,
     )
-    await usage.record(db, user, endpoint, resolved.cost_cents, resolved.from_cache)
 
     results = serp_api.parse_organic(resolved.data)
     paa = serp_api.parse_paa(resolved.data)  # empty for Brave (no PAA on free tier)
@@ -57,7 +55,10 @@ async def ranking(
     # skip it when the SERP itself came from a free provider.
     brand_cost = await brand.enrich(
         db, user, results, body.location_code, body.language_code,
-        with_volume=(provider == "dataforseo"),
+        # Opt-in: this lookup bills per brand on the page and routinely costs
+        # several times the SERP call it rides along with. Free providers have
+        # no volume data to enrich with either way.
+        with_volume=(body.with_brand_volume and provider == "dataforseo"),
     )
 
     meta = resolved.meta()

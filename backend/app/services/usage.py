@@ -75,8 +75,9 @@ def _is_platform_admin(user: User) -> bool:
 async def assert_within_quota(db: AsyncSession, user: User) -> None:
     """Enforce the daily analysis limit (seodada model). Raises 402 when hit.
 
-    Platform admins are exempt — they have no daily limit."""
-    if not settings.quota_enabled or _is_platform_admin(user):
+    Platform admins and users granted unlimited usage from the admin panel
+    are exempt — they have no daily limit."""
+    if not settings.quota_enabled or _is_platform_admin(user) or bool(user.unlimited_usage):
         return
     limit = await daily_limit(db, user.org_id)
     if await daily_calls(db, user.org_id) >= limit:
@@ -109,9 +110,15 @@ async def metered(
     ttl_seconds: int,
     fetch_fn: engine.FetchFn,
     force_live: bool = False,
+    check_quota: bool = True,
 ) -> engine.Resolved:
-    """Quota-guard, resolve through the cost engine, and record the call."""
-    await assert_within_quota(db, user)
+    """Quota-guard, resolve through the cost engine, and record the call.
+
+    `check_quota=False` is for billed sub-lookups inside a request that already
+    passed the quota gate (e.g. brand volume during a SERP call) — re-checking
+    would 402 mid-request after the primary call was recorded."""
+    if check_quota:
+        await assert_within_quota(db, user)
     resolved = await engine.resolve(db, endpoint, params, ttl_seconds, fetch_fn, force_live=force_live)
     await record(db, user, endpoint, resolved.cost_cents, resolved.from_cache)
     # Stale-while-revalidate: the engine served a cached copy that's due for a
@@ -120,6 +127,33 @@ async def metered(
     if resolved.source == "revalidating":
         _spawn_revalidation(user, endpoint, params, ttl_seconds, fetch_fn)
     return resolved
+
+
+async def metered_parallel(
+    db: AsyncSession | None,
+    user: User,
+    calls: list[tuple[str, dict, int, engine.FetchFn]],
+    force_live: bool = False,
+    check_quota: bool = True,
+) -> list[engine.Resolved]:
+    """Run INDEPENDENT billed lookups concurrently — the async fix for pages
+    that used to await 2-4 DataForSEO calls back-to-back.
+
+    The request's AsyncSession is not concurrency-safe, so the quota gate runs
+    once up front on it and each lookup then resolves + records on its own
+    session (the same pattern as the SWR background refresh). Results come back
+    in call order."""
+    if check_quota:
+        await assert_within_quota(db, user)
+
+    async def _one(endpoint: str, params: dict, ttl: int, fetch_fn: engine.FetchFn) -> engine.Resolved:
+        async with engine_session() as own:
+            return await metered(
+                own, user, endpoint, params, ttl, fetch_fn,
+                force_live=force_live, check_quota=False,
+            )
+
+    return list(await asyncio.gather(*(_one(*c) for c in calls)))
 
 
 def _spawn_revalidation(

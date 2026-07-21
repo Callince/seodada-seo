@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
 import { Reveal } from "@/components/public/landingKit";
+import { BASE_CURRENCY, formatMoney, useSiteCurrency } from "@/lib/currency";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/store/auth";
 
@@ -12,9 +13,15 @@ const PLANS = [
   { name: "Premium", monthly: 8999, perDay: 100, blurb: "High-volume operators.", popular: false, features: ["Everything in Pro", "100 analyses / day", "AI content factory", "Web stories", "Success manager"] },
 ] as const;
 
-const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
+
 
 export function Pricing() {
+  const { data: fx } = useSiteCurrency();
+  const currency = fx?.code || BASE_CURRENCY;
+  const rates = fx?.rates;
+  /** PLANS are major units here; formatMoney takes minor units. */
+  const show = (rupees: number) => formatMoney(rupees * 100, currency, rates);
+
   const authed = useAuth((s) => !!s.accessToken);
   const [annual, setAnnual] = useState(false);
 
@@ -51,7 +58,7 @@ export function Pricing() {
                   <h3 className="text-lg font-bold">{p.name}</h3>
                   <p className="mt-1 text-sm text-text-muted">{p.blurb}</p>
                   <div className="mt-6 flex items-end gap-1.5">
-                    <span className="text-4xl font-extrabold tracking-tight">{inr(price)}</span>
+                    <span className="text-4xl font-extrabold tracking-tight">{show(price).text}</span>
                     <span className="pb-1 text-sm text-text-muted">/{annual ? "yr" : "mo"}</span>
                   </div>
                   <p className="mt-1 text-xs text-text-muted">{p.perDay} analyses / day</p>
@@ -108,7 +115,12 @@ export function Pricing() {
             </div>
           </Reveal>
         </div>
-        <p className="mt-6 text-center text-xs text-text-muted">Prices in ₹ (India, incl. Razorpay + GST). Cancel any time.</p>
+        <p className="mt-6 text-center text-xs text-text-muted">
+          {/* Converted prices are estimates; the charge is always ₹. */}
+          {show(1).converted
+            ? "Prices converted at today's rate — billed in ₹ (India, incl. Razorpay + GST). Cancel any time."
+            : "Prices in ₹ (India, incl. Razorpay + GST). Cancel any time."}
+        </p>
       </div>
     </section>
   );

@@ -37,14 +37,46 @@ export interface CurrenciesResponse {
   available: boolean;
 }
 
+/** The site's active currency, resolved server-side from the admin setting. */
+export interface SiteCurrency {
+  code: string;
+  base: string;
+  rates: Record<string, number | null>;
+  /** false when `code` IS the billing currency, or when conversion failed and
+   *  the server fell back — either way the UI must not call it an estimate. */
+  converted: boolean;
+  available: boolean;
+  date?: string;
+  stale?: boolean;
+}
+
 export const BASE_CURRENCY = "INR";
 
-/** Rates change daily; the server caches for 6h, so refetching per mount would
- *  only add latency. */
+/**
+ * The currency every price on the site renders in.
+ *
+ * PUBLIC endpoint, deliberately: /pricing and the landing page are the
+ * surfaces most visitors see, and an authed-only source would have left them
+ * on the base currency while the rest of the app followed the admin's choice —
+ * the same product priced two ways depending on whether you were logged in.
+ *
+ * Rates change daily and the server caches for 6h, so a long staleTime here
+ * costs nothing and keeps a third party out of the path of every render.
+ */
+export function useSiteCurrency() {
+  return useQuery<SiteCurrency>({
+    queryKey: ["site-currency"],
+    queryFn: async () => (await api.get("/public/currency")).data,
+    staleTime: 60 * 60 * 1000,
+    retry: 1,
+  });
+}
+
+/** Every currency an admin may pick, with live rates — for the admin picker. */
 export function useCurrencies() {
   return useQuery<CurrenciesResponse>({
     queryKey: ["currencies"],
-    queryFn: async () => (await api.get("/settings/currencies")).data,
+    queryFn: async () => (await api.get("/public/currencies")).data,
     staleTime: 60 * 60 * 1000,
     retry: 1,
   });

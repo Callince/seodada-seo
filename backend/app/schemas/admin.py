@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, field_validator, ConfigDict, EmailStr, Field
 
 from app.schemas.auth import StrongPassword
+
+from app.services import fx
 
 
 class AdminUserOut(BaseModel):
@@ -16,6 +18,8 @@ class AdminUserOut(BaseModel):
     org_name: str
     is_active: bool
     is_admin: bool
+    # Admin-granted quota exemption (unlimited daily analyses).
+    unlimited_usage: bool = False
     created_at: datetime
     # Spend aggregated from the usage log (billed calls only; cached reads cost 0).
     month_cents: int
@@ -48,11 +52,25 @@ class AdminUserUpdate(BaseModel):
     # Setting a password resets the user's credentials.
     password: StrongPassword | None = None
     is_active: bool | None = None
+    # Grant/revoke unlimited usage (quota exemption).
+    unlimited_usage: bool | None = None
     # Move the user to another organization (created if it doesn't exist).
     org_name: str | None = None
 
 
 # ------------------------------------------------------------------ dashboard
+
+class DfsAccountOut(BaseModel):
+    """Live DataForSEO account balance. `error` set (and the rest defaulted)
+    when the upstream lookup fails — the dashboard renders a notice, not a crash."""
+
+    login: str | None = None
+    balance_cents: int = 0
+    spent_total_cents: int = 0
+    limit_minute: int | None = None
+    from_cache: bool = False
+    error: str | None = None
+
 
 class AdminStats(BaseModel):
     total_users: int
@@ -164,6 +182,7 @@ class AdminPaymentOut(BaseModel):
 # ---------------------------------------------------------------- site config
 
 class WebsiteSettingsOut(BaseModel):
+    display_currency: str = ""
     company_name: str
     support_email: str
     tagline: str
@@ -176,6 +195,7 @@ class WebsiteSettingsOut(BaseModel):
 
 
 class WebsiteSettingsUpdate(BaseModel):
+    display_currency: str | None = None
     company_name: str | None = None
     support_email: str | None = None
     tagline: str | None = None
@@ -185,6 +205,23 @@ class WebsiteSettingsUpdate(BaseModel):
     linkedin_url: str | None = None
     instagram_url: str | None = None
     youtube_url: str | None = None
+
+    @field_validator("display_currency")
+    @classmethod
+    def _known_currency(cls, v: str | None) -> str | None:
+        """Reject unknown codes rather than storing them.
+
+        The admin endpoint applies updates with a generic setattr loop, so
+        without this an unsupported code would be saved, the UI would report
+        success, and every price on the site would silently fall back to INR —
+        a setting that appears to have taken effect and hasn't.
+        """
+        if v is None or v == "":
+            return v
+        code = v.upper()
+        if not fx.is_supported(code):
+            raise ValueError(f"Unsupported currency '{v}'.")
+        return code
 
 
 # --------------------------------------------------------------- content mod
@@ -205,6 +242,7 @@ class AdminWebStoryOut(BaseModel):
     id: str
     title: str
     slug: str
+    category_id: str | None = None
     status: str
     published_at: datetime | None = None
 
@@ -221,6 +259,7 @@ class AdminWebStoryDetail(BaseModel):
     id: str
     title: str
     slug: str
+    category_id: str | None = None
     meta_description: str
     cover_image_url: str
     slides: list[WebStorySlide] = []
@@ -231,6 +270,7 @@ class AdminWebStoryDetail(BaseModel):
 class WebStoryCreate(BaseModel):
     title: str = Field(min_length=1, max_length=500)
     slug: str = Field(default="", max_length=255)
+    category_id: str | None = None
     meta_description: str = ""
     cover_image_url: str = ""
     slides: list[WebStorySlide] = []
@@ -240,6 +280,7 @@ class WebStoryCreate(BaseModel):
 class WebStoryUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=1, max_length=500)
     slug: str | None = Field(default=None, max_length=255)
+    category_id: str | None = None
     meta_description: str | None = None
     cover_image_url: str | None = None
     slides: list[WebStorySlide] | None = None
@@ -276,7 +317,7 @@ class UserPaymentRow(BaseModel):
 
 class UserUsageRow(BaseModel):
     endpoint: str
-    cost_cents: int
+    cost_cents: float
     from_cache: bool
     created_at: datetime
 
@@ -329,6 +370,25 @@ class BlogCategoryCreate(BaseModel):
 
 
 class BlogCategoryUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=255)
+    sort_order: int | None = None
+
+
+# ------------------------------------------------------ web story categories
+
+class WebStoryCategoryOut(BaseModel):
+    id: str
+    name: str
+    slug: str
+    sort_order: int
+
+
+class WebStoryCategoryCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=255)
+    sort_order: int = 0
+
+
+class WebStoryCategoryUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
     sort_order: int | None = None
 
@@ -493,7 +553,7 @@ class UsageHistoryRow(BaseModel):
     user_email: str
     org_name: str
     endpoint: str
-    cost_cents: int
+    cost_cents: float
     from_cache: bool
     created_at: datetime
 
@@ -503,5 +563,5 @@ class UsageHistoryResponse(BaseModel):
     total: int
     billed_count: int
     cached_count: int
-    total_cost_cents: int
+    total_cost_cents: float
     tools: list[str]

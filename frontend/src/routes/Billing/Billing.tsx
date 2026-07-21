@@ -15,8 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
-import { useUserSettings } from "@/api/hooks/useSettings";
-import { BASE_CURRENCY, formatBase, formatMoney, useCurrencies } from "@/lib/currency";
+import { BASE_CURRENCY, formatBase, formatMoney, useSiteCurrency } from "@/lib/currency";
 
 const fmtDate = (iso: string | null) =>
   iso ? new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—";
@@ -91,9 +90,9 @@ export default function Billing() {
   const { data: sub } = useSubscription();
   const { data: payments } = usePayments();
   const subscribe = useSubscribe();
-  const { data: settings } = useUserSettings();
-  const { data: fx } = useCurrencies();
-  const currency = settings?.display_currency || BASE_CURRENCY;
+  // Site-wide, set by an admin — not a per-user preference any more.
+  const { data: fx } = useSiteCurrency();
+  const currency = fx?.code || BASE_CURRENCY;
   const rates = fx?.rates;
 
   const onSubscribe = (slug: string) =>

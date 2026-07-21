@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy import and_, delete, or_, select
+from sqlalchemy import and_, delete, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import current_user, get_db_session
@@ -60,30 +60,54 @@ class _RunStats:
 
 async def _run_stats(db: AsyncSession, project_ids: list[str]) -> dict[str, _RunStats]:
     """Derive run_count, latest target, last_run_at and a weekly activity series
-    per project from its saved runs — one query, no extra storage.
-    ponytail: loads all runs for the page's projects; aggregate in SQL if orgs
-    ever save thousands of runs per project."""
+    per project — bounded work regardless of how many runs a project has:
+    SQL aggregates for count/last-run, a windowed pick of the newest run's
+    params, and only the last 8 weeks of rows for the series."""
     if not project_ids:
         return {}
-    rows = await db.execute(
-        select(ProjectRun.project_id, ProjectRun.params, ProjectRun.created_at)
-        .where(ProjectRun.project_id.in_(project_ids))
-        .order_by(ProjectRun.created_at.desc())
-    )
-    now = engine._now()
     out: dict[str, _RunStats] = {}
-    for pid, params, created_at in rows.all():
+
+    agg = await db.execute(
+        select(ProjectRun.project_id, func.count(ProjectRun.id), func.max(ProjectRun.created_at))
+        .where(ProjectRun.project_id.in_(project_ids))
+        .group_by(ProjectRun.project_id)
+    )
+    for pid, count, last in agg.all():
         s = out.setdefault(pid, _RunStats())
-        s.count += 1
-        if s.last_run_at is None:  # rows are newest-first
-            s.last_run_at = created_at
-        if s.target is None and isinstance(params, dict):
-            s.target = params.get("target") or params.get("keyword") or params.get("url")
+        s.count = int(count)
+        s.last_run_at = last
+
+    # The newest run's params per project — for the display target.
+    rn = (
+        func.row_number()
+        .over(partition_by=ProjectRun.project_id, order_by=ProjectRun.created_at.desc())
+        .label("rn")
+    )
+    newest = (
+        select(ProjectRun.project_id, ProjectRun.params, rn)
+        .where(ProjectRun.project_id.in_(project_ids))
+        .subquery()
+    )
+    rows = await db.execute(select(newest.c.project_id, newest.c.params).where(newest.c.rn == 1))
+    for pid, params in rows.all():
+        if isinstance(params, dict):
+            out.setdefault(pid, _RunStats()).target = (
+                params.get("target") or params.get("keyword") or params.get("url")
+            )
+
+    now = engine._now()
+    recent = await db.execute(
+        select(ProjectRun.project_id, ProjectRun.created_at).where(
+            ProjectRun.project_id.in_(project_ids),
+            ProjectRun.created_at >= now - timedelta(weeks=_SERIES_WEEKS),
+        )
+    )
+    for pid, created_at in recent.all():
         if created_at.tzinfo is None:  # SQLite returns naive datetimes
             created_at = created_at.replace(tzinfo=now.tzinfo)
         weeks_ago = int((now - created_at).days // 7)
         if 0 <= weeks_ago < _SERIES_WEEKS:
-            s.series[_SERIES_WEEKS - 1 - weeks_ago] += 1
+            out.setdefault(pid, _RunStats()).series[_SERIES_WEEKS - 1 - weeks_ago] += 1
     return out
 
 

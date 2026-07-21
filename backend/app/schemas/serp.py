@@ -15,6 +15,10 @@ class SerpRankingRequest(BaseModel):
     device: Literal["desktop", "mobile"] = "desktop"
     # True bypasses every cache read and fetches fresh (billed) data upstream.
     force_live: bool = False
+    # Brand *volume* is a second billed lookup that typically costs several times
+    # the SERP itself (it bills per brand on the page), so it is opt-in. Brand
+    # *names* are always derived locally and free.
+    with_brand_volume: bool = False
 
 
 class SerpResult(BaseModel):

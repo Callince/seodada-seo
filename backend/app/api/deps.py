@@ -34,6 +34,7 @@ _PATH_PERMISSIONS: list[tuple[str, str]] = [
     ("/admin/blog-categories", "content_management"),
     ("/admin/blogs", "content_management"),
     ("/admin/webstories", "content_management"),
+    ("/admin/webstory-categories", "content_management"),
     ("/admin/subscriptions", "subscription_management"),
     ("/admin/plans", "subscription_management"),
     ("/admin/payments", "payments"),
@@ -43,6 +44,7 @@ _PATH_PERMISSIONS: list[tuple[str, str]] = [
     ("/admin/usage-history", "search_history"),
     ("/admin/settings", "website_settings"),
     ("/admin/stats", "dashboard"),
+    ("/admin/dfs-account", "dashboard"),
 ]
 
 

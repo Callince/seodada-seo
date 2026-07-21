@@ -21,6 +21,7 @@ class CacheBackend:
     async def get(self, key: str) -> Any | None: ...
     async def set(self, key: str, value: Any, ttl_seconds: int) -> None: ...
     async def incr(self, key: str, ttl_seconds: int) -> int: ...  # type: ignore[empty-body]
+    async def get_count(self, key: str) -> int: ...  # type: ignore[empty-body]
     @asynccontextmanager
     async def lock(self, key: str, timeout: int = 60): ...  # type: ignore[empty-body]
     async def close(self) -> None: ...
@@ -56,6 +57,12 @@ class MemoryBackend(CacheBackend):
         self._counters[key] = (expires_at, n)  # keep the original window expiry
         return n
 
+    async def get_count(self, key: str) -> int:
+        item = self._counters.get(key)
+        if item is None or item[0] < time.time():
+            return 0
+        return item[1]
+
     @asynccontextmanager
     async def lock(self, key: str, timeout: int = 60):
         lk = self._locks.setdefault(key, asyncio.Lock())
@@ -85,6 +92,10 @@ class RedisBackend(CacheBackend):
         if n == 1:  # first hit in the window — set the expiry
             await self._redis.expire(key, ttl_seconds)
         return int(n)
+
+    async def get_count(self, key: str) -> int:
+        raw = await self._redis.get(key)
+        return int(raw) if raw else 0
 
     @asynccontextmanager
     async def lock(self, key: str, timeout: int = 60):

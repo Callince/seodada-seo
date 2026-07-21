@@ -64,11 +64,6 @@ class User(Base):
     # Admin-granted unlimited usage — exempt from the daily analysis quota
     # (like a comped subscription). Only matters while QUOTA_ENABLED=true.
     unlimited_usage: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
-    # DISPLAY currency only (ISO 4217), "" = not chosen. Billing is unaffected:
-    # Razorpay charges INR and every stored amount stays in INR minor units, so
-    # this converts figures for reading and never for charging. Anywhere money
-    # is actually committed must still show the INR amount.
-    display_currency: Mapped[str] = mapped_column(String(3), default="", server_default="")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
     org: Mapped[Organization] = relationship(back_populates="users")
@@ -273,6 +268,13 @@ class WebsiteSettings(Base):
     linkedin_url: Mapped[str] = mapped_column(String(500), default="")
     instagram_url: Mapped[str] = mapped_column(String(500), default="")
     youtube_url: Mapped[str] = mapped_column(String(500), default="")
+    # Site-wide DISPLAY currency (ISO 4217), "" = show prices in the billing
+    # currency. Billing is unaffected: Razorpay charges INR and every stored
+    # amount stays in INR minor units, so this converts figures for reading and
+    # never for charging. Because it now applies to every visitor rather than
+    # someone who opted in, anywhere money is committed must state the INR
+    # amount even more plainly than before.
+    display_currency: Mapped[str] = mapped_column(String(3), default="", server_default="")
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
 
 
