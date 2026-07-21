@@ -86,9 +86,12 @@ export function Roles() {
                     </li>
                   ))}
                 </ul>
+                {/* -my-2/py-2 pads the hit area to ~36px without moving the
+                    visual line: a bare text link measured 20px tall, under the
+                    24px WCAG 2.2 minimum target size. */}
                 <Link
                   to="/register"
-                  className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-ink transition-colors hover:text-text"
+                  className="-my-2 mt-3 inline-flex items-center gap-1.5 py-2 text-sm font-semibold text-primary-ink transition-colors hover:text-text"
                 >
                   Start free <ArrowRight size={14} aria-hidden />
                 </Link>

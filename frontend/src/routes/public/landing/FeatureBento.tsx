@@ -79,7 +79,18 @@ export function FeatureBento() {
                 <div style={sectionVars(moduleForSection(g.section))}>
                   <div className="flex items-center gap-3">
                     {step && (
-                      <span className="section-gradient grid h-7 w-7 shrink-0 place-items-center rounded-lg text-xs font-bold text-white shadow-glow">
+                      // Solid -ink fill, not .section-gradient: white 12px text
+                      // on the gradient measured 3.4–3.9:1 against the 4.5:1
+                      // small-text bar. The text is --surface, NOT white: -ink
+                      // flips to a BRIGHT variant in dark mode (it's the
+                      // text-safe family), so hardcoded white regressed to
+                      // 2.19:1 there. --surface inverts in step with it —
+                      // white-on-dark-ink in light, near-black-on-bright-ink in
+                      // dark. Measured ≥6.7:1 in both themes, all five modules.
+                      <span
+                        className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-xs font-bold shadow-glow"
+                        style={{ background: "var(--section-ink)", color: "var(--surface)" }}
+                      >
                         {step[1]}
                       </span>
                     )}
