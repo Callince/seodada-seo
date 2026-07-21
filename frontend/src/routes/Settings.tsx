@@ -10,7 +10,7 @@ import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/cn";
-import { BASE_CURRENCY, formatBase, formatMoney, useCurrencies } from "@/lib/currency";
+import { BASE_CURRENCY, currencySymbol, formatBase, formatMoney, useCurrencies } from "@/lib/currency";
 
 /** A recognisable amount to preview a conversion against — the Pro plan. */
 const SAMPLE_INR_MINOR = 499900;
@@ -119,7 +119,7 @@ export default function Settings() {
                 <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {options.map((c) => {
                     const active = c.code === selected;
-                    const preview = formatMoney(SAMPLE_INR_MINOR, c.code, rates, options);
+                    const preview = formatMoney(SAMPLE_INR_MINOR, c.code, rates);
                     const usable = c.code === BASE_CURRENCY || preview.converted;
                     return (
                       <button
@@ -135,12 +135,21 @@ export default function Settings() {
                           !usable && "cursor-not-allowed opacity-50",
                         )}
                       >
-                        <span className="min-w-0">
-                          <span className="flex items-center gap-1.5 text-sm font-semibold text-text">
-                            {c.code}
-                            {active && <Check size={14} className="text-[color:var(--section-ink)]" />}
+                        <span className="flex min-w-0 items-center gap-2.5">
+                          {/* The symbol, at a glance — it is what someone
+                              actually recognises in a price, more than the ISO
+                              code. Derived from Intl so it always matches the
+                              amount rendered beside it. */}
+                          <span className="grid h-8 w-9 shrink-0 place-items-center rounded-md bg-surface-2 text-sm font-semibold text-text">
+                            {currencySymbol(c.code)}
                           </span>
-                          <span className="block truncate text-xs text-text-muted">{c.label}</span>
+                          <span className="min-w-0">
+                            <span className="flex items-center gap-1.5 text-sm font-semibold text-text">
+                              {c.code}
+                              {active && <Check size={14} className="text-[color:var(--section-ink)]" />}
+                            </span>
+                            <span className="block truncate text-xs text-text-muted">{c.label}</span>
+                          </span>
                         </span>
                         <span className="shrink-0 text-right">
                           <span className="block font-mono text-sm font-semibold text-text">{preview.text}</span>

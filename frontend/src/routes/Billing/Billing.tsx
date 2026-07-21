@@ -18,7 +18,6 @@ import { cn } from "@/lib/cn";
 import { useUserSettings } from "@/api/hooks/useSettings";
 import { BASE_CURRENCY, formatBase, formatMoney, useCurrencies } from "@/lib/currency";
 
-const inr = (cents: number) => "₹" + (cents / 100).toLocaleString("en-IN");
 const fmtDate = (iso: string | null) =>
   iso ? new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—";
 
@@ -29,7 +28,6 @@ function PlanCard({
   busy,
   currency,
   rates,
-  options,
 }: {
   plan: Plan;
   current: boolean;
@@ -37,10 +35,9 @@ function PlanCard({
   busy: boolean;
   currency: string;
   rates: Record<string, number | null> | undefined;
-  options: { code: string; symbol: string; label: string }[];
 }) {
   const popular = plan.tier === 2;
-  const price = formatMoney(plan.price_cents, currency, rates, options);
+  const price = formatMoney(plan.price_cents, currency, rates);
   return (
     <div
       className={cn(
@@ -98,7 +95,6 @@ export default function Billing() {
   const { data: fx } = useCurrencies();
   const currency = settings?.display_currency || BASE_CURRENCY;
   const rates = fx?.rates;
-  const options = fx?.currencies ?? [];
 
   const onSubscribe = (slug: string) =>
     subscribe.mutate(slug, {
@@ -143,7 +139,6 @@ export default function Billing() {
             busy={subscribe.isPending}
             currency={currency}
             rates={rates}
-            options={options}
           />
         ))}
       </div>
@@ -178,8 +173,8 @@ export default function Billing() {
                     <tr key={p.id} className="border-b border-border/60">
                       <td className="py-2.5 pr-4 font-mono text-xs">{p.invoice_number || "—"}</td>
                       <td className="py-2.5 pr-4 text-text-muted">{fmtDate(p.created_at)}</td>
-                      <td className="py-2.5 pr-4 font-medium">{inr(p.amount_cents)}</td>
-                      <td className="py-2.5 pr-4 text-text-muted">{inr(p.tax_cents)}</td>
+                      <td className="py-2.5 pr-4 font-medium">{formatBase(p.amount_cents)}</td>
+                      <td className="py-2.5 pr-4 text-text-muted">{formatBase(p.tax_cents)}</td>
                       <td className="py-2.5 pr-4">
                         <Badge tone={p.status === "paid" ? "success" : p.status === "failed" ? "danger" : "neutral"}>
                           {p.status}
