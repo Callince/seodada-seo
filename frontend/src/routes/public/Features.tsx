@@ -8,7 +8,15 @@ import { Seo } from "@/lib/seo";
 
 /** Public features page — presents the full unified suite: the "data for seo"
  *  search-intelligence tools and the seodada on-page + AI content tools, as one
- *  product. Rendered from the shared FEATURE_GROUPS catalog. */
+ *  product. Rendered from the shared FEATURE_GROUPS catalog.
+ *
+ *  The "tools" group is excluded ON PURPOSE: /free-tools is that group's own
+ *  page, and rendering it here too made Features and Tools near-duplicates —
+ *  same cards, same copy, same order, so the two nav links read as the same
+ *  page twice. Features sells the platform; Tools is the free acquisition
+ *  surface; the band below cross-links instead of repeating. */
+const PLATFORM_GROUPS = FEATURE_GROUPS.filter((g) => g.key !== "tools");
+
 export default function Features() {
   return (
     <div>
@@ -44,7 +52,7 @@ export default function Features() {
 
       {/* ===== Feature groups ===== */}
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        {FEATURE_GROUPS.map((group, gi) => (
+        {PLATFORM_GROUPS.map((group, gi) => (
           <section key={group.key} className={gi > 0 ? "mt-20" : ""}>
             <div className="max-w-2xl">
               <div className="flex items-center gap-3">
@@ -78,6 +86,27 @@ export default function Features() {
           </section>
         ))}
       </div>
+
+      {/* ===== Free tools cross-link — replaces rendering that group here ===== */}
+      <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+        <Link
+          to="/free-tools"
+          className="group flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border bg-[var(--lp-tint)] p-6 transition-colors hover:border-primary/40 sm:p-8"
+        >
+          <div>
+            <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
+              Just want a quick check?
+            </h2>
+            <p className="mt-1.5 text-text-muted">
+              Six free instant tools — paste a URL, get the breakdown. No account needed.
+            </p>
+          </div>
+          <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary-ink">
+            Open the free tools
+            <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
+          </span>
+        </Link>
+      </section>
 
       {/* ===== CTA ===== */}
       <section className="border-t border-border">
