@@ -20,13 +20,11 @@ async def listings(
     user: User = Depends(current_user),
 ) -> ListingsResponse:
     what = body.what.strip().lower()
-    # Round coordinates so nearby searches share a cache entry.
-    lat, lng = round(body.lat, 3), round(body.lng, 3)
     resolved = await usage.metered(
         db, user, "local.listings",
-        {"what": what, "lat": lat, "lng": lng, "r": body.radius_km, "limit": body.limit},
+        {"what": what, "location_code": body.location_code, "limit": body.limit},
         engine.TTL["local"],
-        lambda: local_api.listings(what, lat, lng, body.radius_km, body.limit),
+        lambda: local_api.listings(what, body.location_code, body.limit),
         force_live=body.force_live,
     )
     return ListingsResponse(

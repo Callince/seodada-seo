@@ -4,6 +4,7 @@ import { AiVisibility } from "./landing/AiVisibility";
 import { Faq, FAQS } from "./landing/Faq";
 import { FeatureBento } from "./landing/FeatureBento";
 import { FinalCta } from "./landing/FinalCta";
+import { FreeToolsStrip } from "./landing/FreeToolsStrip";
 import { Hero } from "./landing/Hero";
 import { Pricing } from "./landing/Pricing";
 import { ProductRail } from "./landing/ProductRail";
@@ -87,6 +88,12 @@ export default function Landing() {
 
       {/* ============= PRODUCT MODULES (pinned horizontal scroll on desktop) ============= */}
       <ProductRail />
+
+      {/* ==================== FREE TOOLS ==================== */}
+      {/* Directly after the product rail: the visitor has just seen what the
+          platform does, and these are the parts they can use without signing
+          up. Further down the page is below the fold for most. */}
+      <FreeToolsStrip />
 
       {/* ==================== FEATURE BENTO ==================== */}
       <FeatureBento />

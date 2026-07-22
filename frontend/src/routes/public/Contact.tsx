@@ -67,8 +67,8 @@ export default function Contact() {
       {/* ===== Hero ===== */}
       <PublicHero
         eyebrow="Contact"
-        title="We're here to"
-        highlight="help"
+        title="Talk to a person."
+        highlight="Within 24 hours."
         subtitle="Questions about our SEO tools? Need support? Send us a message and our team typically responds within 24 hours on business days."
         compact
       />

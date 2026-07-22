@@ -6,59 +6,10 @@ import httpx
 import pytest
 import respx
 
-from app.core.config import settings
 from app.integrations.dataforseo import keywords as kw
-from app.integrations.dataforseo import serp as serp_api
-from app.integrations.free import brave, local_onpage
+from app.integrations.free import local_onpage
 from app.integrations.free import trends as free_trends
 from app.services import density, sentiment
-
-
-@respx.mock
-@pytest.mark.asyncio
-async def test_brave_maps_to_serp_shape(monkeypatch):
-    monkeypatch.setattr(settings, "brave_api_key", "test-key")
-    respx.get("https://api.search.brave.com/res/v1/web/search").mock(
-        return_value=httpx.Response(
-            200,
-            json={
-                "web": {
-                    "results": [
-                        {
-                            "title": "Nike Official",
-                            "url": "https://www.nike.com/",
-                            "description": "Shoes",
-                            "meta_url": {"hostname": "www.nike.com"},
-                        },
-                        {
-                            "title": "Adidas",
-                            "url": "https://www.adidas.com/",
-                            "description": "Sportswear",
-                            "meta_url": {"hostname": "www.adidas.com"},
-                        },
-                    ]
-                }
-            },
-        )
-    )
-
-    result = await brave.organic("running shoes", 2840, "en", 10)
-    assert result.cost_cents == 0  # free provider is always $0
-
-    rows = serp_api.parse_organic(result.result)  # existing DFS parser consumes it
-    assert len(rows) == 2
-    assert rows[0]["position"] == 1
-    assert rows[0]["domain"] == "www.nike.com"
-    # No People-Also-Ask on the free web endpoint.
-    assert serp_api.parse_paa(result.result) == []
-
-
-@respx.mock
-@pytest.mark.asyncio
-async def test_brave_requires_key(monkeypatch):
-    monkeypatch.setattr(settings, "brave_api_key", "")
-    with pytest.raises(brave.BraveError):
-        await brave.organic("x", 2840, "en", 10)
 
 
 @pytest.mark.asyncio

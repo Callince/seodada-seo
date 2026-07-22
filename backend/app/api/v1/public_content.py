@@ -31,6 +31,10 @@ class PublicAnalyzeRequest(BaseModel):
 # Cached longer than the authed analyzer: the landing page is the highest-traffic
 # surface, and everyone pasting the same popular domain should hit the cache.
 _DEMO_TTL = 1800  # 30 minutes
+# Per-list cap on the anonymous tool detail. A real page can carry thousands of
+# links or images; this keeps an unauthenticated response to a few KB while
+# still showing enough to be a useful free tool.
+_DETAIL_CAP = 50
 
 
 @router.post("/analyze", dependencies=[Depends(enforce_public_demo_rate_limit)])
@@ -77,6 +81,70 @@ async def public_analyze(body: PublicAnalyzeRequest) -> dict:
          "detail": f"{images.get('missing_alt') or 0} of {images.get('total') or 0} missing"},
     ]
     passed = sum(1 for c in checks if c["ok"])
+
+    # Per-tool detail for the public /free-tools page. Capped hard: this is an
+    # unauthenticated endpoint, and an uncapped page could return thousands of
+    # links or images. The caps are generous enough to be genuinely useful and
+    # small enough that the response stays a handful of KB.
+    kw = full.get("keywords") or {}
+    detail = {
+        "url": {
+            "final_url": u.get("final_url"),
+            "status_code": u.get("status_code"),
+            "redirected": u.get("redirected"),
+            "https": u.get("https"),
+            "path_depth": u.get("path_depth"),
+            "slug": u.get("slug"),
+            "canonical": u.get("canonical"),
+            "robots_meta": u.get("robots_meta"),
+            "checks": (u.get("checks") or [])[:20],
+        },
+        "meta": {
+            "title": meta.get("title"),
+            "title_length": meta.get("title_length"),
+            "title_check": meta.get("title_check"),
+            "description": meta.get("description"),
+            "description_length": meta.get("description_length"),
+            "description_check": meta.get("description_check"),
+            "canonical": meta.get("canonical"),
+            "robots": meta.get("robots"),
+            "viewport": meta.get("viewport"),
+            "language": meta.get("language"),
+            "open_graph": meta.get("open_graph") or {},
+            "twitter": meta.get("twitter") or {},
+            "schema_types": (meta.get("schema_types") or [])[:20],
+        },
+        "headings": {
+            "counts": counts,
+            "h1_text": headings.get("h1_text"),
+            "issues": (headings.get("issues") or [])[:20],
+            "items": (headings.get("items") or [])[:_DETAIL_CAP],
+            "truncated": len(headings.get("items") or []) > _DETAIL_CAP,
+        },
+        "keywords": {
+            "word_count": kw.get("word_count"),
+            "unique_words": kw.get("unique_words"),
+            "reading_time_min": kw.get("reading_time_min"),
+            "top_keywords": (kw.get("top_keywords") or [])[:25],
+            "top_phrases": (kw.get("top_phrases") or [])[:15],
+        },
+        "images": {
+            "total": images.get("total"),
+            "missing_alt": images.get("missing_alt"),
+            "with_alt": images.get("with_alt"),
+            "lazy_count": images.get("lazy_count"),
+            "items": (images.get("items") or [])[:_DETAIL_CAP],
+            "truncated": len(images.get("items") or []) > _DETAIL_CAP,
+        },
+        "links": {
+            "internal_count": links.get("internal_count"),
+            "external_count": links.get("external_count"),
+            "nofollow_count": links.get("nofollow_count"),
+            "total": links.get("total"),
+            "samples": (links.get("samples") or [])[:_DETAIL_CAP],
+        },
+    }
+
     result = {
         "url": u.get("final_url") or url,
         "status_code": u.get("status_code"),
@@ -91,6 +159,7 @@ async def public_analyze(body: PublicAnalyzeRequest) -> dict:
             "internal_links": links.get("internal_count"),
             "external_links": links.get("external_count"),
         },
+        "detail": detail,
         "cached": False,
     }
     await cache_backend.set(key, result, _DEMO_TTL)
@@ -203,15 +272,18 @@ async def get_webstory(slug: str, db: AsyncSession = Depends(get_db_session)):
 _STATIC_ROUTES: list[tuple[str, str, str]] = [
     # (path, changefreq, priority)
     ("/", "weekly", "1.0"),
-    ("/features", "monthly", "0.9"),
+    ("/features", "weekly", "1.0"),
+    # /free-tools is public and needs no account — the tools run off one
+    # in-process page fetch via /public/analyze.
+    #
+    # The in-app tool screens (/tools/url, /tools/keyword, …) stay absent: those
+    # sit inside RequireAuth and redirect anonymous visitors to /login. Listing
+    # auth-gated URLs earns "Submitted URL requires authentication" in Search
+    # Console and spends crawl budget on redirects.
+    ("/free-tools", "weekly", "1.0"),
+    ("/blog-title-generator", "monthly", "0.8"),
+    ("/content-checker", "monthly", "0.8"),
     ("/pricing", "monthly", "0.9"),
-    # /free-tools is the public landing page for the tools. The tools THEMSELVES
-    # (/tools/url, /tools/keyword, …) are deliberately absent: they sit inside
-    # the RequireAuth branch of the router and redirect anonymous visitors to
-    # /login. Verified by requesting one signed out. Listing auth-gated URLs in
-    # a sitemap earns "Submitted URL requires authentication" in Search Console
-    # and spends crawl budget on redirects.
-    ("/free-tools", "weekly", "0.9"),
     ("/blog", "daily", "0.8"),
     ("/guides/technical-seo", "monthly", "0.8"),
     ("/glossary", "monthly", "0.7"),

@@ -1,4 +1,5 @@
 import { Check, Sparkles } from "lucide-react";
+import { DisplayHeading } from "@/components/public/display";
 import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 
@@ -30,9 +31,9 @@ export function Pricing() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal className="mx-auto max-w-2xl text-center">
           <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-ink">Pricing</span>
-          <h2 className="mt-3 text-balance text-[2rem] font-extrabold tracking-tight sm:text-5xl">
+          <DisplayHeading className="mt-3">
             Simple, <span className="gradient-text">transparent pricing</span>
-          </h2>
+          </DisplayHeading>
           <p className="mt-4 text-lg text-text-muted">Every plan unlocks the full suite. Scale by daily analyses.</p>
           <div className="mt-8 inline-flex items-center gap-1 rounded-full border border-border bg-surface p-1 text-sm font-semibold">
             <button onClick={() => setAnnual(false)} className={`rounded-full px-4 py-1.5 transition ${!annual ? "gradient-fill text-white shadow" : "text-text-muted"}`}>Monthly</button>

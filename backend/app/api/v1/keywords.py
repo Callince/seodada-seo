@@ -91,7 +91,7 @@ async def trends(
             endpoint intermittently. Without a fallback a 429 would surface as
             an empty chart — indistinguishable from a keyword with genuinely no
             interest, which is the one failure mode a trends view must not
-            have. Same shape as the Brave/DataForSEO SERP fallback: prefer the
+            have. Same shape as the free-then-paid trends fallback: prefer the
             free source, never let it silently degrade the answer.
             """
             try:

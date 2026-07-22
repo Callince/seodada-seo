@@ -46,8 +46,10 @@ const DIST = resolve(__dirname, "../dist");
 const ROUTES = [
   "/",
   "/features",
-  "/pricing",
   "/free-tools",
+  "/blog-title-generator",
+  "/content-checker",
+  "/pricing",
   "/guides/technical-seo",
   "/glossary",
   "/contact",

@@ -7,9 +7,11 @@ from app.schemas.common import Meta
 
 class ListingsRequest(BaseModel):
     what: str = Field(min_length=2, max_length=200, description="Business type / name")
-    lat: float = Field(ge=-90, le=90)
-    lng: float = Field(ge=-180, le=180)
-    radius_km: int = Field(default=10, ge=1, le=100)
+    # DataForSEO geo-target (see the `locations` table). Replaced a lat/lng +
+    # radius circle: the endpoint accepts all three forms at the same cost
+    # (verified live), and a named place is both easier to pick and scoped the
+    # way Google actually reports local results.
+    location_code: int = Field(default=2840, description="DataForSEO location_code")
     limit: int = Field(default=20, ge=1, le=100)
     force_live: bool = False
 

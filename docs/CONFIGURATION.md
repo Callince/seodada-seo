@@ -17,12 +17,28 @@ credentials.** Each variable name is the settings field name uppercased.
 
 | Variable | Values | Default |
 |---|---|---|
-| `SERP_PROVIDER` | `dataforseo` \| `brave` | `dataforseo` |
 | `ONPAGE_PROVIDER` | `dataforseo` \| `local` (in-process fetch+parse, $0) | `dataforseo` |
 | `TRENDS_PROVIDER` | `dataforseo` \| `google` (public Trends API, $0) | `dataforseo` |
 | `CONTENT_PROVIDER` | `dataforseo` \| `local` (VADER sentiment, $0) | `dataforseo` |
-| `BRAVE_API_KEY` | — | Free key from brave.com/search/api; required for `SERP_PROVIDER=brave` |
 | `OPENPAGERANK_API_KEY` | — | Free key from domcop.com/openpagerank; maps 0–10 → 0–100 domain authority at $0 |
+
+## Locations (country/city picker)
+
+The `locations` table backs the searchable country/city dropdown on every
+research page. It is seeded from DataForSEO's own geo-target list — the
+`location_code` is what the research endpoints take, so no other source works
+without a lossy name-join.
+
+```bash
+alembic upgrade head                    # creates the table (empty)
+python -m scripts.seed_locations        # 213 countries + cities in MARKETS
+python -m scripts.seed_locations --all  # ...or cities for every country
+```
+
+The seed is a **free** metadata call (`/v3/serp/google/locations`, `cost: 0`)
+and is idempotent — re-run it any time to pick up upstream additions. No env
+variable configures it; edit `MARKETS` in the script to change which countries
+get city-level rows.
 
 ## Database & cache
 

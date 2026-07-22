@@ -1,8 +1,8 @@
 import { ArrowLeftRight, Hash, HelpCircle, Search, Sparkles, Target } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { useSerpRanking } from "@/api/hooks/useSerp";
+import { useBulkRank, useSerpRanking, type BulkRankResponse, type BulkRankRow } from "@/api/hooks/useSerp";
 import { apiErrorMessage } from "@/api/client";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
@@ -26,7 +26,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/cn";
 import { fmtInt } from "@/lib/format";
-import type { SerpResponse, SerpResult } from "@/types";
+import type { ComparisonRow, SearchEngine, SerpResponse, SerpResult } from "@/types";
 
 const columns: Column<SerpResult>[] = [
   {
@@ -72,6 +72,105 @@ const columns: Column<SerpResult>[] = [
 ];
 
 const normDomain = (d: string | null | undefined) => (d ?? "").toLowerCase().replace(/^www\./, "");
+
+/** Engines offered in the picker, with what each run actually costs.
+ *
+ *  Both are DataForSEO — verified live to take an identical payload and parse
+ *  with the same code, at the same price.
+ *
+ *  Yahoo is supported by the API (0.350¢) but not offered here: 75% dearer than
+ *  Google or Bing for markedly less search share.
+ */
+const ENGINES: { id: SearchEngine; label: string; hint: string }[] = [
+  { id: "google", label: "Google", hint: "0.20¢ per crawl · the only engine with AI Overview and People Also Ask" },
+  { id: "bing", label: "Bing", hint: "0.20¢ per crawl · same price as Google. Organic results only — no PAA" },
+];
+/** Display names for *every* engine the API can return, which is wider than the
+ *  picker offers — a response can be tagged `yahoo` without it appearing above.
+ *  Deriving this from ENGINES would leave such runs labelled "Google". */
+const ENGINE_LABEL: Record<string, string> = {
+  google: "Google",
+  bing: "Bing",
+  yahoo: "Yahoo",
+};
+
+/**
+ * One row per URL, showing where it sits on each engine.
+ *
+ * Built from the backend's `comparison`, which keys on URL rather than domain —
+ * a domain can hold several slots on one SERP and merging them would report a
+ * rank it does not hold. An engine missing from `ranks` means the URL was not
+ * in the top N *that engine returned*, which is why it renders as "—" and not
+ * as a number.
+ */
+function EngineComparison({
+  rows, engines, highlight,
+}: {
+  rows: ComparisonRow[]; engines: SearchEngine[]; highlight: string;
+}) {
+  const hl = normDomain(highlight.trim());
+  const isHit = (d: string) => !!hl && (normDomain(d) === hl || normDomain(d).endsWith("." + hl));
+  const agreed = rows.filter((r) => r.engine_count === engines.length).length;
+
+  const cols: Column<ComparisonRow>[] = [
+    {
+      key: "domain", header: "Result", sortValue: (r) => r.domain,
+      render: (r) => (
+        <div className="min-w-0">
+          <a
+            href={r.url}
+            target="_blank"
+            rel="noreferrer"
+            className={cn(
+              "block truncate font-medium hover:underline",
+              isHit(r.domain) ? "text-[color:var(--section-ink)]" : "text-text",
+            )}
+          >
+            {r.domain}
+          </a>
+          <p className="truncate text-xs text-text-muted">{r.title || r.url}</p>
+        </div>
+      ),
+      csvValue: (r) => r.domain,
+    },
+    ...engines.map<Column<ComparisonRow>>((eng) => ({
+      key: eng,
+      header: ENGINE_LABEL[eng] ?? eng,
+      align: "right",
+      mono: true,
+      // Absent = not ranked at all, so it must sort *below* every real rank
+      // rather than alongside rank 0.
+      sortValue: (r) => r.ranks[eng] ?? 9999,
+      render: (r) =>
+        r.ranks[eng] == null
+          ? <span className="text-text-muted" title={`Not in the top results on ${ENGINE_LABEL[eng] ?? eng}`}>—</span>
+          : <RankBadge position={r.ranks[eng]!} />,
+      csvValue: (r) => r.ranks[eng] ?? null,
+    })),
+    {
+      key: "engine_count", header: "Agreement", align: "right",
+      sortValue: (r) => r.engine_count,
+      render: (r) =>
+        r.engine_count === engines.length
+          ? <Badge tone="success">all {engines.length}</Badge>
+          : <Badge tone="neutral">{r.engine_count} of {engines.length}</Badge>,
+      csvValue: (r) => r.engine_count,
+    },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-3 text-sm">
+        <Badge tone="primary">{rows.length} results across {engines.length} engines</Badge>
+        <Badge tone="success">{agreed} ranked by all {engines.length}</Badge>
+        <span className="text-text-muted">
+          Engines index the web separately — little overlap is normal, not an error.
+        </span>
+      </div>
+      <DataTable columns={cols} rows={rows} csvName="serp-engine-comparison" />
+    </div>
+  );
+}
 
 /** The crawled SERP rendered the way Google presents it. */
 function GoogleView({ results, highlight }: { results: SerpResult[]; highlight: string }) {
@@ -215,6 +314,78 @@ function CompareView({
   );
 }
 
+/**
+ * Bulk rank results: one row per keyword showing *your* position and the URL
+ * that is actually indexed — not the whole SERP.
+ *
+ * Keywords you do not rank for are kept, not hidden. You were billed for that
+ * lookup either way, and "an AI-free page-2 gap a competitor owns" is the row
+ * worth acting on; dropping it would make a missing keyword indistinguishable
+ * from one that was never searched.
+ */
+function BulkRankTable({ data }: { data: BulkRankResponse }) {
+  const engines = data.engines;
+  const cols: Column<BulkRankRow>[] = [
+    {
+      key: "keyword", header: "Keyword",
+      sortValue: (r) => r.keyword,
+      render: (r) => <span className="font-medium text-text">{r.keyword}</span>,
+    },
+    ...engines.map<Column<BulkRankRow>>((eng) => ({
+      key: eng,
+      header: engines.length > 1 ? `${ENGINE_LABEL[eng] ?? eng} rank` : "Your rank",
+      align: "right",
+      mono: true,
+      // Absent must sort *below* every real position, not alongside rank 0.
+      sortValue: (r) => r.ranks[eng] ?? 9999,
+      render: (r) =>
+        r.ranks[eng] == null
+          ? <span className="whitespace-nowrap text-xs text-text-muted">not ranking</span>
+          : <RankBadge position={r.ranks[eng]!} />,
+      csvValue: (r) => r.ranks[eng] ?? null,
+    })),
+    {
+      key: "url", header: "Indexed page",
+      sortValue: (r) => r.urls[engines[0]] ?? "",
+      render: (r) => {
+        // Whichever engine gave the best position is the one whose URL we show
+        // — with several of your pages competing, this is the one that won.
+        const best = engines.reduce<string | null>(
+          (acc, e) => (r.ranks[e] != null && (acc === null || r.ranks[e]! < (r.ranks[acc as SearchEngine] ?? 9999)) ? e : acc),
+          null,
+        ) as SearchEngine | null;
+        const url = best ? r.urls[best] : undefined;
+        if (!url) return <span className="text-text-muted">—</span>;
+        return (
+          <a href={url} target="_blank" rel="noreferrer" className="block max-w-md truncate text-text hover:text-[color:var(--section-ink)] hover:underline" title={url}>
+            {url.replace(/^https?:\/\//, "")}
+          </a>
+        );
+      },
+      csvValue: (r) => {
+        const best = engines.find((e) => r.ranks[e] != null);
+        return best ? r.urls[best] ?? null : null;
+      },
+    },
+  ];
+
+  const missing = data.checked - data.ranked;
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-3 text-sm">
+        <Badge tone="success">{data.ranked} ranking</Badge>
+        <Badge tone="neutral">{missing} not ranking</Badge>
+        <span className="text-text-muted">
+          {missing > 0
+            ? `Those ${missing} are your gaps — a competitor holds the spot for each.`
+            : "Every keyword places somewhere in the crawled depth."}
+        </span>
+      </div>
+      <DataTable columns={cols} rows={data.rows} csvName={`bulk-rank-${data.domain}`} />
+    </div>
+  );
+}
+
 export default function SerpRanking({ embedded }: { embedded?: boolean }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [keyword, setKeyword] = useState(() => searchParams.get("q") ?? "");
@@ -224,11 +395,21 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
   const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [live, setLive] = useState(false);
   const [compare, setCompare] = useState(false);
+  // Google alone by default, so an unchanged run costs exactly what it did
+  // before engines existed. Kept across in-app navigation like the other
+  // controls here (module-level store — a full reload starts fresh).
+  const [engines, setEngines] = usePersistedState<SearchEngine[]>("serp.engines", ["google"]);
   // Off by default: brand volume is a second billed lookup that costs several
   // times the SERP crawl. Remembered, so anyone who wants it keeps it.
   const [brandVol, setBrandVol] = usePersistedState("serp.brandVolume", false);
   const [highlight, setHighlight] = useState("");
-  const [view, setView] = useState("google");
+  // "one" = crawl a full SERP for a single keyword. "bulk" = ask where one
+  // domain ranks across many keywords, showing only your own row per keyword.
+  const [mode, setMode] = usePersistedState<"one" | "bulk">("serp.mode", "one");
+  const [bulkRaw, setBulkRaw] = usePersistedState("serp.bulkKeywords", "");
+  const [bulkDomain, setBulkDomain] = usePersistedState("serp.bulkDomain", "");
+  const bulk = useBulkRank();
+  const [view, setView] = useState<string | null>(null);
   const mutation = useSerpRanking();
   const mutation2 = useSerpRanking();
   const data = mutation.data;
@@ -239,12 +420,22 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
   const locRef = useRef(loc);
   locRef.current = loc;
 
+  // Unchecking the last engine would send an empty list, which the API rejects
+  // — keep at least one selected rather than surfacing a validation error.
+  const toggleEngine = (id: SearchEngine) =>
+    setEngines((prev) =>
+      prev.includes(id) ? (prev.length > 1 ? prev.filter((e) => e !== id) : prev) : [...prev, id],
+    );
+
   const run = () => {
     const kw = keyword.trim();
     if (!kw) return;
-    mutation.mutate({ ...loc, keyword: kw, depth, device, force_live: live, with_brand_volume: brandVol });
-    if (compare)
-      mutation2.mutate({ ...loc2, keyword: kw, depth, device, force_live: live, with_brand_volume: brandVol });
+    setView(null);  // back to auto so a new engine set picks its own best tab
+    const base = { keyword: kw, depth, device, engines, force_live: live, with_brand_volume: brandVol };
+    mutation.mutate({ ...loc, ...base });
+    // Market compare runs the same engine set against a second location; its
+    // diff uses each response's primary engine.
+    if (compare) mutation2.mutate({ ...loc2, ...base });
   };
 
   // Auto-run when arriving from the dashboard quick-search (?q=...).
@@ -256,7 +447,41 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
     }
   }, [searchParams, setSearchParams]);
 
+  const bulkKeywords = useMemo(
+    () => Array.from(new Set(bulkRaw.split(/[\n,]+/).map((k) => k.trim().toLowerCase()).filter(Boolean))).slice(0, 50),
+    [bulkRaw],
+  );
+
+  /**
+   * Measured DataForSEO prices per SERP call, by crawl depth. Bulk multiplies
+   * this by keywords x engines, so a 20-keyword two-engine run at depth 100 is
+   * ~62c — far too much to leave implicit behind a button.
+   */
+  const COST_BY_DEPTH: Record<number, number> = { 10: 0.2, 20: 0.35, 50: 0.8, 100: 1.55 };
+  const bulkCostCents = bulkKeywords.length * engines.length * (COST_BY_DEPTH[depth] ?? 1.55);
+
+  const runBulk = () => {
+    const d = bulkDomain.trim();
+    if (!d || bulkKeywords.length === 0 || bulk.isPending) return;
+    bulk.mutate({
+      ...loc, keywords: bulkKeywords, domain: d, depth, device, engines, force_live: live,
+    });
+  };
+
   const pending = mutation.isPending || (compare && mutation2.isPending);
+  const failedEngines = (data?.engines ?? []).filter((e) => e.error);
+  // Only engines that actually returned rows get a comparison column — a failed
+  // engine would otherwise render as a column of dashes indistinguishable from
+  // "ranked nowhere".
+  const rankedEngines = (data?.engines ?? []).filter((e) => !e.error).map((e) => e.engine);
+  const primaryEngine = rankedEngines[0] ?? "google";
+  const primaryLabel = ENGINE_LABEL[primaryEngine] ?? primaryEngine;
+
+  // `view === null` means "no explicit choice yet", so a multi-engine run lands
+  // on the comparison — that is what the extra engines were paid for. Derived
+  // rather than synced in an effect: picking a tab sets `view` and sticks, and
+  // starting a new run clears it back to auto.
+  const effectiveView = view ?? (data && data.comparison.length > 0 ? "engines" : "google");
 
   return (
     <div>
@@ -269,14 +494,46 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
 
       <Card className="mb-5">
         <CardBody className="space-y-3">
-          <form onSubmit={(e) => { e.preventDefault(); run(); }} className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Input
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              aria-label="Keyword"
-              placeholder="Enter a keyword, e.g. running shoes"
-              className="sm:flex-1 sm:basis-64"
-            />
+          {/* Two genuinely different questions, so two modes rather than one
+              overloaded form: "show me this SERP" vs "where do I rank across
+              these keywords". The location/depth/device/engine controls below
+              are shared because both modes need exactly the same ones. */}
+          <Tabs value={mode} onChange={(v) => setMode(v as "one" | "bulk")}>
+            <TabsList>
+              <TabsTrigger value="one">Single keyword</TabsTrigger>
+              <TabsTrigger value="bulk">Bulk rank check</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          {mode === "bulk" && (
+            <div className="space-y-3">
+              <Input
+                value={bulkDomain}
+                onChange={(e) => setBulkDomain(e.target.value)}
+                aria-label="Your domain"
+                placeholder="Your domain — e.g. komaki.in"
+              />
+              <textarea
+                value={bulkRaw}
+                onChange={(e) => setBulkRaw(e.target.value)}
+                rows={4}
+                aria-label="Keywords"
+                placeholder={"One keyword per line (or comma-separated) — up to 50.\nbest electric scooter in india\nelectric scooter under 50000"}
+                className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--section)]"
+              />
+            </div>
+          )}
+
+          <form onSubmit={(e) => { e.preventDefault(); if (mode === "bulk") runBulk(); else run(); }} className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            {mode === "one" && (
+              <Input
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                aria-label="Keyword"
+                placeholder="Enter a keyword, e.g. running shoes"
+                className="sm:flex-1 sm:basis-64"
+              />
+            )}
             <LocationLanguagePicker value={loc} onChange={setLoc} />
             {compare && (
               <span className="flex items-center gap-2">
@@ -303,21 +560,97 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
               <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} className="h-4 w-4 accent-[var(--section)]" />
               Live
             </label>
-            <label className="flex items-center gap-1.5 whitespace-nowrap text-sm text-text-muted" title="Crawl the same keyword in a second market and diff the results">
-              <input type="checkbox" checked={compare} onChange={(e) => setCompare(e.target.checked)} className="h-4 w-4 accent-[var(--section)]" />
-              Compare markets
-            </label>
-            <label
-              className="flex items-center gap-1.5 whitespace-nowrap text-sm text-text-muted"
-              title="Look up monthly search volume for each brand in the results. Billed per brand — typically several times the cost of the SERP crawl itself."
-            >
-              <input type="checkbox" checked={brandVol} onChange={(e) => setBrandVol(e.target.checked)} className="h-4 w-4 accent-[var(--section)]" />
-              Brand volume
-            </label>
-            <Button type="submit" disabled={pending || !keyword.trim()}>
-              <Search size={16} /> {pending ? "Crawling…" : "Crawl Google"}
-            </Button>
+            {/* Market compare and brand volume are single-keyword concepts:
+                diffing two markets across 50 keywords is a different report,
+                and brand volume bills per brand on every SERP fetched. */}
+            {mode === "one" && (
+              <>
+                <label className="flex items-center gap-1.5 whitespace-nowrap text-sm text-text-muted" title="Crawl the same keyword in a second market and diff the results">
+                  <input type="checkbox" checked={compare} onChange={(e) => setCompare(e.target.checked)} className="h-4 w-4 accent-[var(--section)]" />
+                  Compare markets
+                </label>
+                <label
+                  className="flex items-center gap-1.5 whitespace-nowrap text-sm text-text-muted"
+                  title="Look up monthly search volume for each brand in the results. Billed per brand — typically several times the cost of the SERP crawl itself."
+                >
+                  <input type="checkbox" checked={brandVol} onChange={(e) => setBrandVol(e.target.checked)} className="h-4 w-4 accent-[var(--section)]" />
+                  Brand volume
+                </label>
+              </>
+            )}
+            {mode === "one" ? (
+              <Button type="submit" disabled={pending || !keyword.trim()}>
+                <Search size={16} />{" "}
+                {pending
+                  ? "Crawling…"
+                  : engines.length === 1
+                    ? `Crawl ${ENGINE_LABEL[engines[0]] ?? engines[0]}`
+                    : `Crawl ${engines.length} engines`}
+              </Button>
+            ) : (
+              <Button type="submit" loading={bulk.isPending} disabled={!bulkDomain.trim() || bulkKeywords.length === 0}>
+                {!bulk.isPending && <Search size={16} />} Check {bulkKeywords.length || ""} keyword{bulkKeywords.length === 1 ? "" : "s"}
+              </Button>
+            )}
           </form>
+
+          {/* Bulk multiplies cost by keywords x engines, so the estimate is
+              shown before the click rather than discovered on the invoice. */}
+          {mode === "bulk" && (
+            <p className="text-xs text-text-muted">
+              {bulkKeywords.length === 0 ? (
+                "Add keywords above — one billed SERP lookup per keyword, per engine."
+              ) : (
+                <>
+                  {bulkKeywords.length} keyword{bulkKeywords.length === 1 ? "" : "s"} ×{" "}
+                  {engines.length} engine{engines.length === 1 ? "" : "s"} at top {depth}:{" "}
+                  <span className="font-medium text-text">up to {bulkCostCents.toFixed(2)}¢</span>
+                  {/* Deliberately "up to": DataForSEO bills on results actually
+                      returned, not the depth requested — a thin SERP at depth
+                      100 came back at 0.35c against 1.55c for a full one. Cached
+                      keywords cost nothing at all. */}
+                  {" "}· usually less, and repeat runs hit the cache for free.
+                </>
+              )}
+            </p>
+          )}
+
+          <fieldset className="flex flex-wrap items-center gap-2">
+            <legend className="sr-only">Search engines to crawl</legend>
+            <span className="text-sm text-text-muted">Engines:</span>
+            {ENGINES.map((e) => {
+              const on = engines.includes(e.id);
+              const isLast = on && engines.length === 1;
+              return (
+                <label
+                  key={e.id}
+                  title={isLast ? `${e.hint} — at least one engine must stay selected` : e.hint}
+                  className={cn(
+                    "inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors",
+                    on
+                      ? "border-[color:var(--section)] bg-[color:var(--section-soft)] text-[color:var(--section-ink)]"
+                      : "border-border text-text-muted hover:border-[color:var(--section)]",
+                    isLast && "cursor-not-allowed",
+                  )}
+                >
+                  <input
+                    type="checkbox"
+                    checked={on}
+                    disabled={isLast}
+                    onChange={() => toggleEngine(e.id)}
+                    className="h-3.5 w-3.5 accent-[var(--section)]"
+                  />
+                  {e.label}
+                </label>
+              );
+            })}
+            {engines.length > 1 && (
+              <span className="text-xs text-text-muted">
+                One billed crawl per engine — they run in parallel.
+              </span>
+            )}
+          </fieldset>
+
           <Input
             value={highlight}
             onChange={(e) => setHighlight(e.target.value)}
@@ -328,22 +661,102 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
         </CardBody>
       </Card>
 
-      {pending && (
+      {/* ── Bulk rank results ─────────────────────────────────────────────── */}
+      {mode === "bulk" && (
+        <>
+          {bulk.isPending && (
+            <div className="space-y-3">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-64 w-full" />
+            </div>
+          )}
+          {bulk.isError && !bulk.isPending && (
+            <ErrorState message={apiErrorMessage(bulk.error)} onRetry={runBulk} />
+          )}
+          {!bulk.isPending && !bulk.isError && !bulk.data && (
+            <EmptyState
+              title="Check where you rank"
+              hint="Enter your domain and a list of keywords. You get one row per keyword — your position and the exact page Google has indexed — instead of a full results page for each."
+            />
+          )}
+          {bulk.data && !bulk.isPending && (
+            <Card className="animate-fade-rise">
+              <CardHeader className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <CardTitle>
+                    {bulk.data.domain} · {bulk.data.ranked} of {bulk.data.checked} ranking
+                  </CardTitle>
+                  <p className="mt-0.5 text-xs text-text-muted">
+                    Top {depth} · {locationLabel(loc.location_code)} · {device}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CacheBadge meta={bulk.data.meta} />
+                  <ExcelButton
+                    filename={`bulk-rank-${bulk.data.domain}`}
+                    build={() => ({
+                      summary: {
+                        Report: "Bulk rank check",
+                        Domain: bulk.data!.domain,
+                        Market: locationLabel(loc.location_code),
+                        Device: device,
+                        Depth: depth,
+                        Engines: bulk.data!.engines.join(", "),
+                        "Keywords checked": bulk.data!.checked,
+                        Ranking: bulk.data!.ranked,
+                        "Not ranking": bulk.data!.checked - bulk.data!.ranked,
+                        Generated: new Date().toLocaleString(),
+                      },
+                      sheets: [
+                        {
+                          name: "Rank by keyword",
+                          columns: [
+                            { header: "Keyword", key: "keyword", width: 40 },
+                            ...bulk.data!.engines.map((e) => ({
+                              header: `${ENGINE_LABEL[e] ?? e} rank`, key: `rank_${e}`, width: 14,
+                            })),
+                            { header: "Indexed page", key: "url", width: 60 },
+                          ],
+                          rows: bulk.data!.rows.map((r) => {
+                            const best = bulk.data!.engines.find((e) => r.ranks[e] != null);
+                            return {
+                              keyword: r.keyword,
+                              ...Object.fromEntries(
+                                bulk.data!.engines.map((e) => [`rank_${e}`, r.ranks[e] ?? "not ranking"]),
+                              ),
+                              url: best ? r.urls[best] ?? "" : "",
+                            };
+                          }) as unknown as Record<string, unknown>[],
+                        },
+                      ],
+                    })}
+                  />
+                </div>
+              </CardHeader>
+              <CardBody className="p-0">
+                <BulkRankTable data={bulk.data} />
+              </CardBody>
+            </Card>
+          )}
+        </>
+      )}
+
+      {mode === "one" && pending && (
         <div className="space-y-3">
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-64 w-full" />
         </div>
       )}
 
-      {mutation.isError && !pending && (
+      {mode === "one" && mutation.isError && !pending && (
         <ErrorState message={apiErrorMessage(mutation.error)} onRetry={run} />
       )}
 
-      {!pending && !mutation.isError && !data && (
+      {mode === "one" && !pending && !mutation.isError && !data && (
         <EmptyState title="Crawl your first SERP" hint="Enter a keyword to fetch Google's actual results — the neutral view, free of your personal search history." />
       )}
 
-      {data && !pending && (
+      {mode === "one" && data && !pending && (
         <div className="animate-fade-rise space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-lg font-semibold text-text">
@@ -418,6 +831,21 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
             );
           })()}
 
+          {/* An engine that failed on its own — the run still succeeded on the
+              others, so this is a notice, not an error state. */}
+          {failedEngines.length > 0 && (
+            <Card className="border-warning/40 bg-warning/5">
+              <CardBody className="space-y-1 py-3 text-sm">
+                {failedEngines.map((e) => (
+                  <p key={e.engine}>
+                    <span className="font-medium text-text">{ENGINE_LABEL[e.engine] ?? e.engine}</span>{" "}
+                    <span className="text-text-muted">didn’t return results — {e.error}</span>
+                  </p>
+                ))}
+              </CardBody>
+            </Card>
+          )}
+
           {compare && mutation2.data ? (
             <CompareView
               a={data}
@@ -427,12 +855,24 @@ export default function SerpRanking({ embedded }: { embedded?: boolean }) {
               highlight={highlight}
             />
           ) : data.results.length ? (
-            <Tabs value={view} onChange={setView}>
+            <Tabs value={effectiveView} onChange={setView}>
               <TabsList>
-                <TabsTrigger value="google">Google view</TabsTrigger>
+                {data.comparison.length > 0 && (
+                  <TabsTrigger value="engines">Engine comparison</TabsTrigger>
+                )}
+                <TabsTrigger value="google">{primaryLabel} view</TabsTrigger>
                 <TabsTrigger value="table">Data table</TabsTrigger>
               </TabsList>
               <div className="mt-4">
+                {data.comparison.length > 0 && (
+                  <TabsContent value="engines">
+                    <EngineComparison
+                      rows={data.comparison}
+                      engines={rankedEngines}
+                      highlight={highlight}
+                    />
+                  </TabsContent>
+                )}
                 <TabsContent value="google">
                   <GoogleView results={data.results} highlight={highlight} />
                 </TabsContent>

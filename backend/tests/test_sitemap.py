@@ -18,7 +18,7 @@ def _locs(xml: str) -> list[str]:
 @pytest.mark.asyncio
 async def test_sitemap_lists_published_content_and_every_static_route(db):
     """The hand-maintained sitemap this replaced listed 12 URLs and had fallen
-    behind the router: /free-tools and every post and story were absent.
+    behind the router: the tools page and every post and story were absent.
     Assert the generated one covers both halves."""
     db.add_all(
         [
@@ -56,6 +56,10 @@ async def test_sitemap_lists_published_content_and_every_static_route(db):
     # visitors to /login, so they must never appear — a sitemap full of
     # auth-gated URLs is worse than one that omits them.
     assert not any("/tools/" in u for u in locs)
+    # Both public pages are listed: /features is the platform overview and
+    # /free-tools is the working no-login tool page. The in-app tool screens
+    # (/tools/*) stay out — they are behind RequireAuth, asserted above.
+    assert any(u.endswith("/features") for u in locs)
     assert any(u.endswith("/free-tools") for u in locs)
 
 

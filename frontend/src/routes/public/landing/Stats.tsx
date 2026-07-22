@@ -1,4 +1,5 @@
 import { CountUp, Reveal } from "@/components/public/landingKit";
+import { DisplayHeading } from "@/components/public/display";
 
 /**
  * The numbers band, restyled from a small glass card row into an editorial
@@ -35,9 +36,9 @@ export function Stats() {
           <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-ink">
             The engine
           </span>
-          <h2 className="mt-3 max-w-2xl text-balance text-4xl font-extrabold leading-[1.02] tracking-tight text-text sm:text-5xl">
+          <DisplayHeading className="mt-3 max-w-2xl">
             Numbers that do the arguing
-          </h2>
+          </DisplayHeading>
         </Reveal>
 
         <Reveal delay={0.08}>

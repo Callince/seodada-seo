@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import current_user, get_db_session
 from app.db.models import RankSnapshot, User
 from app.integrations.dataforseo import serp as serp_api
-from app.integrations.free import brave
 from app.schemas.rank import (
     RankHistoryResponse,
     RankPoint,
@@ -16,7 +15,7 @@ from app.schemas.rank import (
     TrackedItem,
     TrackedListResponse,
 )
-from app.services import engine, providers, ranking, usage
+from app.services import engine, ranking, usage
 
 router = APIRouter()
 
@@ -54,24 +53,17 @@ async def track(
 ) -> RankTrackResponse:
     keyword = body.keyword.strip().lower()
     domain = ranking.normalize_domain(body.domain)
-    provider = providers.serp_provider()
-
-    if provider == "brave":
-        endpoint = "serp.brave"
-        fetch_fn = lambda: brave.organic(  # noqa: E731
-            body.keyword, body.location_code, body.language_code, body.depth
-        )
-    else:
-        endpoint = "serp.organic"
-        fetch_fn = lambda: serp_api.organic(  # noqa: E731
-            body.keyword, body.location_code, body.language_code, body.depth, body.device
-        )
+    fetch_fn = lambda: serp_api.organic(  # noqa: E731
+        body.keyword, body.location_code, body.language_code, body.depth, body.device
+    )
 
     resolved = await usage.metered(
-        db, user, endpoint,
+        db, user, "serp.organic",
         {"keyword": keyword, "location_code": body.location_code,
          "language_code": body.language_code, "depth": body.depth,
-         "device": body.device, "provider": provider},
+         # Constant since Brave was removed; kept so existing cache entries
+         # keep hashing the same rather than all re-billing.
+         "device": body.device, "provider": "dataforseo"},
         engine.TTL["serp"],
         fetch_fn,
         force_live=body.force_live,

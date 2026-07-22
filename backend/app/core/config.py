@@ -24,11 +24,12 @@ class Settings(BaseSettings):
 
     # Data providers (per module). Each module can independently use a free
     # source instead of DataForSEO. Values:
-    #   serp_provider:    "dataforseo" | "brave"  (brave needs brave_api_key)
     #   onpage_provider:  "dataforseo" | "local"  (fetch + parse the page in-process, $0)
     #   trends_provider:  "dataforseo" | "google" (Google Trends public API, $0)
     #   content_provider: "dataforseo" | "local"  (VADER sentiment over the SERP corpus, $0)
-    serp_provider: str = "dataforseo"
+    # SERP has no provider setting: Brave was the only alternative and it was
+    # removed when it stopped being free. Which engine to crawl (Google/Bing) is
+    # a per-request field on /serp/ranking instead.
     onpage_provider: str = "dataforseo"
     # Google, not DataForSEO, by default. Measured on identical queries through
     # the same parser: both return 53 points over the same date range with
@@ -38,10 +39,6 @@ class Settings(BaseSettings):
     # Set TRENDS_PROVIDER=dataforseo to go back.
     trends_provider: str = "google"
     content_provider: str = "dataforseo"
-    # Free Brave Search API key (https://brave.com/search/api/). Enables real,
-    # zero-cost SERP data; when serp_provider="brave" but this is unset we fall
-    # back to DataForSEO so the app never silently breaks.
-    brave_api_key: str = ""
     # OpenPageRank (domcop.com/openpagerank) — free domain-authority scores.
     # Used as an automatic fallback for the authority metric when the DataForSEO
     # Backlinks subscription is not active. Free tier: 10k req/hour.

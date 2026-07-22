@@ -8,16 +8,17 @@ from app.integrations.dataforseo.client import DfsResult, dfs_client
 PATH_LISTINGS = "/v3/business_data/business_listings/search/live"
 
 
-async def listings(
-    what: str,
-    lat: float,
-    lng: float,
-    radius_km: int = 10,
-    limit: int = 20,
-) -> DfsResult:
+async def listings(what: str, location_code: int, limit: int = 20) -> DfsResult:
+    """Business listings for a geo-target.
+
+    The endpoint also accepts `location_coordinate` and `location_name` at the
+    same cost (all three verified live at 0.01308). `location_code` is used
+    because it is what the shared location picker already emits, so Local SEO
+    reaches the same 57k cities as every other page instead of a hardcoded few.
+    """
     payload = {
         "title": what,
-        "location_coordinate": f"{lat},{lng},{radius_km}",
+        "location_code": location_code,
         "limit": limit,
         "order_by": ["rating.value,desc"],
     }

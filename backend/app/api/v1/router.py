@@ -15,6 +15,7 @@ from app.api.v1 import (
     domains,
     keywords,
     local,
+    locations,
     onpage,
     projects,
     public_content,
@@ -49,6 +50,8 @@ api_router.include_router(ai_visibility.router, prefix="/ai-visibility", tags=["
 api_router.include_router(projects.router, prefix="/projects", tags=["projects"])
 api_router.include_router(schedules.router, prefix="/schedules", tags=["schedules"])
 api_router.include_router(usage.router, prefix="/usage", tags=["usage"])
+# Not in `_metered`: a local table read with no billed upstream call.
+api_router.include_router(locations.router, prefix="/locations", tags=["locations"])
 api_router.include_router(
     admin.router, prefix="/admin", tags=["admin"], dependencies=[Depends(enforce_admin_permission)]
 )

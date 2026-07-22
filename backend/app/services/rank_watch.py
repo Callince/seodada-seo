@@ -19,8 +19,7 @@ from app.core.config import settings
 from app.core.logging import log
 from app.db.models import RankSnapshot, User
 from app.integrations.dataforseo import serp as serp_api
-from app.integrations.free import brave
-from app.services import email, engine, providers, ranking, usage
+from app.services import email, engine, ranking, usage
 
 RECHECK_AFTER = timedelta(hours=24)
 DEPTH = 100  # matches the manual /rank/track default so cache keys are shared
@@ -40,18 +39,14 @@ async def _fetch_position(
     domain: str, device: str = "desktop",
 ) -> tuple[int | None, str | None]:
     """One SERP lookup through the cost engine; returns (position, url)."""
-    provider = providers.serp_provider()
-    if provider == "brave":
-        endpoint = "serp.brave"
-        fetch_fn = lambda: brave.organic(keyword, location_code, language_code, DEPTH)  # noqa: E731
-    else:
-        endpoint = "serp.organic"
-        fetch_fn = lambda: serp_api.organic(keyword, location_code, language_code, DEPTH, device)  # noqa: E731
+    fetch_fn = lambda: serp_api.organic(keyword, location_code, language_code, DEPTH, device)  # noqa: E731
     resolved = await usage.metered(
-        db, user, endpoint,
+        db, user, "serp.organic",
         {"keyword": keyword, "location_code": location_code,
          "language_code": language_code, "depth": DEPTH,
-         "device": device, "provider": provider},
+         # Constant since Brave was removed; kept so existing cache entries
+         # keep hashing the same rather than all re-billing.
+         "device": device, "provider": "dataforseo"},
         engine.TTL["serp"],
         fetch_fn,
     )

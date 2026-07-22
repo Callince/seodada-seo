@@ -18,8 +18,8 @@ export default function WebStories() {
       />
       <PublicHero
         eyebrow="Web Stories"
-        title="SEO, told in"
-        highlight="quick visual stories"
+        title="SEO you can finish"
+        highlight="in a minute."
         subtitle="Bite-sized, tap-through explainers on the SEO topics that move rankings."
         compact
       />

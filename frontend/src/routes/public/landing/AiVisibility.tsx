@@ -1,4 +1,5 @@
 import { Quote, Sparkles } from "lucide-react";
+import { DisplayHeading, GroupNumeral } from "@/components/public/display";
 import { Link } from "react-router-dom";
 
 import { BrowserFrame, Reveal } from "@/components/public/landingKit";
@@ -46,13 +47,14 @@ export function AiVisibility() {
       <div className="relative mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:items-center">
         {/* ---------------------------------------------------- copy */}
         <Reveal>
+          <div className="mb-2"><GroupNumeral n={3} /></div>
           <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--sec-aivis-ink)]">
             <Sparkles size={13} aria-hidden /> GEO &amp; AEO
           </span>
-          <h2 className="mt-5 text-balance text-4xl font-extrabold tracking-tight sm:text-5xl">
+          <DisplayHeading size="lg" className="mt-5">
             Ranking #1 means nothing
             <span className="gradient-text"> if the answer never cites you.</span>
-          </h2>
+          </DisplayHeading>
           <p className="mt-5 text-lg leading-relaxed text-text-muted">
             More searches now end in an AI answer than a click. seodada checks whether
             Google&apos;s AI Overview, ChatGPT, Perplexity and Copilot actually name your

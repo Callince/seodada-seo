@@ -1,3 +1,4 @@
+import { DisplayHeading } from "@/components/public/display";
 import { PublicHero } from "@/components/public/PublicHero";
 import { Seo, SITE_URL } from "@/lib/seo";
 
@@ -150,7 +151,8 @@ export default function Glossary() {
       />
       <PublicHero
         eyebrow="Reference"
-        title="The language of modern search"
+        title="Every SEO term,"
+        highlight="in plain English."
         subtitle="Every term you'll meet across seodada and the wider industry — classic SEO, technical, and the AI era — defined in plain language."
         compact
       />
@@ -158,7 +160,7 @@ export default function Glossary() {
       <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-20">
         {GROUPS.map((g) => (
           <section key={g.title} className="mb-14 last:mb-0">
-            <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{g.title}</h2>
+            <DisplayHeading>{g.title}</DisplayHeading>
             <dl className="mt-6 space-y-8">
               {g.terms.map((t) => (
                 <div key={t.id} id={t.id} className="scroll-mt-24 border-l-2 border-border pl-5">

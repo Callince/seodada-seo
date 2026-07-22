@@ -5,9 +5,10 @@ import type { ListingsResponse } from "@/types";
 
 export interface ListingsInput {
   what: string;
-  lat: number;
-  lng: number;
-  radius_km?: number;
+  /** DataForSEO geo-target, from the shared location picker. Replaced a
+   *  lat/lng + radius circle so Local SEO reaches the same 57k cities as every
+   *  other page instead of five hardcoded metros. */
+  location_code: number;
   limit?: number;
   force_live?: boolean;
 }

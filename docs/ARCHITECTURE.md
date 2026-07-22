@@ -30,8 +30,8 @@ and one API serve the authenticated app, the public site, and the admin portal.
         │ Postgres  │ │ Redis  │ │ External APIs                 │
         │ (L2 cache,│ │ (L1 +  │ │ DataForSEO v3 · Razorpay ·    │
         │  app data)│ │ locks) │ │ Gemini/Anthropic/Ollama ·     │
-        └───────────┘ └────────┘ │ Brave · Google Trends ·       │
-                                 │ OpenPageRank                   │
+        └───────────┘ └────────┘ │ Google Trends · OpenPageRank  │
+                                 │                                │
                                  └───────────────────────────────┘
                 ┌─────────────────────┐
                 │  scheduler (1 repl) │  recurring Site Reports → save + email
@@ -51,7 +51,7 @@ the admin back-office (`/admin`) are the same SPA and API as the app.
 | `core/` | `config.py` (pydantic-settings, all env), `security.py` (JWT access/refresh/reset + bcrypt), `errors.py` (problem+json handlers), `logging.py` (structlog) |
 | `db/` | SQLAlchemy async models + session (`base.py`, `models.py`, `session.py`); Alembic migrations in `backend/alembic/` (12 versions) |
 | `integrations/dataforseo/` | Async `client.py` (envelope unwrap, USD→cents, tenacity retry) + per-API wrappers/parsers: `serp`, `keywords`, `labs`, `backlinks`, `onpage`, `audit`, `content`, `domain_meta`, `local`, `ai_optimization`, `ai_visibility` |
-| `integrations/free/` | Zero-cost providers shaped to the DataForSEO parsers: `brave` (SERP), `trends` (Google Trends), `local_onpage`, `openpagerank` (domain authority) |
+| `integrations/free/` | Zero-cost providers shaped to the DataForSEO parsers: `trends` (Google Trends), `local_onpage`, `openpagerank` (domain authority). A `brave` (SERP) module lived here until Brave retired its free tier; it was removed rather than kept at 2.5× DataForSEO's price — see `docs/PROVIDER_STRATEGY.md` §7.1 |
 | `integrations/razorpay/` | `client.py` — order creation + HMAC verification (checkout `HMAC_SHA256("{order}|{payment}")`, webhook `HMAC_SHA256(raw_body)`, constant-time compare) |
 | `integrations/scraper/` | The tiered crawler: `blocking`, `cache`, `fetcher` (curl_cffi), `frontier`, `humanizer`, `politeness` (robots), `renderer` (Playwright), `sitemap`, `parser`, and `extractors/` (headings, images, links, meta, schema, text) |
 | `services/` | The business core — see below |
@@ -123,6 +123,7 @@ distributed-lock abstraction (`redis` | `memory`).
 
 | Table | Purpose |
 |---|---|
+| `locations` | Searchable country/city geo-targets (code, name, region, country, language) seeded from DataForSEO's own list; backs the location picker on every research page |
 | `organizations` | Tenant; `plan`, `monthly_quota_cents`; users belong to exactly one |
 | `users` | Email + bcrypt hash, org-scoped `role` (owner/member), `is_active`, `is_verified`, `is_staff`, `admin_permissions` (JSON list of RBAC slugs) |
 | `api_cache` | L2 cache: endpoint + params-hash → JSONB response, cost, `fetched_at`, `expires_at` |

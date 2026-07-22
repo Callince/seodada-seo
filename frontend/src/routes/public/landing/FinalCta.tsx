@@ -1,4 +1,5 @@
 import { ArrowRight, Bell, PhoneCall, ShieldCheck, Zap } from "lucide-react";
+import { DisplayHeading } from "@/components/public/display";
 import { Link as RouterLink } from "react-router-dom";
 
 import { Magnetic, Particles, Reveal } from "@/components/public/landingKit";
@@ -18,9 +19,9 @@ export function FinalCta() {
           <div className="absolute inset-0 -z-10 gradient-fill" />
           <div className="lp-mesh absolute inset-0 -z-10 opacity-40 mix-blend-overlay" />
           <Particles count={20} className="-z-10 opacity-60" />
-          <h2 className="mx-auto max-w-3xl text-5xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-6xl">
+          <DisplayHeading size="lg" className="max-w-3xl text-white">
             Dominate search — classic, AI, and everything next.
-          </h2>
+          </DisplayHeading>
           <p className="mx-auto mt-5 max-w-xl text-lg text-white/80">
             Start free, no credit card. Or book a demo and we'll map your growth plan.
           </p>

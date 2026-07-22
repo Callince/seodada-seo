@@ -32,9 +32,12 @@ export function PublicHero({
 }) {
   const alignCls =
     align === "center" ? "items-center text-center" : "items-start text-left";
+  // Display treatment: heavy weight, tight tracking, sub-1 leading so the lines
+  // stack as a block. The previous `font-light` + `tracking-[0.13em]` was the
+  // opposite reading — airy and spaced — and read as a caption at large sizes.
   const titleCls = normalCase
-    ? "font-semibold tracking-tight"
-    : "font-light uppercase tracking-[0.1em] sm:tracking-[0.13em]";
+    ? "font-semibold tracking-tight leading-[1.12]"
+    : "font-black uppercase tracking-[-0.02em] leading-[0.95]";
 
   return (
     <div className="cyber-grid grid-drift relative overflow-hidden">
@@ -81,14 +84,19 @@ export function PublicHero({
           </p>
         )}
         <h1
-          className={`blur-in mt-6 text-4xl leading-[1.12] text-white sm:text-5xl ${titleCls}`}
+          className={`blur-in mt-6 text-balance text-white ${
+            normalCase ? "text-4xl sm:text-5xl" : "text-[2.5rem] sm:text-6xl lg:text-7xl"
+          } ${titleCls}`}
           style={{ animationDelay: "0.1s" }}
         >
           {title}
           {highlight && (
             <>
               {" "}
-              <span className="gradient-text-anim font-semibold">{highlight}</span>
+              {/* Inherits the h1's weight so the gradient phrase sits on the
+                  same line as the rest of the headline rather than dropping to
+                  semibold mid-sentence. */}
+              <span className="gradient-text-anim">{highlight}</span>
             </>
           )}
         </h1>

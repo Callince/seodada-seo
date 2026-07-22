@@ -89,11 +89,43 @@ export interface PaaItem {
   url: string | null;
 }
 
+/** All served by DataForSEO from an identical payload. Brave was removed once
+ *  it stopped being free — see docs/PROVIDER_STRATEGY.md §7.1. */
+export type SearchEngine = "google" | "bing" | "yahoo";
+
+export interface EngineRun {
+  engine: SearchEngine;
+  results: SerpResult[];
+  paa: PaaItem[];
+  cost_cents: number;
+  from_cache: boolean;
+  source: string;
+  latency_ms: number;
+  fetched_at: string | null;
+  /** Set when this engine alone failed; the others still returned. */
+  error: string | null;
+}
+
+export interface ComparisonRow {
+  url: string;
+  domain: string;
+  title: string;
+  /** Only engines that actually ranked this URL appear — a missing key means
+   *  "not in the top N", which is not the same as a bad rank. */
+  ranks: Partial<Record<SearchEngine, number>>;
+  best_rank: number;
+  engine_count: number;
+}
+
 export interface SerpResponse {
   keyword: string;
+  /** The first engine that succeeded, so single-engine runs are unchanged. */
   results: SerpResult[];
   paa: PaaItem[];
   meta: Meta;
+  engines: EngineRun[];
+  /** Populated only when more than one engine returned results. */
+  comparison: ComparisonRow[];
 }
 
 export interface PaaResponse {

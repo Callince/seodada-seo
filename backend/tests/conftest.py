@@ -14,10 +14,8 @@ from app.services.cache_backend import MemoryBackend
 
 @pytest.fixture(autouse=True)
 def pinned_settings(monkeypatch):
-    """Keep tests independent of the developer's local .env (sandbox, no Brave)."""
+    """Keep tests independent of the developer's local .env (sandbox mode)."""
     monkeypatch.setattr(app_settings, "dfs_use_sandbox", True)
-    monkeypatch.setattr(app_settings, "brave_api_key", "")
-    monkeypatch.setattr(app_settings, "serp_provider", "dataforseo")
     monkeypatch.setattr(app_settings, "smtp_host", "")
     monkeypatch.setattr(app_settings, "google_gmail_refresh_token", "")
     # Quota enforcement is opt-in per test (test_quota enables it).

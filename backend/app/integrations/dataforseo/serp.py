@@ -7,6 +7,24 @@ from app.integrations.dataforseo.client import DfsResult, dfs_client
 
 PATH_ORGANIC = "/v3/serp/google/organic/live/advanced"
 
+# Search engines DataForSEO serves organic results for, verified live: all take
+# the identical payload (device, depth and non-US location_code included) and
+# `parse_organic` consumes every one of them unchanged.
+#
+# Google and Bing both bill 0.200c at depth 10; Yahoo bills 0.350c. Brave and
+# DuckDuckGo are NOT here — DataForSEO answers "40402 Invalid Path" for both.
+# Brave had its own API integration until it stopped being free; it was removed
+# rather than kept at 2.5x the DataForSEO price. See docs/PROVIDER_STRATEGY.md.
+#
+# Only Google carries SERP features: it returned ai_overview, people_also_ask,
+# video and related_searches alongside the organic block, where Bing returned
+# organic and nothing else. An empty PAA panel on Bing is correct, not a bug.
+ENGINE_PATHS = {
+    "google": PATH_ORGANIC,
+    "bing": "/v3/serp/bing/organic/live/advanced",
+    "yahoo": "/v3/serp/yahoo/organic/live/advanced",
+}
+
 
 def build_payload(
     keyword: str, location_code: int, language_code: str, depth: int = 10,
@@ -23,10 +41,11 @@ def build_payload(
 
 async def organic(
     keyword: str, location_code: int, language_code: str, depth: int = 10,
-    device: str = "desktop",
+    device: str = "desktop", engine: str = "google",
 ) -> DfsResult:
     return await dfs_client.post(
-        PATH_ORGANIC, build_payload(keyword, location_code, language_code, depth, device)
+        ENGINE_PATHS[engine],
+        build_payload(keyword, location_code, language_code, depth, device),
     )
 
 

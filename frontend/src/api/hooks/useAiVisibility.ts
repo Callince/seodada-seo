@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "@/api/client";
-import type { AiVisibilityStartResponse, AiVisibilityStatusResponse, AiVolumeResponse, AskResponse, MentionsResponse, Meta } from "@/types";
+import type { AiVisibilityStartResponse, AiVisibilityStatusResponse, AiVolumeResponse, MentionsResponse, Meta } from "@/types";
 
 export interface AiVisibilityInput {
   domain: string;
@@ -37,6 +37,11 @@ export function useAiVisibilityStatus(taskId: string | null) {
       const p = query.state.data?.progress;
       return p === "finished" || p === "error" || p === "unknown" ? false : 2500;
     },
+    // Keep polling while the tab is in the background. This is a server-side
+    // job with a progress bar: without this, switching tabs mid-run freezes the
+    // bar and the results only appear once you come back and the query
+    // refocuses — it looks stuck even though the work finished.
+    refetchIntervalInBackground: true,
   });
 }
 
@@ -95,14 +100,6 @@ export function useAiVolume() {
   });
 }
 
-/** Ask a live LLM and see the raw answer. */
-export function useAskLlm() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (input: { prompt: string; model_name?: string; force_live?: boolean }) => {
-      const { data } = await api.post<AskResponse>("/ai-visibility/ask", input);
-      return data;
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["usage", "summary"] }),
-  });
-}
+// `useAskLlm` lived here until the "Ask an LLM" panel was removed from the AI
+// Visibility page. The backend route (`POST /ai-visibility/ask`) is untouched
+// and still callable — only the unused client binding is gone.

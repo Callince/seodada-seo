@@ -8,7 +8,10 @@ rows whose slug already exists. Blog/story cover images are pointed at
 frontend public dir.
 
 Usage:
-    python scripts/import_seodada_content.py [path_to_sql] [--copy-assets]
+    python scripts/import_seodada_content.py [path_to_sql] [--copy-assets] [--static=DIR]
+
+`--static=DIR` points asset copying at a different seodada `static` directory
+(e.g. an extracted server backup); defaults to the original "D:/SEO RENEW" tree.
 """
 from __future__ import annotations
 
@@ -81,11 +84,18 @@ def _asset(filename: str | None) -> str:
 
 
 def _rewrite_imgs(html: str) -> str:
-    # Point any /static/uploads/... image at the copied assets path.
-    return re.sub(r'(src=["\'])[^"\']*?/static/uploads/([^"\']+)', rf'\1{ASSET_URL}\2', html or "")
+    # Point any /static/uploads/... image at the copied assets path. Assets are
+    # copied FLAT, so keep only the basename (subdirs like blogs/content/ drop).
+    return re.sub(
+        r'(src=["\'])[^"\']*?/static/uploads/(?:[^"\'?]*/)?([^"\'/]+)',
+        rf"\1{ASSET_URL}\2",
+        html or "",
+    )
 
 
 def _faqs_from_schema(schema_data: str | None) -> list[dict]:
+    """Q&A from `schema_data` — either a plain [{question, answer}] list
+    (newer seodada backups) or FAQPage JSON-LD (older dumps)."""
     if not schema_data:
         return []
     try:
@@ -95,7 +105,11 @@ def _faqs_from_schema(schema_data: str | None) -> list[dict]:
     blocks = data if isinstance(data, list) else [data]
     out = []
     for b in blocks:
-        if isinstance(b, dict) and b.get("@type") == "FAQPage":
+        if not isinstance(b, dict):
+            continue
+        if b.get("question") and b.get("answer"):  # plain Q&A rows
+            out.append({"question": b["question"], "answer": b["answer"]})
+        elif b.get("@type") == "FAQPage":  # JSON-LD
             for q in b.get("mainEntity", []) or []:
                 ans = (q.get("acceptedAnswer") or {}).get("text", "")
                 if q.get("name") and ans:
@@ -123,7 +137,7 @@ _SETTINGS_MAP = {
 }
 
 
-async def run(sql: str, copy_assets: bool) -> None:
+async def run(sql: str, copy_assets: bool, static_dir: str = STATIC) -> None:
     cats = parse_copy(sql, "blog_categories")
     blogs = parse_copy(sql, "blogs")
     stories = parse_copy(sql, "webstories")
@@ -147,12 +161,21 @@ async def run(sql: str, copy_assets: bool) -> None:
             if await db.scalar(select(Blog.id).where(Blog.slug == slug)):
                 continue
             body = _rewrite_imgs(b.get("description") or "")
+            try:
+                takeaways = json.loads(b.get("key_takeaways") or "[]")
+            except (ValueError, TypeError):
+                takeaways = []
             db.add(Blog(
                 id=b["id"], category_id=b.get("category_id"), title=b.get("title") or "Untitled",
                 slug=slug, body_html=body, meta_title=b.get("meta_title") or "",
                 meta_description=b.get("meta_description") or "", meta_keywords=b.get("meta_keyword") or "",
-                excerpt=_excerpt(body), cover_image_url=_asset(b.get("image")),
+                excerpt=b.get("excerpt") or _excerpt(body), cover_image_url=_asset(b.get("image")),
+                image_alt=b.get("image_alt") or "",
                 author=b.get("author_name") or "seodada", faqs=_faqs_from_schema(b.get("schema_data")),
+                tldr=b.get("tldr") or "",
+                key_takeaways=takeaways if isinstance(takeaways, list) else [],
+                reading_time_minutes=int(b.get("reading_time_minutes") or 0),
+                is_pillar=_truthy(b.get("is_pillar")),
                 status="published" if _truthy(b.get("status")) else "draft",
                 published_at=_dt(b.get("publish_date")) or _dt(b.get("created_at")),
                 created_at=_dt(b.get("created_at")) or datetime.now(),
@@ -198,15 +221,13 @@ async def run(sql: str, copy_assets: bool) -> None:
     if copy_assets:
         os.makedirs(ASSETS_OUT, exist_ok=True)
         copied = 0
-        for root in ("uploads", "uploads/blogs", "uploads/webstories"):
-            src_dir = os.path.join(STATIC, root)
-            if not os.path.isdir(src_dir):
-                continue
-            for fn in os.listdir(src_dir):
-                src = os.path.join(src_dir, fn)
-                if os.path.isfile(src):
-                    shutil.copy2(src, os.path.join(ASSETS_OUT, fn))
-                    copied += 1
+        # Flat copy of the WHOLE uploads tree — the frontend's assetUrl() and
+        # _rewrite_imgs() both resolve legacy paths by basename.
+        uploads = os.path.join(static_dir, "uploads")
+        for root, _dirs, files in os.walk(uploads):
+            for fn in files:
+                shutil.copy2(os.path.join(root, fn), os.path.join(ASSETS_OUT, fn))
+                copied += 1
         print(f"Copied {copied} asset files to {ASSETS_OUT}")
 
 
@@ -214,5 +235,8 @@ if __name__ == "__main__":
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     path = args[0] if args else DUMP
     copy_assets = "--copy-assets" in sys.argv
+    static_dir = next(
+        (a.split("=", 1)[1] for a in sys.argv[1:] if a.startswith("--static=")), STATIC
+    )
     with open(path, encoding="utf-8", errors="replace") as f:
-        asyncio.run(run(f.read(), copy_assets))
+        asyncio.run(run(f.read(), copy_assets, static_dir))

@@ -6,19 +6,13 @@ from typing import Any
 
 from app.integrations.dataforseo.client import DfsResult, dfs_client
 
-PATH_SEARCH_VOLUME = "/v3/keywords_data/google_ads/search_volume/live"
 PATH_GOOGLE_TRENDS = "/v3/keywords_data/google_trends/explore/live"
 
-
-async def search_volume(
-    keywords: list[str], location_code: int, language_code: str
-) -> DfsResult:
-    payload = {
-        "keywords": keywords,
-        "location_code": location_code,
-        "language_code": language_code,
-    }
-    return await dfs_client.post(PATH_SEARCH_VOLUME, payload)
+# google_ads/search_volume/live is deliberately gone: Labs keyword_overview
+# returns the same volumes for 1.26c against its flat 9.00c and carries ~92
+# months of history instead of 12. The coalescer calls Labs and flattens the
+# rows back into this module's shape, so the parsers below are unchanged.
+# See docs/PROVIDER_STRATEGY.md.
 
 
 async def google_trends(

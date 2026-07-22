@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
 import { useDarkMode } from "@/lib/useDarkMode";
 import { useAuth } from "@/store/auth";
+import { ScrollToTop } from "@/components/shared/ScrollToTop";
 
 // lucide-react dropped brand glyphs for trademark reasons, so the social icons
 // are inlined as simple-icons paths (single 24×24 path each).
@@ -29,7 +30,7 @@ const BRAND = {
 } as const;
 
 const NAV = [
-  { to: "/free-tools", label: "Tools" },
+  { to: "/free-tools", label: "Free tools" },
   { to: "/features", label: "Features" },
   { to: "/pricing", label: "Pricing" },
   { to: "/blog", label: "Blog" },
@@ -60,8 +61,12 @@ const FOOTER_COLS: { title: string; links: { to: string; label: string; external
   {
     title: "Resources",
     links: [
+      // The three public, no-login tools. "Content Checker Tool" used to point
+      // at /content — the *authenticated* Content Analysis screen — so anyone
+      // clicking it from the footer was bounced to /login.
       { to: "/free-tools", label: "Free SEO Tools" },
-      { to: "/content", label: "Content Checker Tool" },
+      { to: "/content-checker", label: "Content Checker" },
+      { to: "/blog-title-generator", label: "Blog Title Generator" },
       { to: "/guides/technical-seo", label: "Technical SEO Guide" },
       { to: "/glossary", label: "SEO Glossary" },
       { to: "/blog", label: "Blog" },
@@ -322,6 +327,7 @@ export function PublicShell() {
           top padding to clear the fixed header), so main needs no top pad. */}
       <main className="flex-1">
         <Suspense fallback={<div className="min-h-[60vh]" />}>
+          <ScrollToTop />
           <Outlet />
         </Suspense>
       </main>

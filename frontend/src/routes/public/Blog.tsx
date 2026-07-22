@@ -33,8 +33,8 @@ export default function Blog() {
       <PublicHero
         align="left"
         eyebrow="Blog"
-        title="Insights on"
-        highlight="SEO, content & growth"
+        title="SEO playbooks that were"
+        highlight="actually run."
         subtitle="Practical guides, data-driven playbooks, and product updates from the seodada team — built to help your team rank, analyse, and publish better."
       >
         <div className="flex flex-wrap gap-2">

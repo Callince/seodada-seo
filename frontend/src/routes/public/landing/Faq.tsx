@@ -1,4 +1,5 @@
 import { ChevronDown } from "lucide-react";
+import { DisplayHeading } from "@/components/public/display";
 
 import { Reveal } from "@/components/public/landingKit";
 
@@ -18,7 +19,7 @@ export function Faq() {
     <section className="py-20 sm:py-28">
       <div className="mx-auto max-w-3xl px-4 sm:px-6">
         <Reveal className="text-center">
-          <h2 className="text-balance text-4xl font-extrabold tracking-tight sm:text-5xl">Frequently asked questions</h2>
+          <DisplayHeading>Frequently asked questions</DisplayHeading>
           <p className="mt-4 text-lg text-text-muted">Everything you need to know before you start.</p>
         </Reveal>
         <div className="mt-12 space-y-3">

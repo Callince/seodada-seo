@@ -27,8 +27,7 @@ from app.core.logging import log
 from app.db.models import User
 from app.integrations.dataforseo import serp as serp_api
 from app.integrations.dataforseo.client import DfsResult
-from app.integrations.free import brave
-from app.services import density, engine, providers, usage
+from app.services import density, engine, usage
 
 _MAX_COMPETITORS = 5
 _FETCH_TIMEOUT = 8.0
@@ -50,17 +49,14 @@ async def _fetch_metrics(url: str) -> dict | None:
     }
 
 
-async def _build_corpus(keyword: str, location_code: int, language_code: str, provider: str) -> DfsResult:
+async def _build_corpus(keyword: str, location_code: int, language_code: str) -> DfsResult:
     """SERP + competitor page fetches → a compact, cacheable corpus.
 
     Returned shape (single result row):
         {competitors_analyzed, word_counts[], heading_counts[], term_df{term:docs}}
     Cost is the SERP cost; the page fetches are free.
     """
-    if provider == "brave":
-        serp = await brave.organic(keyword, location_code, language_code, 10)
-    else:
-        serp = await serp_api.organic(keyword, location_code, language_code, 10)
+    serp = await serp_api.organic(keyword, location_code, language_code, 10)
 
     rows = serp_api.parse_organic(serp.result)
     urls = [r["url"] for r in rows if r.get("url")][:_MAX_COMPETITORS]
@@ -109,13 +105,14 @@ async def benchmark(
 ) -> dict | None:
     """Benchmark the analyzed page against the cached top-SERP corpus for `keyword`."""
     kw = keyword.strip().lower()
-    provider = providers.serp_provider()
     resolved = await usage.metered(
         db, user, "onpage.benchmark",
+        # "provider" is constant since Brave was removed; kept in the key so
+        # existing cached corpora keep hashing the same rather than re-billing.
         {"keyword": kw, "location_code": location_code,
-         "language_code": language_code, "provider": provider},
+         "language_code": language_code, "provider": "dataforseo"},
         engine.TTL["serp"],
-        lambda: _build_corpus(keyword, location_code, language_code, provider),
+        lambda: _build_corpus(keyword, location_code, language_code),
     )
     corpus = resolved.data[0] if resolved.data else None
     if not corpus or not corpus.get("competitors_analyzed"):

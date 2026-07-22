@@ -1,4 +1,5 @@
 import { ArrowRight, Briefcase, Building2, Check, PenLine, Rocket } from "lucide-react";
+import { DisplayHeading, GroupNumeral } from "@/components/public/display";
 import { Link } from "react-router-dom";
 
 import { Reveal } from "@/components/public/landingKit";
@@ -57,12 +58,13 @@ export function Roles() {
     <section className="py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal className="max-w-2xl">
+          <div className="mb-2"><GroupNumeral n={4} /></div>
           <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-ink">
             For your team
           </span>
-          <h2 className="mt-3 text-balance text-4xl font-extrabold leading-[1.02] tracking-tight sm:text-5xl">
+          <DisplayHeading className="mt-3">
             Whatever your role, an edge
-          </h2>
+          </DisplayHeading>
           <p className="mt-4 text-lg text-text-muted">
             The same engine, pointed at your job. Here is what each seat gets out of it.
           </p>

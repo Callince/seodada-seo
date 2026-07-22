@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { DisplayHeading, GroupNumeral } from "@/components/public/display";
 import { Activity, Radar, Rocket, Search, Sparkles, TrendingUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -56,10 +57,11 @@ export function Workflow() {
       <div className="lg:sticky lg:top-[var(--header-h)] lg:flex lg:min-h-[calc(100vh-var(--header-h))] lg:items-center">
         <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:py-24">
           <div>
-            <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-ink">Workflow</span>
-            <h2 className="mt-3 text-balance text-4xl font-extrabold tracking-tight sm:text-5xl">
+            <div className="mb-2"><GroupNumeral n={2} /></div>
+          <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-ink">Workflow</span>
+            <DisplayHeading className="mt-3">
               From audit to growth, on autopilot
-            </h2>
+            </DisplayHeading>
             <p className="mt-4 text-lg text-text-muted">
               A closed loop that keeps improving your visibility — you stay in control, the platform does the work.
             </p>

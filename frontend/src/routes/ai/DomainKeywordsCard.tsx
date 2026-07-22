@@ -2,7 +2,7 @@ import { Search } from "lucide-react";
 import { useState } from "react";
 
 import { apiErrorMessage } from "@/api/client";
-import { useDomainKeywords, type DomainKeywordRow } from "@/api/hooks/useAiVisibility";
+import { type useDomainKeywords, type DomainKeywordRow } from "@/api/hooks/useAiVisibility";
 import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
 import { EmptyState } from "@/components/shared/states";
@@ -81,8 +81,16 @@ const columns: Column<DomainKeywordRow>[] = [
  * lookup, so it stays behind an explicit click even though every other section
  * on this page piggybacks on the main run.
  */
-export function DomainKeywordsCard({ domain, live }: { domain: string; live: boolean }) {
-  const dk = useDomainKeywords();
+export function DomainKeywordsCard({
+  domain, live, dk,
+}: {
+  domain: string;
+  live: boolean;
+  /** Owned by the page, not this card, so the page-level Excel export can
+   *  include these rows — they are otherwise the one dataset the workbook
+   *  would silently miss. */
+  dk: ReturnType<typeof useDomainKeywords>;
+}) {
   const [ran, setRan] = useState(false);
 
   const run = () => {

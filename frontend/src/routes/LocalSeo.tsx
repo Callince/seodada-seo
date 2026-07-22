@@ -7,24 +7,15 @@ import { CacheBadge } from "@/components/shared/CacheBadge";
 import { DataTable, type Column } from "@/components/shared/DataTable";
 import { ExcelButton } from "@/components/shared/ExcelButton";
 import { MetricCard } from "@/components/shared/MetricCard";
+import { LocationLanguagePicker, locationLabel } from "@/components/shared/LocationLanguagePicker";
 import { EmptyState, ErrorState, PageHeader } from "@/components/shared/states";
 import { Button } from "@/components/ui/button";
 import { Card, CardBody } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fmtInt } from "@/lib/format";
 import { usePersistedState } from "@/lib/persist";
 import type { ListingRow, ListingsResponse } from "@/types";
-
-/** Quick presets for common Indian metros (lat, lng). */
-const CITIES: { label: string; lat: number; lng: number }[] = [
-  { label: "Chennai", lat: 13.0827, lng: 80.2707 },
-  { label: "Bengaluru", lat: 12.9716, lng: 77.5946 },
-  { label: "Mumbai", lat: 19.076, lng: 72.8777 },
-  { label: "Delhi", lat: 28.6139, lng: 77.209 },
-  { label: "Hyderabad", lat: 17.385, lng: 78.4867 },
-];
 
 const cols: Column<ListingRow>[] = [
   {
@@ -87,7 +78,9 @@ const cols: Column<ListingRow>[] = [
 
 export default function LocalSeo() {
   const [what, setWhat] = usePersistedState("local.what", "");
-  const [city, setCity] = usePersistedState("local.city", CITIES[0]);
+  // Chennai — the same shared picker every other page uses, so any of the
+  // seeded countries and cities is reachable here.
+  const [loc, setLoc] = usePersistedState("local.loc", { location_code: 1007809, language_code: "en" });
   const [result, setResult] = usePersistedState<ListingsResponse | null>("local.result", null);
   const [error, setError] = useState<string | null>(null);
 
@@ -100,9 +93,7 @@ export default function LocalSeo() {
     try {
       const data = await listings.mutateAsync({
         what: q,
-        lat: city.lat,
-        lng: city.lng,
-        radius_km: 25,
+        location_code: loc.location_code,
         limit: 50,
         force_live: force,
       });
@@ -118,7 +109,7 @@ export default function LocalSeo() {
       summary: {
         Report: "Local SEO listings",
         Search: result.what,
-        City: city.label,
+        Location: locationLabel(loc.location_code),
         Listings: result.rows.length,
         Generated: new Date().toLocaleString(),
       },
@@ -169,15 +160,12 @@ export default function LocalSeo() {
                 className="pl-9"
               />
             </div>
-            <Select
-              value={city.label}
-              onChange={(e) => setCity(CITIES.find((c) => c.label === e.target.value) ?? CITIES[0])}
-              aria-label="City"
-            >
-              {CITIES.map((c) => (
-                <option key={c.label}>{c.label}</option>
-              ))}
-            </Select>
+            <LocationLanguagePicker
+              value={loc}
+              onChange={setLoc}
+              className="md:w-64"
+              aria-label="Country or city"
+            />
             <Button type="submit" disabled={listings.isPending || !what.trim()}>
               <Search size={16} /> Search listings
             </Button>
@@ -188,8 +176,8 @@ export default function LocalSeo() {
             )}
           </form>
           <p className="mt-2.5 text-xs text-text-muted">
-            Searches a 25&nbsp;km radius around the selected city centre. Unclaimed profiles are
-            outreach opportunities.
+            Searches the selected city or country. Unclaimed profiles are outreach
+            opportunities.
           </p>
         </CardBody>
       </Card>

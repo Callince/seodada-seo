@@ -10,6 +10,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { DisplayHeading } from "@/components/public/display";
 
 import { AreaChart, CountUp, Reveal, ScoreRing } from "@/components/public/landingKit";
 import { sectionVars, type ModuleId } from "@/lib/sections";
@@ -207,9 +208,9 @@ export function ProductRail() {
           <Reveal className="flex flex-wrap items-end justify-between gap-4">
             <div className="max-w-2xl">
               <span className="text-sm font-semibold uppercase tracking-[0.18em] text-primary-ink">Product</span>
-              <h2 className="mt-3 text-balance text-4xl font-extrabold tracking-tight sm:text-5xl">
+              <DisplayHeading size="lg" className="mt-3">
                 Your entire SEO command center
-              </h2>
+              </DisplayHeading>
               <p className="mt-4 text-lg text-text-muted">
                 Every signal in one live workspace — keep scrolling to glide across the modules.
               </p>

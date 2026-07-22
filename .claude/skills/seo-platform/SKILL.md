@@ -54,10 +54,22 @@ Every response that hit a metered path carries the meta:
 ## Providers degrade gracefully
 
 Follow App A's pattern (`services/providers.py`): a feature has a primary provider
-and a free fallback. If a key is missing, silently degrade (e.g. Brave instead of
-DataForSEO SERP; OpenPageRank instead of paid authority; Unsplash instead of
-FLUX) and report the effective provider — never hard-crash on a missing key. All
-new config keys are **optional**.
+and a free fallback. If a key is missing, silently degrade (e.g. Google Trends
+instead of DataForSEO trends; OpenPageRank instead of paid authority; local
+VADER instead of DataForSEO content; Unsplash instead of FLUX) and report the
+effective provider — never hard-crash on a missing key. All new config keys are
+**optional**.
+
+Two rules learned the hard way (see `docs/PROVIDER_STRATEGY.md`):
+
+- **Only add a provider when the data is equivalent or better AND cheaper.**
+  Verify the price against the vendor's live pricing page, not memory — Brave was
+  carried for months as "the free SERP provider" after it had started charging
+  $5/1,000, which is 2.5× DataForSEO. It was removed entirely.
+- **A provider billing on its own invoice breaks cost reporting.** `usage_log`
+  has no `provider` column and `month_to_date_cents` sums every row, so a
+  non-DataForSEO paid provider either under-reports (cost 0) or corrupts the
+  DataForSEO spend figure. Add the column before adding such a provider.
 
 ## Frontend conventions
 

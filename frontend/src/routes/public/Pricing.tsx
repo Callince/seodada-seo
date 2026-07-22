@@ -2,6 +2,7 @@ import { ArrowRight, Check, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { getPage } from "@/content";
+import { DisplayHeading } from "@/components/public/display";
 import { PublicHero } from "@/components/public/PublicHero";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
@@ -114,9 +115,9 @@ export default function Pricing() {
       {/* ===== Hero ===== */}
       <PublicHero
         eyebrow="Pricing"
-        title="Simple,"
-        highlight="transparent pricing"
-        subtitle="Choose the plan that fits your SEO needs. Every plan unlocks the full analytics suite — you scale by how many analyses you run per day."
+        title="Every plan. Every tool."
+        highlight="No tiers to game."
+        subtitle="Each plan unlocks the full suite — nothing is held back for a higher tier. You scale on how many analyses you run per day, and that is the only thing that changes."
       />
 
       {/* ===== Plan cards ===== */}
@@ -188,7 +189,7 @@ export default function Pricing() {
 
         {/* ===== Bottom CTA ===== */}
         <div className="mx-auto my-16 max-w-4xl rounded-3xl border border-border bg-surface p-8 text-center shadow-sm sm:p-10">
-          <h2 className="text-2xl font-bold tracking-tight">Not sure which plan?</h2>
+          <DisplayHeading>Not sure which plan?</DisplayHeading>
           <p className="mx-auto mt-2 max-w-lg text-text-muted">
             Start free and upgrade any time, or talk to us about a custom volume plan for your team.
           </p>

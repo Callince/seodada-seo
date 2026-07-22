@@ -205,7 +205,10 @@ which is the bug this pattern exists to prevent.
 
 ### 3.4 Batch coalescing (`coalescer.py`)
 
-Sits *behind* the engine; `search_volume` only.
+Sits *behind* the engine; keyword search volume only. Upstream is Labs
+`keyword_overview`, chunked at its 700-keyword ceiling — the union across
+concurrent waiters can exceed what any single request asks for, and the endpoint
+truncates silently. See `docs/PROVIDER_STRATEGY.md` §3.
 
 ```
 t=0     req A wants [a,b]      ─┐
@@ -214,9 +217,12 @@ t=45ms  req C wants [d]        ─┘
 t=60ms  ONE upstream call for {a,b,c,d} → rows fanned back to A, B, C
 ```
 
-Cost is split **proportionally by keyword count, with the remainder given to the
-last waiter**, so attributed costs sum to the real upstream cost *exactly*.
-Naive rounding would drift and slowly mis-bill.
+Cost is split **proportionally by keyword count at 4dp, with the remainder given
+to the last waiter**, so attributed costs sum to the real upstream cost *exactly*.
+
+The 4dp matters: `cost_cents` is a float because DataForSEO bills sub-cent, and
+this call now costs ~1.2¢. Rounding to whole cents charged one waiter 1.000¢ and
+another 0.236¢ for an equal share of the same call.
 
 ### 3.5 Quota
 
@@ -405,7 +411,7 @@ Each module can independently swap to a free source:
 
 | module | paid | free | default |
 |---|---|---|---|
-| SERP | DataForSEO | Brave Search | DataForSEO |
+| SERP | DataForSEO (Google · Bing · Yahoo) | — | DataForSEO, engine per request |
 | On-page | DataForSEO | local fetch+parse | DataForSEO |
 | **Trends** | DataForSEO — 4.7–12.3 s, 1.1¢ | **Google Trends — 1.4–2.1 s, $0** | **Google** |
 | Content | DataForSEO | VADER over SERP corpus | DataForSEO |

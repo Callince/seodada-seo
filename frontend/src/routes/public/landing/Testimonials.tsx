@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { DisplayHeading } from "@/components/public/display";
 import { ChevronLeft, ChevronRight, Play, Star } from "lucide-react";
 import { useState } from "react";
 
@@ -28,7 +29,7 @@ export function Testimonials() {
               ))}
               <span className="ml-2 text-sm font-semibold text-text">4.9/5 · 500+ reviews</span>
             </div>
-            <h2 className="mt-3 text-balance text-4xl font-extrabold tracking-tight sm:text-5xl">Loved by SEO teams</h2>
+            <DisplayHeading className="mt-3">Loved by SEO teams</DisplayHeading>
           </div>
           <div className="flex gap-2">
             <button

@@ -1,99 +1,16 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Check, PhoneCall, Search, Sparkles, Star, X } from "lucide-react";
+import { ArrowRight, PhoneCall, Search, Sparkles, Star } from "lucide-react";
 import { useState } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 
-import { apiErrorMessage } from "@/api/client";
 import { usePublicAnalyze } from "@/api/hooks/usePublicAnalyze";
+import { AnalyzerResult } from "@/components/public/PageAnalyzer";
 import { Magnetic, Particles } from "@/components/public/landingKit";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/store/auth";
 
-/** A URL is analysable here; a bare keyword isn't — route those to the app. */
+/** A URL is analysable here; a bare keyword is not — route those to the app. */
 const looksLikeUrl = (q: string) => /\.[a-z]{2,}(\/|$|\?)/i.test(q.replace(/^https?:\/\//i, ""));
-
-/** The payoff: a real audit of the visitor's own page, inline, before signup.
- *  Shows genuine passes AND failures — a demo that only ever says "all good"
- *  proves nothing. The sign-up CTA is the next step, not the price of entry. */
-function InstantResult({
-  state,
-  onReset,
-}: {
-  state: ReturnType<typeof usePublicAnalyze>;
-  onReset: () => void;
-}) {
-  if (state.isPending) {
-    return (
-      <p className="mt-3 text-sm text-text-muted">
-        Fetching and analysing that page…
-      </p>
-    );
-  }
-  if (state.isError) {
-    const status = (state.error as { response?: { status?: number } })?.response?.status;
-    return (
-      <p className="mt-3 text-sm text-danger">
-        {status === 429
-          ? "That's a few checks in a row — give it a minute, or create a free account for unlimited runs."
-          : apiErrorMessage(state.error)}
-      </p>
-    );
-  }
-  const d = state.data;
-  if (!d) return null;
-
-  const tone = d.score >= 80 ? "text-success" : d.score >= 50 ? "text-warning" : "text-danger";
-  const failed = d.checks.filter((c) => !c.ok);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mx-auto mt-4 max-w-lg rounded-2xl border border-border bg-[var(--lp-glass)] p-4 text-left shadow-lg backdrop-blur"
-    >
-      <div className="flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <p className="truncate text-xs text-text-muted">{d.url}</p>
-          <p className="mt-0.5 text-sm font-semibold text-text">
-            <span className={`font-mono text-xl ${tone}`}>{d.score}%</span>{" "}
-            <span className="text-text-muted">— {d.passed} of {d.total} checks passed</span>
-          </p>
-        </div>
-        <button
-          onClick={onReset}
-          className="shrink-0 rounded-md px-2 py-1 text-xs text-text-muted hover:bg-surface-2 hover:text-text"
-        >
-          Clear
-        </button>
-      </div>
-
-      <ul className="mt-3 grid gap-1.5 sm:grid-cols-2">
-        {d.checks.map((c) => (
-          <li key={c.label} className="flex items-center gap-1.5 text-xs">
-            {c.ok ? (
-              <Check size={13} className="shrink-0 text-success" />
-            ) : (
-              <X size={13} className="shrink-0 text-danger" />
-            )}
-            <span className={c.ok ? "text-text-muted" : "font-medium text-text"}>{c.label}</span>
-          </li>
-        ))}
-      </ul>
-
-      <p className="mt-3 border-t border-border pt-3 text-xs text-text-muted">
-        {failed.length > 0
-          ? `${failed.length} issue${failed.length > 1 ? "s" : ""} found on this page. `
-          : "The basics look good. "}
-        Create a free account to crawl the whole site, track rankings, and see the full fix list.
-      </p>
-      <RouterLink to="/register" className="mt-2 inline-block">
-        <Button size="sm" className="rounded-full">
-          See the full report <ArrowRight size={14} />
-        </Button>
-      </RouterLink>
-    </motion.div>
-  );
-}
 
 export function Hero() {
   const authed = useAuth((s) => !!s.accessToken);
@@ -193,18 +110,18 @@ export function Hero() {
               as conviction. */}
           <motion.h1
             variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-            className="mt-5 text-balance text-[2.1rem] font-extrabold leading-[1.02] tracking-tight text-text sm:text-5xl sm:leading-[0.98] lg:text-6xl xl:text-[4.75rem] xl:leading-[0.95]"
+            className="mt-5 text-balance text-[2.1rem] font-black uppercase leading-[0.98] tracking-[-0.02em] text-text sm:text-5xl sm:leading-[0.95] lg:text-6xl xl:text-[4.75rem]"
           >
-            AI SEO
+            Rank in search.
             <br />
-            <span className="gradient-text-anim">Built for the Future of Search</span>
+            <span className="gradient-text-anim">And in the answers.</span>
           </motion.h1>
           <motion.p
             variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
             className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-text-muted sm:text-lg"
           >
-            One platform to research, audit, optimize and track — across classic search, AI answer
-            engines and generative results. Paste a URL and get a full breakdown in seconds.
+            One platform to research, audit, optimise and track — across classic search, AI answer
+            engines and generative results. Paste a URL and get the full breakdown in seconds.
           </motion.p>
 
           <motion.form
@@ -229,7 +146,7 @@ export function Hero() {
             </Button>
           </motion.form>
 
-          <InstantResult
+          <AnalyzerResult
             state={analyze}
             onReset={() => analyze.reset()}
           />

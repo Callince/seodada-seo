@@ -399,3 +399,41 @@ class EmailLog(Base):
     meta: Mapped[dict] = mapped_column(JsonType, default=dict)
     user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
+
+
+class Location(Base):
+    """Searchable country/city geo-targets, seeded from DataForSEO's own list.
+
+    The `code` is DataForSEO's `location_code` and is the whole point of this
+    table: every research endpoint takes that number, so any list not sourced
+    from DataForSEO would need a lossy name-join and would fail on a miss.
+    The upstream list is free to fetch (`/v3/serp/google/locations`, $0) and
+    re-seeding is idempotent — see `scripts/seed_locations.py`.
+
+    Only `Country` and `City` rows are kept. The full list is 267k entries, 76%
+    of which are postal codes, municipalities and neighbourhoods nobody picks
+    from a dropdown.
+    """
+
+    __tablename__ = "locations"
+
+    code: Mapped[int] = mapped_column(Integer, primary_key=True)  # DataForSEO location_code
+    # "Chennai,Tamil Nadu,India" upstream; split so the UI can show a clean
+    # primary label with the region as secondary text.
+    name: Mapped[str] = mapped_column(String(255), index=True)
+    region: Mapped[str] = mapped_column(String(255), default="")  # state/province, "" for countries
+    country_name: Mapped[str] = mapped_column(String(120), index=True)
+    country_iso: Mapped[str] = mapped_column(String(2), index=True)
+    kind: Mapped[str] = mapped_column(String(10), index=True)  # country | city
+    # Dominant Google language for the market, so picking a location still
+    # yields the {location_code, language_code} pair every route expects.
+    language_code: Mapped[str] = mapped_column(String(5), default="en")
+    # Lowercased "name region country" — one LIKE target for search, so a query
+    # can match a city, its state or its country without three OR branches.
+    search_blob: Mapped[str] = mapped_column(String(600), index=True)
+
+    __table_args__ = (
+        # Country-scoped city search ("cities in India matching 'che'") is the
+        # dropdown's main query; this serves it without scanning the table.
+        Index("ix_locations_country_kind", "country_iso", "kind"),
+    )

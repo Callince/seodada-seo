@@ -1,10 +1,13 @@
-import { Bot, Check, Minus, Sparkles } from "lucide-react";
+import { Bot, Check, Minus, Quote, Search, Sparkles, TrendingUp } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { apiErrorMessage } from "@/api/client";
-import { useAiVisibilityStatus, useAiVolume, useAskLlm, useLlmMentions, useStartAiVisibility } from "@/api/hooks/useAiVisibility";
+import {
+  useAiVisibilityStatus, useAiVolume, useDomainKeywords, useLlmMentions, useStartAiVisibility,
+} from "@/api/hooks/useAiVisibility";
 import { LocationLanguagePicker } from "@/components/shared/LocationLanguagePicker";
 import { CacheBadge } from "@/components/shared/CacheBadge";
+import { DataTable, type Column } from "@/components/shared/DataTable";
 import { ExcelButton } from "@/components/shared/ExcelButton";
 import { EmptyState, ErrorState } from "@/components/shared/states";
 import { AreaChart } from "@/components/public/landingKit";
@@ -15,11 +18,11 @@ import { DomainKeywordsCard } from "@/routes/ai/DomainKeywordsCard";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/cn";
 import { fmtInt } from "@/lib/format";
 import { dfsLocationName } from "@/lib/regionNames";
 import type { AiCitation, AiKeywordRow, AiVolumeRow, MentionDimensionRow } from "@/types";
 
-/** DataForSEO location codes we can name; anything else falls back to the raw code. */
 const languageNames = new Intl.DisplayNames(["en"], { type: "language" });
 
 function locationLabel(key: number | string | null): string {
@@ -43,41 +46,6 @@ function platformLabel(key: number | string | null): string {
   return PLATFORM_NAMES[k] ?? k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-/** One LLM-mentions dimension as a compact table (top rows only). */
-function DimTable({
-  title, rows, label, max = 6,
-}: {
-  title: string;
-  rows: MentionDimensionRow[];
-  label: (k: number | string | null) => string;
-  max?: number;
-}) {
-  if (!rows.length) return null;
-  return (
-    <div className="overflow-x-auto">
-      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-text-muted">{title}</p>
-      <table className="w-full text-sm">
-        <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-text-muted">
-          <tr>
-            <th scope="col" className="px-3 py-2 font-medium">{title}</th>
-            <th scope="col" className="px-3 py-2 text-right font-medium">Mentions</th>
-            <th scope="col" className="px-3 py-2 text-right font-medium">AI volume</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-border">
-          {rows.slice(0, max).map((row) => (
-            <tr key={String(row.key)} className="hover:bg-surface-2">
-              <td className="max-w-[220px] truncate px-3 py-2 font-medium text-text">{label(row.key)}</td>
-              <td className="px-3 py-2 text-right font-mono text-text">{fmtInt(row.mentions)}</td>
-              <td className="px-3 py-2 text-right font-mono text-text">{fmtInt(row.ai_search_volume)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 /** Last 6 monthly volumes, oldest first, for the tiny trend sparkline. */
 function trendValues(row: AiVolumeRow): number[] {
   return [...row.monthly]
@@ -86,14 +54,36 @@ function trendValues(row: AiVolumeRow): number[] {
     .map((p) => p.volume ?? 0);
 }
 
-function Tile({ label, value, accent }: { label: string; value: number; accent?: "primary" | "default" }) {
+/**
+ * One bento cell. `hint` is the point of this component: every number on this
+ * page is meaningless without a sentence saying what it counts, and the old
+ * layout showed bare figures under three-word labels.
+ */
+function Stat({
+  icon: Icon, label, value, hint, accent, className,
+}: {
+  icon: typeof Sparkles;
+  label: string;
+  value: string | number;
+  hint: string;
+  accent?: boolean;
+  className?: string;
+}) {
   return (
-    <Card>
-      <CardBody>
-        <p className="text-xs font-medium uppercase tracking-wide text-text-muted">{label}</p>
-        <p className={`mt-1 font-mono text-2xl ${accent === "primary" ? "text-[color:var(--section)]" : "text-text"}`}>
-          {fmtInt(value)}
+    <Card className={className}>
+      <CardBody className="flex h-full flex-col">
+        <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-text-muted">
+          <Icon size={13} /> {label}
         </p>
+        <p
+          className={cn(
+            "mt-1.5 font-mono text-3xl leading-none",
+            accent ? "text-[color:var(--section-ink)]" : "text-text",
+          )}
+        >
+          {typeof value === "number" ? fmtInt(value) : value}
+        </p>
+        <p className="mt-auto pt-2 text-xs leading-snug text-text-muted">{hint}</p>
       </CardBody>
     </Card>
   );
@@ -101,7 +91,7 @@ function Tile({ label, value, accent }: { label: string; value: number; accent?:
 
 /** Cited badge with the source URL + rank, or a muted dash when absent. */
 function CiteCell({ present, cite }: { present: boolean; cite: AiCitation }) {
-  if (!present) return <span className="text-text-muted">—</span>;
+  if (!present) return <span className="text-text-muted" title="No AI answer appeared for this keyword">—</span>;
   if (!cite.cited)
     return (
       <Badge tone="neutral" title="An AI answer showed, but your domain was not cited">
@@ -117,6 +107,47 @@ function CiteCell({ present, cite }: { present: boolean; cite: AiCitation }) {
   );
 }
 
+/** One LLM-mentions dimension as a compact ranked list. */
+function DimList({
+  title, rows, label, hint, max = 5,
+}: {
+  title: string;
+  rows: MentionDimensionRow[];
+  label: (k: number | string | null) => string;
+  hint: string;
+  max?: number;
+}) {
+  if (!rows.length) return null;
+  const top = rows.slice(0, max);
+  const peak = Math.max(...top.map((r) => r.mentions), 1);
+  return (
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">{title}</p>
+      <p className="mb-2 text-xs text-text-muted">{hint}</p>
+      <ul className="space-y-1.5">
+        {top.map((row) => (
+          <li key={String(row.key)} className="flex items-center gap-2">
+            <span className="w-32 shrink-0 truncate text-sm text-text" title={label(row.key)}>
+              {label(row.key)}
+            </span>
+            {/* A bar beats a number column here: the question is "which of these
+                dominates", which is a comparison, not a readout. */}
+            <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-2">
+              <span
+                className="block h-full rounded-full bg-[color:var(--section)]"
+                style={{ width: `${Math.max(4, (row.mentions / peak) * 100)}%` }}
+              />
+            </span>
+            <span className="w-12 shrink-0 text-right font-mono text-xs text-text-muted">
+              {fmtInt(row.mentions)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export default function AiVisibility() {
   const [domain, setDomain] = useState("");
   const [raw, setRaw] = useState("");
@@ -128,36 +159,24 @@ export default function AiVisibility() {
 
   const start = useStartAiVisibility();
   const status = useAiVisibilityStatus(taskId);
-
-  // AI Optimization API (GEO/AEO) sections
   const mentions = useLlmMentions();
   const aiVolume = useAiVolume();
-  const ask = useAskLlm();
-  const [prompt, setPrompt] = useState("");
-  const [model, setModel] = useState("gpt-4o-mini");
-
-  const runMentions = () => {
-    const d = domain.trim();
-    if (!d || mentions.isPending) return;
-    mentions.mutate({ domain: d, force_live: live });
-  };
-
-  const runAiVolume = () => {
-    if (keywords.length === 0 || aiVolume.isPending) return;
-    aiVolume.mutate({ keywords, force_live: live });
-  };
-
-  const runAsk = () => {
-    const p = prompt.trim();
-    if (!p || ask.isPending) return;
-    ask.mutate({ prompt: p, model_name: model, force_live: live });
-  };
+  // Owned here rather than inside DomainKeywordsCard so the single Excel export
+  // below can include the discovered keywords.
+  const domainKeywords = useDomainKeywords();
 
   const keywords = useMemo(
     () => Array.from(new Set(raw.split(/[\n,]+/).map((k) => k.trim().toLowerCase()).filter(Boolean))).slice(0, 20),
     [raw],
   );
 
+  /**
+   * One button runs the whole page.
+   *
+   * Previously each panel had its own "Run", so a full picture took four
+   * separate clicks and it was not obvious that the lower panels were even
+   * connected to the domain above them.
+   */
   const run = () => {
     const d = domain.trim();
     if (!d || keywords.length === 0) return;
@@ -166,13 +185,14 @@ export default function AiVisibility() {
       { domain: d, keywords, ...loc, device, include_ai_mode: aiMode, force_live: live },
       { onSuccess: (r) => setTaskId(r.task_id) },
     );
-    // Piggyback the LLM-mentions lookup on the main check — same domain, no extra click.
     if (!mentions.isPending) mentions.mutate({ domain: d, force_live: live });
+    if (!aiVolume.isPending) aiVolume.mutate({ keywords, force_live: live });
   };
 
   const s = status.data;
   const failed = s?.progress === "error" || s?.progress === "unknown";
   const running = !!taskId && !failed && (!s || s.progress !== "finished");
+  const done = s?.progress === "finished";
 
   // Cited rows first, then keywords that showed an AI answer, then the rest.
   const rows = useMemo(() => {
@@ -182,6 +202,24 @@ export default function AiVisibility() {
     return [...list].sort((a, b) => rank(a) - rank(b));
   }, [s?.rows]);
 
+  // The headline number. Share of *answered* keywords that cite you is the
+  // honest denominator: keywords where no AI answer appeared at all were never
+  // an opportunity to be cited, and counting them just dilutes the figure.
+  const answered = s ? s.summary.ai_overview_present : 0;
+  const citedCount = s ? s.summary.ai_overview_cited + s.summary.ai_mode_cited : 0;
+  const citeRate = answered > 0 ? Math.round((s!.summary.ai_overview_cited / answered) * 100) : null;
+
+  const verdict = (() => {
+    if (citeRate === null) return "No AI answers appeared for these keywords yet.";
+    if (citeRate === 0) return "AI answers appear, but never cite you. Those are your gaps.";
+    if (citeRate < 25) return "You are cited occasionally — most AI answers use other sources.";
+    if (citeRate < 60) return "A solid share of AI answers cite you. Room to grow.";
+    return "You are a primary source for these AI answers.";
+  })();
+
+  const anyData = done || !!mentions.data || !!aiVolume.data || !!domainKeywords.data;
+
+  /** Everything on the page, in one workbook. */
   const buildExcel = () => {
     const yn = (v: boolean) => (v ? "yes" : "no");
     const dims = mentions.data?.dimensions ?? {};
@@ -195,8 +233,15 @@ export default function AiVisibility() {
       summary: {
         Report: "AI Visibility",
         Domain: domain.trim(),
-        Keywords: keywords.length,
-        "LLM mentions": mentions.data?.mentions,
+        Market: locationLabel(loc.location_code),
+        Device: device,
+        "Keywords checked": s?.summary.keywords ?? keywords.length,
+        "AI Overviews shown": s?.summary.ai_overview_present ?? 0,
+        "Cited in AI Overview": s?.summary.ai_overview_cited ?? 0,
+        "Cited in AI Mode": s?.summary.ai_mode_cited ?? 0,
+        "Citation rate": citeRate === null ? "—" : `${citeRate}%`,
+        "LLM mentions": mentions.data?.mentions ?? 0,
+        "AI search volume": mentions.data?.ai_search_volume ?? 0,
         Generated: new Date().toLocaleString(),
       },
       sheets: [
@@ -248,53 +293,131 @@ export default function AiVisibility() {
             ai_search_volume: r.ai_search_volume,
           })) as unknown as Record<string, unknown>[],
         },
+        {
+          // The dataset the old export missed entirely — it lived in a child
+          // component that owned its own state.
+          name: "Discovered AI keywords",
+          columns: [
+            { header: "Question asked", key: "question", width: 60 },
+            { header: "AI volume", key: "ai_search_volume", width: 12 },
+            { header: "Seen on", key: "platforms", width: 24 },
+            { header: "Sources", key: "source_count", width: 10 },
+            { header: "Answer snippet", key: "answer_snippet", width: 80 },
+          ],
+          rows: (domainKeywords.data?.rows ?? []).map((r) => ({
+            question: r.question,
+            ai_search_volume: r.ai_search_volume,
+            platforms: (r.platforms.length ? r.platforms : [r.platform]).filter(Boolean).join("; "),
+            source_count: r.source_count,
+            answer_snippet: r.answer_snippet,
+          })) as unknown as Record<string, unknown>[],
+        },
       ],
     };
   };
 
+  const citationCols: Column<AiKeywordRow>[] = [
+    {
+      key: "keyword", header: "Keyword",
+      sortValue: (r) => r.keyword,
+      render: (r) => <span className="font-medium text-text">{r.keyword}</span>,
+    },
+    {
+      key: "ai_overview", header: "AI Overview",
+      sortValue: (r) => (r.ai_overview.cited ? 0 : r.ai_overview_present ? 1 : 2),
+      render: (r) => <CiteCell present={r.ai_overview_present} cite={r.ai_overview} />,
+      csvValue: (r) => (r.ai_overview.cited ? `cited #${r.ai_overview.position ?? ""}` : r.ai_overview_present ? "not cited" : "no answer"),
+    },
+    {
+      key: "ai_mode", header: "AI Mode",
+      sortValue: (r) => (r.ai_mode.cited ? 0 : r.ai_mode_present ? 1 : 2),
+      render: (r) =>
+        s?.include_ai_mode
+          ? <CiteCell present={r.ai_mode_present} cite={r.ai_mode} />
+          : <span className="inline-flex items-center text-text-muted" title="AI Mode was not included in this run"><Minus size={13} /></span>,
+      csvValue: (r) => (r.ai_mode.cited ? `cited #${r.ai_mode.position ?? ""}` : r.ai_mode_present ? "not cited" : "no answer"),
+    },
+    {
+      key: "cited_domains", header: "Who AI cited instead",
+      sortValue: (r) => r.cited_domains.length,
+      render: (r) =>
+        r.cited_domains.length === 0 ? (
+          <span className="text-text-muted">—</span>
+        ) : (
+          <span className="flex flex-wrap gap-1">
+            {r.cited_domains.slice(0, 6).map((d) => (
+              <span key={d} className="rounded-full bg-surface-2 px-1.5 py-0.5 text-[11px] text-text-muted">{d}</span>
+            ))}
+            {r.cited_domains.length > 6 && (
+              <span className="text-[11px] text-text-muted">+{r.cited_domains.length - 6}</span>
+            )}
+          </span>
+        ),
+      csvValue: (r) => r.cited_domains.join("; "),
+    },
+  ];
+
+  const volumeCols: Column<AiVolumeRow>[] = [
+    {
+      key: "keyword", header: "Prompt",
+      sortValue: (r) => r.keyword ?? "",
+      render: (r) => <span className="font-medium text-text">{r.keyword ?? "—"}</span>,
+    },
+    {
+      key: "ai_search_volume", header: "Asked / mo", align: "right", mono: true,
+      sortValue: (r) => r.ai_search_volume,
+      render: (r) => (r.ai_search_volume === null ? "—" : fmtInt(r.ai_search_volume)),
+    },
+    {
+      key: "trend", header: "Trend",
+      render: (r) => (
+        <div className="h-6 w-24">
+          {r.monthly.length > 1 && (
+            <AreaChart values={trendValues(r)} tone="violet" height={24} id={`aivol-${r.keyword}`} />
+          )}
+        </div>
+      ),
+      csvValue: (r) => trendValues(r).join(" "),
+    },
+  ];
+
   return (
     <div>
-      {/* AI hero — Track green */}
+      {/* Compact hero — the old one ran 8rem tall before any control appeared. */}
       <div
-        className="relative mb-5 overflow-hidden rounded-2xl p-6 text-white sm:p-8"
+        className="relative mb-4 overflow-hidden rounded-2xl p-5 text-white sm:p-6"
         style={{
           background:
             "linear-gradient(135deg, color-mix(in srgb, var(--section) 38%, #000), color-mix(in srgb, var(--section) 50%, #000) 48%, var(--section))",
         }}
       >
         <div className="cyber-grid pointer-events-none absolute inset-0 opacity-[0.15]" aria-hidden />
-        <div
-          className="float-slow pointer-events-none absolute -right-10 -top-12 h-64 w-64 rounded-full blur-3xl"
-          style={{ background: "color-mix(in srgb, var(--section) 30%, transparent)" }}
-          aria-hidden
-        />
-        <div className="relative z-10 flex items-start gap-4">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/15 backdrop-blur">
-            <Sparkles size={24} />
+        <div className="relative z-10 flex items-start gap-3">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/15 backdrop-blur">
+            <Sparkles size={20} />
           </span>
           <div>
-            <span className="inline-flex items-center rounded-full bg-white/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide backdrop-blur">
-              AI Search
-            </span>
-            <h1 className="mt-1.5 text-2xl font-extrabold tracking-tight">AI Visibility</h1>
-            <p className="mt-1 max-w-2xl text-sm text-white/80">
-              See which keywords trigger a Google AI Overview or AI Mode answer — and whether your
-              site is cited as a source. The keywords you "rank" for in AI.
+            <h1 className="text-xl font-extrabold tracking-tight">AI Visibility</h1>
+            <p className="mt-0.5 max-w-2xl text-sm text-white/80">
+              When someone asks Google or an LLM about your topic, does the answer cite you? This
+              checks each keyword and shows who gets cited instead.
             </p>
           </div>
         </div>
       </div>
 
-      <Card className="mb-5">
+      {/* ── Setup ─────────────────────────────────────────────────────────── */}
+      <Card className="mb-4">
         <CardBody className="space-y-3">
           <div className="flex flex-col gap-3 md:flex-row">
             <Input
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
               placeholder="Your domain — e.g. komaki.in"
+              aria-label="Domain"
               className="md:flex-1"
             />
-            <LocationLanguagePicker value={loc} onChange={setLoc} />
+            <LocationLanguagePicker value={loc} onChange={setLoc} className="md:w-56" />
             <Select value={device} onChange={(e) => setDevice(e.target.value as "desktop" | "mobile")} aria-label="Device">
               <option value="desktop">Desktop</option>
               <option value="mobile">Mobile</option>
@@ -303,8 +426,9 @@ export default function AiVisibility() {
           <textarea
             value={raw}
             onChange={(e) => setRaw(e.target.value)}
-            rows={4}
-            placeholder={"One keyword per line (or comma-separated) — up to 20.\nbest electric scooter in india\nelectric scooter under 50000\nelectric scooter price in india"}
+            rows={3}
+            aria-label="Keywords"
+            placeholder={"One keyword per line (or comma-separated) — up to 20.\nbest electric scooter in india\nelectric scooter under 50000"}
             className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--section)]"
           />
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -319,24 +443,25 @@ export default function AiVisibility() {
                 Live
               </label>
             </div>
-            <Button onClick={run} loading={start.isPending} disabled={!domain.trim() || keywords.length === 0 || running}>
-              {!start.isPending && <Sparkles size={16} />} Check AI visibility
-            </Button>
+            <div className="flex items-center gap-2">
+              <ExcelButton
+                filename={`ai-visibility-${domain.trim() || "report"}`}
+                build={buildExcel}
+                disabled={!anyData}
+              />
+              <Button onClick={run} loading={start.isPending} disabled={!domain.trim() || keywords.length === 0 || running}>
+                {!start.isPending && <Sparkles size={16} />} Check AI visibility
+              </Button>
+            </div>
           </div>
+          <p className="text-xs text-text-muted">
+            One run fetches citations, LLM mentions and AI prompt volume together — the Excel export
+            carries every table on this page in a single workbook.
+          </p>
         </CardBody>
       </Card>
 
-      {/* Sits ABOVE the check flow and outside its gate on purpose. Everything
-          below requires keywords you already have; this is the tool for when
-          you do not — locking it behind a finished check meant you had to guess
-          keywords and pay for a run before you could discover the real ones.
-          It was placed inside that block first, which made it invisible until
-          the one thing it replaces had already been done. */}
-      <div className="mb-5">
-        <DomainKeywordsCard domain={domain} live={live} />
-      </div>
-
-      {!taskId && !start.isPending && !start.isError && (
+      {!taskId && !start.isPending && !start.isError && !anyData && (
         <EmptyState
           title="Check your AI search visibility"
           hint="Enter your domain and the keywords you care about. We ask Google's AI Overview and AI Mode for each one and show where your site is cited."
@@ -344,18 +469,14 @@ export default function AiVisibility() {
       )}
 
       {start.isError && <ErrorState message={apiErrorMessage(start.error)} onRetry={run} />}
-      {failed && taskId && (
-        <ErrorState message={s?.error || "The check could not be completed."} onRetry={run} />
-      )}
+      {failed && taskId && <ErrorState message={s?.error || "The check could not be completed."} onRetry={run} />}
 
       {running && taskId && (
         <Card>
           <CardBody className="flex flex-col items-center gap-3 py-10 text-center">
             <Bot size={32} className="animate-pulse text-[color:var(--section)]" />
             <p className="text-sm font-medium text-text">Querying Google AI for {domain.trim()}…</p>
-            <p className="text-sm text-text-muted">
-              {s ? `${s.checked} / ${s.total} keywords checked` : "Starting…"}
-            </p>
+            <p className="text-sm text-text-muted">{s ? `${s.checked} / ${s.total} keywords checked` : "Starting…"}</p>
             <div className="h-2 w-64 overflow-hidden rounded-full bg-surface-2">
               <div
                 className="section-gradient h-full rounded-full transition-all duration-500"
@@ -366,254 +487,137 @@ export default function AiVisibility() {
         </Card>
       )}
 
-      {s && s.progress === "finished" && (
-        <div className="animate-fade-rise space-y-5">
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            <Tile label="Keywords" value={s.summary.keywords} />
-            <Tile label="AI Overviews shown" value={s.summary.ai_overview_present} />
-            <Tile label="Cited in AI Overview" value={s.summary.ai_overview_cited} accent="primary" />
-            <Tile label="Cited in AI Mode" value={s.summary.ai_mode_cited} accent="primary" />
-          </div>
+      {/* ── Bento: headline + supporting stats ────────────────────────────── */}
+      {done && (
+        <div className="animate-fade-rise mb-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <Card className="md:col-span-2 xl:row-span-2">
+            <CardBody className="flex h-full flex-col justify-center py-6">
+              <p className="text-xs font-medium uppercase tracking-wide text-text-muted">Citation rate</p>
+              <p className="mt-1 font-mono text-6xl leading-none text-[color:var(--section-ink)]">
+                {citeRate === null ? "—" : `${citeRate}%`}
+              </p>
+              <p className="mt-3 max-w-md text-sm text-text">{verdict}</p>
+              <p className="mt-1.5 text-xs text-text-muted">
+                {answered === 0
+                  ? "No AI Overview appeared for any of these keywords."
+                  : `${fmtInt(s!.summary.ai_overview_cited)} of ${fmtInt(answered)} keywords that produced an AI Overview cite ${domain.trim()}. Keywords with no AI answer are excluded — they were never a chance to be cited.`}
+              </p>
+            </CardBody>
+          </Card>
 
-          <Card>
-            <CardHeader className="flex flex-wrap items-center justify-between gap-3">
-              <CardTitle>Keyword AI citations — cited first</CardTitle>
-              <ExcelButton filename={`ai-visibility-${domain.trim()}`} build={buildExcel} />
+          <Stat
+            icon={Search} label="Keywords checked" value={s!.summary.keywords}
+            hint="Every keyword we asked Google AI about."
+          />
+          <Stat
+            icon={Sparkles} label="AI answers shown" value={s!.summary.ai_overview_present}
+            hint="Keywords where an AI Overview actually appeared."
+          />
+          <Stat
+            icon={Quote} label="Times you were cited" value={citedCount} accent
+            hint="Across AI Overview and AI Mode combined."
+          />
+          <Stat
+            icon={Bot} label="LLM mentions" value={mentions.data ? mentions.data.mentions : "—"}
+            hint={mentions.data ? "Answers naming your domain across LLM platforms." : "Runs with the main check."}
+          />
+        </div>
+      )}
+
+      {/* ── Bento: the two detail panels ───────────────────────────────────
+          `min-w-0` on the grid children below is load-bearing: a grid item
+          defaults to `min-width: auto`, so a DataTable's min-content width
+          forces the column wider than the viewport and the table's own
+          `overflow-x:auto` never engages. Without it this row measured 1161px
+          wide on a 375px screen. */}
+      {done && (
+        <div className="mb-4 grid gap-4 xl:grid-cols-3">
+          <Card className="min-w-0 xl:col-span-2">
+            <CardHeader className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <CardTitle>Keyword by keyword</CardTitle>
+                <p className="mt-0.5 text-xs text-text-muted">
+                  Cited first. “—” means no AI answer appeared at all.
+                </p>
+              </div>
             </CardHeader>
-            <CardBody className="overflow-x-auto p-0">
-              <table className="w-full text-sm">
-                <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-text-muted">
-                  <tr>
-                    <th className="px-4 py-2.5 font-medium">Keyword</th>
-                    <th className="px-4 py-2.5 font-medium">AI Overview</th>
-                    <th className="px-4 py-2.5 font-medium">AI Mode</th>
-                    <th className="px-4 py-2.5 font-medium">Also cited by Google AI</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {rows.map((r) => (
-                    <tr key={r.keyword} className="hover:bg-surface-2">
-                      <td className="px-4 py-2.5 font-medium text-text">{r.keyword}</td>
-                      <td className="px-4 py-2.5"><CiteCell present={r.ai_overview_present} cite={r.ai_overview} /></td>
-                      <td className="px-4 py-2.5">
-                        {s.include_ai_mode ? <CiteCell present={r.ai_mode_present} cite={r.ai_mode} /> : <span className="inline-flex items-center text-text-muted"><Minus size={13} /></span>}
-                      </td>
-                      <td className="px-4 py-2.5">
-                        {r.cited_domains.length === 0 ? (
-                          <span className="text-text-muted">—</span>
-                        ) : (
-                          <span className="flex flex-wrap gap-1">
-                            {r.cited_domains.slice(0, 8).map((d) => (
-                              <span key={d} className="rounded-full bg-surface-2 px-1.5 py-0.5 text-[11px] text-text-muted">{d}</span>
-                            ))}
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <CardBody className="p-0">
+              <DataTable columns={citationCols} rows={rows} csvName={`ai-citations-${domain.trim()}`} />
+            </CardBody>
+          </Card>
+
+          <Card className="min-w-0">
+            <CardHeader className="flex items-center justify-between gap-2">
+              <CardTitle>Where AI sees you</CardTitle>
+              {mentions.data && <CacheBadge meta={mentions.data.meta} />}
+            </CardHeader>
+            <CardBody className="space-y-4">
+              {mentions.isPending && <><Skeleton className="h-20" /><Skeleton className="h-20" /></>}
+              {mentions.isError && <p className="text-sm text-danger">{apiErrorMessage(mentions.error)}</p>}
+              {!mentions.isPending && !mentions.data && (
+                <p className="text-sm text-text-muted">Runs automatically with the main check.</p>
+              )}
+              {!mentions.isPending && mentions.data && (
+                <>
+                  <DimList
+                    title="Platforms" rows={mentions.data.dimensions.platform ?? []}
+                    label={platformLabel} hint="Which AI engines mention you."
+                  />
+                  <DimList
+                    title="Top sources" rows={mentions.data.dimensions.sources_domain ?? []}
+                    label={(k) => String(k ?? "—")}
+                    hint="Sites AI cites alongside you — earn a mention on these."
+                  />
+                  <DimList
+                    title="Locations" rows={mentions.data.dimensions.location ?? []}
+                    label={locationLabel} hint="Markets where you come up."
+                  />
+                </>
+              )}
             </CardBody>
           </Card>
         </div>
       )}
 
-      <div className="mt-5 space-y-5">
-        {/* 1 — LLM mentions of the domain across AI answers */}
-        <Card>
-          <CardHeader className="flex items-center justify-between gap-3">
-            <CardTitle>LLM mentions</CardTitle>
-            <div className="flex items-center gap-2">
-              {mentions.data && <CacheBadge meta={mentions.data.meta} />}
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={runMentions}
-                loading={mentions.isPending}
-                disabled={!domain.trim()}
-              >
-                Run
-              </Button>
+      {/* ── Bento: demand + discovery ─────────────────────────────────────── */}
+      <div className="grid gap-4 xl:grid-cols-2">
+        <Card className="min-w-0">
+          <CardHeader className="flex items-center justify-between gap-2">
+            <div>
+              <CardTitle>How often these are asked</CardTitle>
+              <p className="mt-0.5 text-xs text-text-muted">
+                Monthly prompt volume to LLMs — the AI-era counterpart to search volume.
+              </p>
             </div>
+            {aiVolume.data && <CacheBadge meta={aiVolume.data.meta} />}
           </CardHeader>
-          <CardBody className="space-y-4">
-            <p className="text-sm text-text-muted">
-              How often LLMs mention {domain.trim() || "your domain"} in their answers, and the AI search volume behind those prompts.
-            </p>
-            {mentions.isPending && (
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-4">
-                  <Skeleton className="h-16" />
-                  <Skeleton className="h-16" />
-                </div>
-                <Skeleton className="h-24" />
-              </div>
+          <CardBody className={aiVolume.data ? "p-0" : undefined}>
+            {aiVolume.isPending && <div className="space-y-2 p-5"><Skeleton className="h-8" /><Skeleton className="h-8" /></div>}
+            {aiVolume.isError && <p className="p-5 text-sm text-danger">{apiErrorMessage(aiVolume.error)}</p>}
+            {!aiVolume.isPending && !aiVolume.data && (
+              <p className="text-sm text-text-muted">Runs automatically with the main check.</p>
             )}
-            {mentions.isError && <p className="text-sm text-danger">{apiErrorMessage(mentions.error)}</p>}
-            {!mentions.isPending && mentions.data && (
-              <>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="rounded-md bg-surface-2 p-4">
-                    <p className="text-xs font-medium uppercase tracking-wide text-text-muted">Mentions</p>
-                    <p className="mt-1 font-mono text-2xl text-[color:var(--section)]">{fmtInt(mentions.data.mentions)}</p>
-                  </div>
-                  <div className="rounded-md bg-surface-2 p-4">
-                    <p className="text-xs font-medium uppercase tracking-wide text-text-muted">AI search volume</p>
-                    <p className="mt-1 font-mono text-2xl text-text">{fmtInt(mentions.data.ai_search_volume)}</p>
-                  </div>
-                </div>
-                <div className="grid gap-6 lg:grid-cols-2">
-                  <DimTable
-                    title="Platform"
-                    rows={mentions.data.dimensions.platform ?? []}
-                    label={platformLabel}
-                  />
-                  <DimTable
-                    title="Language"
-                    rows={mentions.data.dimensions.language ?? []}
-                    label={languageLabel}
-                  />
-                  <DimTable
-                    title="Location"
-                    rows={mentions.data.dimensions.location ?? []}
-                    label={locationLabel}
-                  />
-                  <DimTable
-                    title="Top sources"
-                    rows={mentions.data.dimensions.sources_domain ?? []}
-                    label={(k) => String(k ?? "—")}
-                  />
-                </div>
-                {(mentions.data.dimensions.sources_domain ?? []).length > 0 && (
-                  <p className="text-xs text-text-muted">
-                    Top sources are the domains LLMs cite in answers that mention {mentions.data.domain} —
-                    getting featured on these sites grows your AI visibility.
-                  </p>
-                )}
-              </>
-            )}
-          </CardBody>
-        </Card>
-
-        {/* 2 — AI (LLM prompt) search volume for the entered keywords */}
-        <Card>
-          <CardHeader className="flex items-center justify-between gap-3">
-            <CardTitle>AI search volume</CardTitle>
-            <div className="flex items-center gap-2">
-              {aiVolume.data && <CacheBadge meta={aiVolume.data.meta} />}
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={runAiVolume}
-                loading={aiVolume.isPending}
-                disabled={keywords.length === 0}
-              >
-                Run
-              </Button>
-            </div>
-          </CardHeader>
-          <CardBody className="space-y-4">
-            <p className="text-sm text-text-muted">
-              How often your keywords are asked to LLMs each month — the AI-era counterpart to Google search volume.
-            </p>
-            {aiVolume.isPending && (
-              <div className="space-y-2">
-                <Skeleton className="h-8" />
-                <Skeleton className="h-8" />
-                <Skeleton className="h-8" />
-              </div>
-            )}
-            {aiVolume.isError && <p className="text-sm text-danger">{apiErrorMessage(aiVolume.error)}</p>}
             {!aiVolume.isPending && aiVolume.data && (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-text-muted">
-                    <tr>
-                      <th className="px-3 py-2 font-medium">Keyword</th>
-                      <th className="px-3 py-2 font-medium">AI volume/mo</th>
-                      <th className="px-3 py-2 font-medium">Trend</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {aiVolume.data.rows.map((row, i) => (
-                      <tr key={row.keyword ?? i} className="hover:bg-surface-2">
-                        <td className="px-3 py-2 font-medium text-text">{row.keyword ?? "—"}</td>
-                        <td className="px-3 py-2 font-mono text-text">
-                          {row.ai_search_volume === null ? "—" : fmtInt(row.ai_search_volume)}
-                        </td>
-                        <td className="px-3 py-2">
-                          <div className="h-6 w-24">
-                            {row.monthly.length > 1 && (
-                              <AreaChart values={trendValues(row)} tone="violet" height={24} id={`aivol-${i}`} />
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DataTable columns={volumeCols} rows={aiVolume.data.rows} csvName={`ai-volume-${domain.trim()}`} />
             )}
           </CardBody>
         </Card>
 
-        {/* 3 — Ask a live LLM and see whether the domain shows up in the answer */}
-        <Card>
-          <CardHeader className="flex items-center justify-between gap-3">
-            <CardTitle>Ask an LLM</CardTitle>
-            {ask.data && (
-              <div className="flex items-center gap-2">
-                {ask.data.model && <Badge tone="neutral">{ask.data.model}</Badge>}
-                <CacheBadge meta={ask.data.meta} />
-              </div>
-            )}
-          </CardHeader>
-          <CardBody className="space-y-3">
-            <p className="text-sm text-text-muted">
-              Send a real prompt to an LLM and read the raw answer — the fastest way to see if your brand comes up.
-            </p>
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              rows={3}
-              placeholder="e.g. best electric scooter brands in India"
-              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--section)]"
-            />
-            <div className="flex flex-wrap items-center justify-end gap-3">
-              <Select value={model} onChange={(e) => setModel(e.target.value)} aria-label="Model">
-                <option value="gpt-4o-mini">gpt-4o-mini</option>
-                <option value="gpt-4o">gpt-4o</option>
-              </Select>
-              <Button onClick={runAsk} loading={ask.isPending} disabled={!prompt.trim()}>
-                {!ask.isPending && <Bot size={16} />} Ask
-              </Button>
-            </div>
-            {ask.isPending && (
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-5/6" />
-                <Skeleton className="h-4 w-2/3" />
-              </div>
-            )}
-            {ask.isError && <p className="text-sm text-danger">{apiErrorMessage(ask.error)}</p>}
-            {!ask.isPending && ask.data && (
-              <div className="space-y-2">
-                {domain.trim() &&
-                  (ask.data.answer.toLowerCase().includes(domain.trim().toLowerCase()) ? (
-                    <Badge tone="success">
-                      <Check size={12} /> your domain is mentioned
-                    </Badge>
-                  ) : (
-                    <Badge tone="neutral">not mentioned in this answer</Badge>
-                  ))}
-                <div className="whitespace-pre-wrap rounded-md bg-surface-2 p-4 text-sm text-text">
-                  {ask.data.answer}
-                </div>
-              </div>
-            )}
-          </CardBody>
-        </Card>
+        {/* Deliberately outside the results gate: this is the tool for when you
+            do NOT yet have keywords, so locking it behind a finished run would
+            mean guessing keywords and paying for a check first. */}
+        <div className="min-w-0">
+          <DomainKeywordsCard domain={domain} live={live} dk={domainKeywords} />
+        </div>
       </div>
+
+      {done && (
+        <p className="mt-4 flex items-center gap-1.5 text-xs text-text-muted">
+          <TrendingUp size={13} />
+          Being cited is the AI-era equivalent of ranking. Target the keywords showing “not cited” —
+          an AI answer already exists there, it just uses someone else as the source.
+        </p>
+      )}
     </div>
   );
 }

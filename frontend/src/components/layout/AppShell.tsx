@@ -7,6 +7,7 @@ import { CommandPalette } from "@/components/shared/CommandPalette";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/toaster";
 import { moduleForPath, sectionVars } from "@/lib/sections";
+import { ScrollToTop } from "@/components/shared/ScrollToTop";
 
 export function AppShell() {
   const [navOpen, setNavOpen] = useState(false);
@@ -51,6 +52,7 @@ export function AppShell() {
               {/* Re-key on path so the CSS fade-rise replays on each navigation
                   (zero-JS page transition — no Framer Motion in the bundle). */}
               <div key={location.pathname} className="animate-fade-rise">
+                <ScrollToTop />
                 <Outlet />
               </div>
             </Suspense>

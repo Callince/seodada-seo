@@ -5,7 +5,6 @@ from app.api.deps import current_user, get_db_session
 from app.db.models import User
 from app.integrations.dataforseo import content as content_api
 from app.integrations.dataforseo import serp as serp_api
-from app.integrations.free import brave
 from app.schemas.content import ContentRequest, ContentResponse, PhraseTrendsResponse, SentimentResponse
 from app.services import engine, providers, sentiment, usage
 
@@ -21,21 +20,18 @@ async def analyze(
     keyword = body.keyword.strip().lower()
 
     if providers.content_provider() == "local":
-        # Gather a corpus from the SERP (Brave if configured, else DataForSEO),
-        # then score sentiment + connotations locally with VADER ($0 analysis).
-        serp_provider = providers.serp_provider()
-        depth = min(body.citation_limit, 20 if serp_provider == "brave" else 100)
-        if serp_provider == "brave":
-            endpoint = "serp.brave"
-            fetch_fn = lambda: brave.organic(keyword, 2840, "en", depth)  # noqa: E731
-        else:
-            endpoint = "serp.organic"
-            fetch_fn = lambda: serp_api.organic(keyword, 2840, "en", depth)  # noqa: E731
+        # Gather a corpus from the DataForSEO SERP, then score sentiment +
+        # connotations locally with VADER ($0 analysis).
+        depth = min(body.citation_limit, 100)
+        fetch_fn = lambda: serp_api.organic(keyword, 2840, "en", depth)  # noqa: E731
 
         resolved = await usage.metered(
-            db, user, endpoint,
+            db, user, "serp.organic",
+            # "provider" is a constant now that Brave is gone. Kept in the key
+            # so existing cache entries still hash the same — dropping it would
+            # invalidate every cached SERP and re-bill them.
             {"keyword": keyword, "location_code": 2840, "language_code": "en",
-             "depth": depth, "provider": serp_provider},
+             "depth": depth, "provider": "dataforseo"},
             engine.TTL["serp"],
             fetch_fn,
             force_live=body.force_live,

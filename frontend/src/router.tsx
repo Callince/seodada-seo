@@ -20,9 +20,11 @@ const PublicShell = lazy(() =>
 );
 const Landing = lazy(() => import("@/routes/public/Landing"));
 const Features = lazy(() => import("@/routes/public/Features"));
-const FreeTools = lazy(() => import("@/routes/public/FreeTools"));
 const Pricing = lazy(() => import("@/routes/public/Pricing"));
 const ContentPage = lazy(() => import("@/routes/public/ContentPage"));
+const FreeTools = lazy(() => import("@/routes/public/FreeTools"));
+const BlogTitleGenerator = lazy(() => import("@/routes/public/BlogTitleGenerator"));
+const ContentChecker = lazy(() => import("@/routes/public/ContentChecker"));
 const Contact = lazy(() => import("@/routes/public/Contact"));
 const Blog = lazy(() => import("@/routes/public/Blog"));
 const BlogPost = lazy(() => import("@/routes/public/BlogPost"));
@@ -100,7 +102,12 @@ export const routes: RouteObject[] = [
     children: [
       { path: "/", element: <Landing /> },
       { path: "/features", element: <Features /> },
+      // Public on purpose — NOT inside RequireAuth. These tools were gated,
+      // so a visitor clicking a "free tool" was redirected to /login.
       { path: "/free-tools", element: <FreeTools /> },
+      // Same URL as the seodada original so existing links and rankings hold.
+      { path: "/blog-title-generator", element: <BlogTitleGenerator /> },
+      { path: "/content-checker", element: <ContentChecker /> },
       { path: "/pricing", element: <Pricing /> },
       { path: "/about", element: <ContentPage slug="about" title="About seodada" /> },
       { path: "/help", element: <ContentPage slug="help" title="Help center" /> },
