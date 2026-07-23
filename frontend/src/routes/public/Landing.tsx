@@ -20,7 +20,9 @@ const SITE_JSONLD = [
     "@type": "Organization",
     name: "seodada",
     url: SITE_URL,
-    logo: `${SITE_URL}/favicon.svg`,
+    // The 512px raster, not favicon.svg: Google requires a real bitmap it can
+    // crop for the knowledge panel, and this is the same mark as the favicon.
+    logo: `${SITE_URL}/icon-512.png`,
     sameAs: [
       "https://www.linkedin.com/company/seodada/",
       "https://www.instagram.com/seodada1",

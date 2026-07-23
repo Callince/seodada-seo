@@ -50,7 +50,7 @@ export default function PillarGuide() {
     publisher: {
       "@type": "Organization",
       name: "seodada",
-      logo: { "@type": "ImageObject", url: `${SITE_URL}/favicon.svg` },
+      logo: { "@type": "ImageObject", url: `${SITE_URL}/icon-512.png` },
     },
     mainEntityOfPage: `${SITE_URL}/guides/technical-seo`,
   };
