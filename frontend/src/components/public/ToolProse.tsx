@@ -123,30 +123,39 @@ export function ToolFaqs({ faqs, subtitle }: { faqs: ToolFaq[]; subtitle?: strin
     // Same 6xl grid as ToolProse so the two blocks read as one column of
     // content rather than two differently-sized slabs.
     <section className="mx-auto grid max-w-6xl gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-14">
-      <div className="lg:pt-1">
-        <DisplayHeading>Frequently asked questions</DisplayHeading>
-        {subtitle && <p className="mt-2 text-sm text-text-muted">{subtitle}</p>}
-      </div>
+      {/* Empty cell mirroring ToolProse's contents rail, so the FAQ block lines
+          up with the prose above it.
 
-      <div className="min-w-0 space-y-3">
-        {faqs.map((f) => (
-          <details
-            key={f.q}
-            className="group rounded-xl border border-border bg-surface transition-colors open:border-[color:var(--primary)]/40 open:shadow-sm hover:border-[color:var(--primary)]/40"
-          >
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 text-sm font-semibold text-text marker:content-['']">
-              {f.q}
-              <ChevronDown
-                size={16}
-                className="shrink-0 text-text-muted transition-transform group-open:rotate-180"
-                aria-hidden
-              />
-            </summary>
-            <p className="border-t border-border px-4 py-4 text-sm leading-relaxed text-text-muted">
-              {f.a}
-            </p>
-          </details>
-        ))}
+          The heading does NOT go in this column. It is display type — "FREQUENTLY"
+          alone measures 319px at 48px — and the rail is 200px wide, sized for the
+          small nav links it holds in ToolProse. Putting the heading here painted
+          the glyphs straight over the cards. */}
+      <div className="hidden lg:block" aria-hidden />
+
+      <div className="min-w-0">
+        <DisplayHeading>Frequently asked questions</DisplayHeading>
+        {subtitle && <p className="mt-3 text-text-muted">{subtitle}</p>}
+
+        <div className="mt-8 space-y-3">
+          {faqs.map((f) => (
+            <details
+              key={f.q}
+              className="group rounded-xl border border-border bg-surface transition-colors open:border-[color:var(--primary)]/40 open:shadow-sm hover:border-[color:var(--primary)]/40"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4 text-sm font-semibold text-text marker:content-['']">
+                {f.q}
+                <ChevronDown
+                  size={16}
+                  className="shrink-0 text-text-muted transition-transform group-open:rotate-180"
+                  aria-hidden
+                />
+              </summary>
+              <p className="border-t border-border px-4 py-4 text-sm leading-relaxed text-text-muted">
+                {f.a}
+              </p>
+            </details>
+          ))}
+        </div>
       </div>
     </section>
   );
